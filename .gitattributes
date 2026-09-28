@@ -1,0 +1,2 @@
+# Normalize line endings so Windows and Mac members don't produce noisy diffs
+* text=auto eol=lf
