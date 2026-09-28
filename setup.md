@@ -2,6 +2,11 @@
 
 Goal: get the game running on your machine and push your first commit. About 15 minutes.
 
+## 0. GitHub account + accept the invite
+
+- Make a free account at <https://github.com/signup> if you don't have one, and send your username to Joseph.
+- Accept the repo invite from your email (or <https://github.com/notifications>). **Until you accept, pushing fails with a 403.**
+
 ## 1. Install Godot 4.7.2 (standard, not .NET)
 
 Everyone uses the **same version** so project files don't churn.
@@ -50,13 +55,17 @@ git checkout -b yourname/setup
 
 ## 6. Push one commit
 
-Add your name to the roster below, then:
+Create a file `onboarding/yourname.md` containing your name and subteam (one line is fine). Then:
 
 ```bash
-git add setup.md
-git commit -m "Add <your name> to roster"
+git add onboarding/yourname.md
+git commit -m "Add <your name> to onboarding"
 git push -u origin yourname/setup
 ```
+
+**Signing in on first push:**
+- Windows: a browser window opens; sign in to GitHub. Done.
+- Mac/Linux: if git asks for a password, your GitHub password **won't work**. Instead install GitHub CLI (<https://cli.github.com>, or `brew install gh`), run `gh auth login`, pick GitHub.com > HTTPS > log in with browser, then push again.
 
 Open the link Git prints to create a Pull Request, then post it in the team channel. Done.
 
@@ -73,7 +82,4 @@ Open the link Git prints to create a Pull Request, then post it in the team chan
 - Pixel art: textures default to **Nearest** filtering (already set). Don't change it in Project Settings.
 - Renderer is **Compatibility**, so it runs on older laptops. Don't switch it.
 - If `project.godot` shows up in your diff and you didn't mean to change settings, don't commit it; ask first.
-
-## Roster
-
-- Joseph Ong
+- Always `git pull` on `main` before making a new branch.
