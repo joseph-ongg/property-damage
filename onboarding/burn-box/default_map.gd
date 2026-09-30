@@ -3,5 +3,4 @@ class_name DefaultMap
 
 
 static func fill(grid: MaterialGrid) -> void:
-	pass  # TODO (Jackson): wood buildings, stone walls, oil patches, water.
-	# Use grid.set_cell(x, y, MaterialGrid.Cell.WOOD) and friends.
+	pass  # TODO: wood buildings, stone walls, oil patches, water, using whatever API you design.
