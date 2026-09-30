@@ -34,7 +34,15 @@ None of it is sacred. Change or replace anything if you have a better idea.
 
 ## Step 1: Design the interface (by Thu, Oct 1)
 
-Before you write the fire, decide how the rest of the game will talk to your grid. Write it down in `onboarding/burn-box/INTERFACE.md`: each public function or signal, what it takes, what it returns, and one line on what it's for. Then post it in the team channel for a PM to sign off.
+Before you write the fire, decide how the rest of the game will talk to your grid. Write the interface as real code: in the "Public API" section of `material_grid.gd`, add every public function and signal with its final name, typed arguments, return type, and a one-line comment on what it's for. Leave the body as `pass` (or return a placeholder value) for now:
+
+```gdscript
+## Sets the cell at (x, y) on fire, if its material can burn.
+func ignite(x: int, y: int) -> void:
+	pass
+```
+
+That section is your design doc. Open it as a PR on `sim/burn-box-interface` and tag a PM for sign-off. Because it's real code, it can't drift out of date, and other teams can start calling your functions the moment it merges.
 
 Other teams will need to do these things. Your interface has to make all of them possible:
 
@@ -50,7 +58,7 @@ Questions worth arguing about as a team:
 - What signals does the grid send, and how often?
 - How do you add a new material in week 5 without breaking everyone else's code?
 
-Once it's signed off, the function names are frozen. You can change what's inside them any time, but renaming or changing their inputs needs a PM's OK, because other teams will be calling them.
+Once that PR merges, the function names are frozen. You can change what's inside them any time, but renaming or changing their inputs needs a PM's OK, because other teams will be calling them.
 
 ## Step 2: Build it (by Sat, Oct 3)
 
@@ -74,7 +82,7 @@ One owner per file, one branch and one PR per person, each reviewed by someone e
 | Jackson | `grid_renderer.gd`, `default_map.gd` | `jackson/burn-box-render` | Drawing each material, burning look, the default map |
 | Bryan | `paintbrush.gd`, HUD in `burn_box.tscn` | `bryan/burn-box-brush` | Material picker, painting, fire brush |
 
-Step 1 is a whole-team job, not Ethan's alone. Everyone's file depends on the interface, so all three of you should agree on it.
+Step 1 is a whole-team job, not Ethan's alone. Everyone's file depends on the interface, so all three of you should agree on it and all three should review the PR.
 
 ## Rules
 

@@ -4,7 +4,7 @@ extends Node2D
 
 # The plumbing below is done: grid size, the tick timer, and the Inspector "Tuning" group.
 # Everything else is yours to design: how cells are stored, what materials exist,
-# what "burning" means, and the functions other teams call. See README, "Design the interface".
+# what "burning" means, and the functions other teams call. See README, Step 1.
 
 @export var width := 64
 @export var height := 36
@@ -28,6 +28,11 @@ func _ready() -> void:
 
 func _on_tick() -> void:
 	pass  # TODO: one simulation step.
+
+
+# ---------- Public API: other teams call these ----------
+# TODO (Step 1): add every public function and signal here, with typed arguments,
+# a return type, and a "##" comment saying what it does. Bodies can stay `pass` until Step 2.
 
 
 # ---------- Helpers (plumbing, keep or change freely) ----------
