@@ -1,0 +1,27 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://onboarding/burn-box/material_grid.gd" id="1_grid"]
+[ext_resource type="Script" path="res://onboarding/burn-box/grid_renderer.gd" id="2_render"]
+[ext_resource type="Script" path="res://onboarding/burn-box/paintbrush.gd" id="3_brush"]
+
+[node name="BurnBox" type="Node2D"]
+script = ExtResource("1_grid")
+
+[node name="TickTimer" type="Timer" parent="."]
+
+[node name="Renderer" type="Node2D" parent="."]
+script = ExtResource("2_render")
+
+[node name="Paintbrush" type="Node" parent="."]
+script = ExtResource("3_brush")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="VBoxContainer" parent="UI"]
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 168.0
+offset_bottom = 48.0
+
+[node name="MaterialPicker" type="OptionButton" parent="UI/HUD"]
+layout_mode = 2
