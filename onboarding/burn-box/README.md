@@ -2,7 +2,7 @@
 
 **Team:** Ethan, Jackson, Bryan
 **Repo path:** `onboarding/burn-box/`
-**Due:** interface signed off Thu, Oct 1; working build merged by Sat, Oct 3; handed to the other teams at the Sun, Oct 4 meeting; demoed live at MSD on Thu, Oct 15
+**Due:** interface ideally by Sun, Oct 4; working build merged by MSD; handed to the other teams at the Sun, Oct 4 meeting; demoed live at MSD on Thu, Oct 15
 
 ## What you're building
 
@@ -32,7 +32,7 @@ BurnBox (Node2D) · material_grid.gd
 
 None of it is sacred. Change or replace anything if you have a better idea.
 
-## Step 1: Design the interface (by Thu, Oct 1)
+## Step 1: Design the interface (by Sun, Oct 4)
 
 Before you write the fire, decide how the rest of the game will talk to your grid. Write the interface as real code: in the "Public API" section of `material_grid.gd`, add every public function and signal with its final name, typed arguments, return type, and a one-line comment on what it's for. Leave the body as `pass` (or return a placeholder value) for now:
 
@@ -60,7 +60,7 @@ Questions worth arguing about as a team:
 
 Once that PR merges, the function names are frozen. You can change what's inside them any time, but renaming or changing their inputs needs a PM's OK, because other teams will be calling them.
 
-## Step 2: Build it (by Sat, Oct 3)
+## Step 2: Build it (by MSD)
 
 **Fire spread**: fire spreads to flammable neighbors with some randomness each tick, and cells eventually burn out to ash. It should feel alive, not mechanical.
 
@@ -89,7 +89,7 @@ Step 1 is a whole-team job, not Ethan's alone. Everyone's file depends on the in
 - GDScript only, no C#. Keep the public functions readable; beginners on other teams will read them to learn how to use the grid. If you optimize later, hide it behind the same function names and leave a comment saying why.
 - Keep the grid at 64 x 36 and 10 Hz until it's working. Profile before making it bigger or faster.
 
-## Stretch goals (after Oct 4)
+## Stretch goals (after MSD)
 
 Once the other teams have taken over the basics, these become your real work, since they're what Property Damage's arena needs:
 
