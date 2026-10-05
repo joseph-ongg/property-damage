@@ -39,8 +39,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			# for now assume ignite(x, y) exists, come back after implemented
 			grid.ignite(cell.x, cell.y) 
 		else: 
-			grid.set_material(cell.x, cell.y, selected_brush)
+			grid.set_cell_material(cell.x, cell.y, selected_brush)
 	elif Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT):
 		# TODO: paint stone at `cell`.
-		grid.set_material(cell.x, cell.y, MaterialGrid.Materials.STONE)
+		grid.set_cell_material(cell.x, cell.y, MaterialGrid.Materials.STONE)
 		
