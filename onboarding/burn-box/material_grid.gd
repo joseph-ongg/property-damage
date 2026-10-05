@@ -34,6 +34,31 @@ func _on_tick() -> void:
 # TODO (Step 1): add every public function and signal here, with typed arguments,
 # a return type, and a "##" comment saying what it does. Bodies can stay `pass` until Step 2.
 
+## Materials a cell can contain. Fire is a separate state.
+enum Materials { AIR, WOOD, STONE, OIL, ASH, WATER }
+
+## Emitted after a cell's material or burning state changes.
+signal cell_changed(x: int, y: int)
+
+## Sets a cell's material and resets its burning state; ignores out-of-bounds cells.
+func set_cell_material(x: int, y: int, material_id: Materials) -> void:
+	pass
+
+## Returns a cell's material, or AIR if out of bounds.
+func get_cell_material(x: int, y: int) -> Materials:
+	return Materials.AIR
+
+## Ignites a flammable cell; ignores out-of-bounds or already burning cells.
+func ignite(x: int, y: int) -> void:
+	pass
+
+## Returns whether a cell is burning; returns false if out of bounds.
+func is_burning(x: int, y: int) -> bool:
+	return false
+
+## Extinguishes a cell without changing its material; ignores out-of-bounds cells.
+func extinguish(x: int, y: int) -> void:
+	pass
 
 # ---------- Helpers (plumbing, keep or change freely) ----------
 
