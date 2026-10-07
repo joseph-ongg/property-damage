@@ -1,10 +1,14 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dqdnkb1orjvs"]
 
-[node name="Main" type="Node2D"]
+[ext_resource type="PackedScene" uid="uid://c1cmjppo8oeil" path="res://player.tscn" id="1_ig7tw"]
 
-[node name="Label" type="Label" parent="."]
+[node name="Main" type="Node2D" unique_id=659216147]
+
+[node name="Label" type="Label" parent="." unique_id=1323244295]
 offset_left = 32.0
 offset_top = 32.0
 offset_right = 432.0
 offset_bottom = 72.0
 text = "Property Damage: it runs. Now go break something."
+
+[node name="CharacterBody2D" parent="." unique_id=1566467205 instance=ExtResource("1_ig7tw")]
