@@ -133,14 +133,23 @@ func _on_sparked(player_index: int, target: Vector2, accepted: bool) -> void:
 		pc_reacted = ($Appliances/ComputerDevice as GameplayAppliance).receive_spark(target, player_index)
 	var cell: Vector2i = $FireBridge.world_to_cell(target)
 	if not accepted:
-		status_text.text = "P%d  •  NO FIRE GRID AT TARGET" % player_index
+		# Spark can reach an unburnable cell even when the Simulation grid is available.
+		# Distinguish missing integration, out-of-bounds targets, and rejected ignition.
+		var fire_grid: Node = $FireBridge.grid()
+		if fire_grid == null or not fire_grid.has_method("ignite") or not fire_grid.has_method("world_to_cell") or not fire_grid.has_method("is_burning"):
+			status_text.text = "P%d  •  FIRE GRID NOT READY" % player_index
+		elif fire_grid.has_method("in_bounds") and not bool(fire_grid.call("in_bounds", cell.x, cell.y)):
+			status_text.text = "P%d  •  SPARK OUTSIDE FIRE GRID" % player_index
+		else:
+			status_text.text = "P%d  •  CELL NOT IGNITED (MATERIAL / SIM)" % player_index
 	else:
 		if player_index == 1:
 			sparks_p1 += 1
 		else:
 			sparks_p2 += 1
 		if $FireBridge.is_burning_world(target):
-			status_text.text = "P%d  •  CELL %s IGNITED" % [player_index, str(cell)]
+			# A cell may have been burning before this cast; avoid claiming a new ignition.
+			status_text.text = "P%d  •  CELL %s BURNING" % [player_index, str(cell)]
 		else:
 			status_text.text = "P%d  •  SPARK SENT (SIM PENDING)" % player_index
 	if books_reacted:
