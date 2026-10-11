@@ -21,7 +21,7 @@ func world_to_cell(world_position: Vector2) -> Vector2i:
 
 func ignite_world(world_position: Vector2) -> bool:
 	var target := grid()
-	if target == null or not target.has_method("ignite"):
+	if target == null or not target.has_method("ignite") or not target.has_method("world_to_cell"):
 		return false
 	var cell := world_to_cell(world_position)
 	if target.has_method("in_bounds") and not target.call("in_bounds", cell.x, cell.y):
@@ -33,7 +33,7 @@ func ignite_world(world_position: Vector2) -> bool:
 
 func is_burning_world(world_position: Vector2) -> bool:
 	var target := grid()
-	if target == null or not target.has_method("is_burning"):
+	if target == null or not target.has_method("is_burning") or not target.has_method("world_to_cell"):
 		return false
 	var cell := world_to_cell(world_position)
 	if target.has_method("in_bounds") and not target.call("in_bounds", cell.x, cell.y):

@@ -126,6 +126,24 @@ theme_override_font_sizes/font_size = 14
 theme_override_colors/font_color = Color(0.93, 0.78, 0.51, 1)
 text = "SPARKS IGNITE THE GRID IN FRONT OF EACH PLAYER"
 
+[node name="FireCounter" type="Label" parent="HUD"]
+offset_left = 27.0
+offset_top = 133.0
+offset_right = 400.0
+offset_bottom = 153.0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.75, 0.87, 0.95, 1)
+text = "SPARKS SENT   P1: 0   P2: 0"
+
+[node name="Cooldowns" type="Label" parent="HUD"]
+offset_left = 27.0
+offset_top = 157.0
+offset_right = 410.0
+offset_bottom = 177.0
+theme_override_font_sizes/font_size = 13
+theme_override_colors/font_color = Color(0.67, 0.83, 0.86, 1)
+text = "P1 SPARK: READY    P2 SPARK: READY"
+
 [node name="Footer" type="Label" parent="HUD"]
 offset_left = 26.0
 offset_top = 510.0

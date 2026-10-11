@@ -45,8 +45,8 @@ also separated into topic commits to make cherry-picking easier.
    to the real `MaterialGrid` node (the Node with `world_to_cell`, `ignite`,
    `is_burning`, and optionally `in_bounds`).
 3. Point both Player nodes' `fire_bridge_path` at that FireBridge Node.
-4. Run `GameplayInputActions.register_actions()` in the real scene's
-   `_enter_tree()` using the preloaded `gameplay/input_actions.gd` script.
+4. Controls register automatically when each player enters the scene tree;
+   you do not need to edit the project's Input Map or write bootstrap code.
 5. Remove the `DemoFireGrid`, fake arena and HUD from the real game. **Never
    modify `onboarding/burn-box/burn_box.tscn`.**
 
@@ -67,9 +67,23 @@ and connect `touched_fire` to a future health component once Sim has working
   --script res://gameplay/tests/gameplay_smoke_test.gd
 ```
 
-Checks both control schemes, movement, jumping, one-way collisions, wall
-boundaries, player layers, facing, spark keys, and fire-grid adapter. Exit
-status 0 means all checks passed.
+Run the extended edge-case checks as well:
+
+```sh
+"/path/to/Godot.app/Contents/MacOS/Godot" --headless --path . \
+  --script res://gameplay/tests/gameplay_edge_test.gd
+```
+
+The smoke test covers both control schemes, movement, jumping, one-way
+collisions, wall boundaries, player layers, facing, spark keys, and the fire
+adapter. The edge tests cover coyote jumps, buffered jumps, cooldown, grid
+reconnection, and out-of-bounds recovery. An exit status of 0 means all checks
+passed.
+
+Jump timing is configurable in the `Motor` subnode: `coyote_time` (0.10s)
+and `jump_buffer_time` (0.12s). Sparks have independent `cooldown` tuning.
+The HUD explicitly distinguishes successful demo fire from requests sent to
+a Simulation backend that hasn't implemented cell storage yet.
 
 ## Suggested independent team PRs
 

@@ -22,8 +22,18 @@ func _process(delta: float) -> void:
 		queue_redraw()  # Clear the final flash frame when it expires.
 
 
+func is_ready() -> bool:
+	return _cooldown_remaining <= 0.0
+
+
+func cooldown_ratio() -> float:
+	if cooldown <= 0.0:
+		return 0.0
+	return clampf(_cooldown_remaining / cooldown, 0.0, 1.0)
+
+
 func cast_spark(world_center: Vector2, facing: int, bridge: GameplayFireBridge, tint: Color) -> bool:
-	if _cooldown_remaining > 0.0:
+	if not is_ready():
 		return false
 	_direction = 1 if facing >= 0 else -1
 	_tint = tint

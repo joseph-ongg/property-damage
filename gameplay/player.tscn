@@ -24,3 +24,12 @@ script = ExtResource("3_spark")
 
 [node name="FireHazard" type="Node" parent="."]
 script = ExtResource("4_hazard")
+
+[node name="NameTag" type="Label" parent="."]
+offset_left = -12.0
+offset_top = -47.0
+offset_right = 23.0
+offset_bottom = -29.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+text = "P1"

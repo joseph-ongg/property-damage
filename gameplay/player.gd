@@ -2,6 +2,8 @@
 class_name GameplayPlayer
 extends CharacterBody2D
 
+const GameplayInputs = preload("res://gameplay/input_actions.gd")
+
 signal sparked(player_index: int, target: Vector2, accepted: bool)
 
 @export_range(1, 2) var player_index: int = 1
@@ -18,6 +20,11 @@ var _spawn: Vector2
 var _bridge: GameplayFireBridge
 
 
+func _enter_tree() -> void:
+	# Each prefab registers its own controls; no bootstrapping in the arena is needed.
+	GameplayInputs.register_actions()
+
+
 func _ready() -> void:
 	collision_layer = 2  # players
 	collision_mask = 1   # only world; players pass through each other
@@ -25,26 +32,32 @@ func _ready() -> void:
 	_bridge = get_node_or_null(fire_bridge_path) as GameplayFireBridge
 	if player_index == 2:
 		facing = -1
+	$NameTag.text = "P%d" % player_index
+	$NameTag.add_theme_color_override("font_color", tint)
 	queue_redraw()
 
 
 func _physics_process(delta: float) -> void:
 	var prefix := "p%d_" % player_index
 	var horizontal := Input.get_axis(prefix + "left", prefix + "right")
+	var next_facing := facing
 	if horizontal > 0.05:
-		facing = 1
+		next_facing = 1
 	elif horizontal < -0.05:
-		facing = -1
+		next_facing = -1
+	if next_facing != facing:
+		facing = next_facing
+		queue_redraw()
 	var jump := Input.is_action_just_pressed(prefix + "jump")
 	motor.step(self, delta, horizontal, jump)
-	if Input.is_action_just_pressed(prefix + "spark"):
+	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
 		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
 		sparked.emit(player_index, global_position + Vector2(facing * spark.reach, 0), accepted)
 	hazard.tick(delta, _bridge, self)
 	if global_position.y > reset_height:
 		global_position = _spawn
 		velocity = Vector2.ZERO
-	queue_redraw()
+		motor.reset()
 
 
 func _draw() -> void:
