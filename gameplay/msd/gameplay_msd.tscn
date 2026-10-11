@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=14 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="5_bridge"]
 [ext_resource type="Script" path="res://gameplay/demo/pause_overlay.gd" id="6_pause"]
 [ext_resource type="Script" path="res://gameplay/msd/burnable_prop.gd" id="7_books"]
+[ext_resource type="Script" path="res://gameplay/msd/appliance.gd" id="8_appliance"]
 
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
@@ -93,6 +94,7 @@ player_index = 1
 tint = Color(0.29, 0.9, 0.78, 1)
 fire_bridge_path = NodePath("../FireBridge")
 dash_enabled = false
+enhanced_jumping = true
 
 [node name="Player2" parent="." instance=ExtResource("1_player")]
 position = Vector2(884, 459)
@@ -100,6 +102,7 @@ player_index = 2
 tint = Color(1, 0.66, 0.37, 1)
 fire_bridge_path = NodePath("../FireBridge")
 dash_enabled = false
+enhanced_jumping = true
 
 [node name="Books" type="Node2D" parent="."]
 
@@ -114,6 +117,30 @@ script = ExtResource("7_books")
 [node name="ShelfBooks" type="Node2D" parent="Books"]
 position = Vector2(237, 332)
 script = ExtResource("7_books")
+
+[node name="Projectiles" type="Node2D" parent="."]
+
+[node name="Appliances" type="Node2D" parent="."]
+
+[node name="FridgeDevice" type="Node2D" parent="Appliances"]
+position = Vector2(780, 472)
+script = ExtResource("8_appliance")
+device = 0
+
+[node name="FanDevice" type="Node2D" parent="Appliances"]
+position = Vector2(421, 384)
+script = ExtResource("8_appliance")
+device = 1
+
+[node name="ACDevice" type="Node2D" parent="Appliances"]
+position = Vector2(648, 469)
+script = ExtResource("8_appliance")
+device = 2
+
+[node name="ComputerDevice" type="Node2D" parent="Appliances"]
+position = Vector2(552, 387)
+script = ExtResource("8_appliance")
+device = 3
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
@@ -167,7 +194,7 @@ offset_right = 947.0
 offset_bottom = 534.0
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.86, 0.9, 0.91, 1)
-text = "P1  A / D MOVE  ·  W JUMP  ·  F SPARK        P2  ← / → MOVE  ·  ↑ JUMP  ·  ENTER SPARK        P / ESC PAUSE"
+text = "P1 A/D · W x2 · F SPARK · G MAGIC · E USE      P2 ←/→ · ↑ x2 · ENTER SPARK · . MAGIC · SHIFT USE"
 
 [node name="PauseOverlay" type="CanvasLayer" parent="."]
 layer = 12

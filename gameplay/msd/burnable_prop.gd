@@ -4,13 +4,73 @@ class_name GameplayBurnableProp
 extends Node2D
 
 signal scorched_by(player_index: int)
+signal picked_up_by(player_index: int)
+signal thrown_by(player_index: int)
 
 @export_range(14.0, 70.0, 1.0) var spark_radius: float = 32.0
 @export var width: float = 31.0
+@export var pickup_radius: float = 56.0
+@export var throw_speed: float = 340.0
+@export var throw_lift: float = -230.0
+@export var drop_gravity: float = 930.0
+
+var carried_by: GameplayPlayer = null
+var flying: bool = false
+var flight_velocity: Vector2 = Vector2.ZERO
 
 var scorched: bool = false
 var flash_left: float = 0.0
 var _time: float = 0.0
+
+
+func can_pick_up(player: GameplayPlayer) -> bool:
+	return carried_by == null and not flying and global_position.distance_to(player.global_position) <= pickup_radius
+
+
+func pick_up(player: GameplayPlayer) -> bool:
+	if not can_pick_up(player):
+		return false
+	carried_by = player
+	flying = false
+	flight_velocity = Vector2.ZERO
+	global_position = player.global_position + Vector2(player.facing * 22, -22)
+	picked_up_by.emit(player.player_index)
+	return true
+
+
+func throw_from(player: GameplayPlayer) -> bool:
+	if carried_by != player:
+		return false
+	carried_by = null
+	global_position = player.global_position + Vector2(player.facing * 27, -22)
+	flight_velocity = Vector2(float(player.facing) * throw_speed + player.velocity.x * 0.35, throw_lift)
+	flying = true
+	thrown_by.emit(player.player_index)
+	return true
+
+
+func _physics_process(delta: float) -> void:
+	if carried_by != null:
+		global_position = carried_by.global_position + Vector2(carried_by.facing * 22, -22)
+	elif flying:
+		var next_position := global_position + flight_velocity * delta
+		flight_velocity.y += drop_gravity * delta
+		# Real StaticBody2D geometry supports floor, table and one-way shelf landings.
+		var query := PhysicsRayQueryParameters2D.create(global_position + Vector2(0, 13), next_position + Vector2(0, 13), 1)
+		var hit := get_world_2d().direct_space_state.intersect_ray(query)
+		if not hit.is_empty() and flight_velocity.y >= 0.0 and hit.position.y >= global_position.y:
+			global_position = Vector2(next_position.x, hit.position.y - 13)
+			flight_velocity = Vector2.ZERO
+			flying = false
+		else:
+			global_position = next_position
+		if global_position.y >= 485.0:
+			global_position.y = 485.0
+			flight_velocity = Vector2.ZERO
+			flying = false
+		global_position.x = clampf(global_position.x, 24.0, 936.0)
+		if global_position.x <= 24.0 or global_position.x >= 936.0:
+			flight_velocity.x = -flight_velocity.x * 0.4
 
 
 func try_scorch(target: Vector2, player_index: int) -> bool:
