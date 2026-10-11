@@ -4,8 +4,12 @@
 which implements the Gameplay subteam's Oct 15 MSD scope. Two players run,
 jump and face left/right; each has a Spark key to ignite a grid cell in front
 of them. They collide with solid floor/walls and one-way furniture platforms.
-This prototype uses a stand-in `DemoFireGrid` until the actual arena and
-Simulation storage are integrated.
+The F5 prototype now uses Ethan's original `MaterialGrid` implementation
+(`onboarding/burn-box/material_grid.gd`, from `ethan/burn-box-grid` commit
+`46c3df2`). `gameplay/integration/material_setup.gd` paints **test-only**
+flammable cells; `gameplay/demo/fire_visuals.gd` only renders embers.
+Actual spreading, material damage, and the final Simulation arena are still
+pending integration.
 
 **Experimental optional scene:** `gameplay/demo/gameplay_test.tscn` (the
 previously-created "Moonlit Ruins" art/quest prototype with shards, braziers,
@@ -61,12 +65,13 @@ also separated into topic commits to make cherry-picking easier.
    `player_index=1` and `2` and distinct tints. Keep `collision_layer=2`,
    `collision_mask=1` and add world colliders on layer 1.
 2. Add `gameplay/components/fire_bridge.gd` to a Node and set its `grid_path`
-   to the real `MaterialGrid` node (the Node with `world_to_cell`, `ignite`,
-   `is_burning`, and optionally `in_bounds`).
+   to the real `MaterialGrid` node (which has `world_to_cell`, `ignite`,
+   `is_burning`, and `in_bounds`).
 3. Point both Player nodes' `fire_bridge_path` at that FireBridge Node.
 4. Controls register automatically when each player enters the scene tree;
    you do not need to edit the project's Input Map or write bootstrap code.
-5. Remove the `DemoFireGrid`, fake arena and HUD from the real game. **Never
+5. Replace the test-only material seeding, fake arena and HUD with the final
+   Simulation/Art scene. **Never
    modify `onboarding/burn-box/burn_box.tscn`.**
 
 The demo fire grid is purely a testing stand-in because the current Simulation
@@ -300,3 +305,11 @@ Run:
 - 火焰适配：`GameplayFireBridge` 参考 Ethan 材料接口，`ignite()` 不等于一定点燃，必须检查 `is_burning()`。
 - 可选网格预览：`gameplay/integration/material_grid_preview.gd`，参考 Jackson 的信号驱动重绘；不用于默认像素客厅。
 - 各来源、具体原始 SHA、原因和验证方式见 [`UPSTREAM_INTEGRATION.md`](UPSTREAM_INTEGRATION.md)。
+
+## 中文：已替换的远端重复功能（本地同步，不代表团队已 merge）
+
+- **Ethan**：采用远端 `46c3df2` 的原始 `onboarding/burn-box/material_grid.gd`，删除了 Gameplay 自己维护燃烧字典的 `demo_fire_grid.gd` 和仿制存储的测试 fixture；点火与燃烧状态现在只由 MaterialGrid 维护。
+- **Austin**：双跳计数改为上游 `jumps_left` 剩余次数模式，兼容原有双人按键、固定跳高、空中惯性、缓冲跳跃及平台下穿，不能直接用他的单人 `player.gd` 覆盖完整控制器。
+- **Jackson**：原版格子渲染会遮挡房间，改为只绘制燃烧火星，保留 `cell_changed` 驱动的刷新方式。仍可单独使用调试预览。
+- 真实的 `MaterialGrid` **没有火势传播和燃烧自动结束**；演示火焰会保持到 `extinguish()` 或改变材料。不要误认为完整 Simulation 已完成。
+- 上游脚本的作者和 SHA 记录在 `UPSTREAM_INTEGRATION.md`，导入上游源文件后不要隐去原始来源。

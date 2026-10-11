@@ -98,7 +98,7 @@ https://docs.google.com/document/d/1iVnXhmA9XLGX5hUUSrxCrNm4u9ljC8tZb10seZF4FE8/
 ## Local interaction prototype update (not approved rules)
 
 Implemented after the initial MSD prototype as separately editable modules:
-`GameplayMotor` now supports a fixed-height double jump with inherited
+`GameplayMotor` now uses Austin's upstream `jumps_left` count for fixed-height double jumps with inherited
 midair horizontal momentum. `GameplayBurnableProp` supports E/Shift pickup and
 throw, and `GameplayAppliance` toggles four distinct appliance experiments.
 `GameplayMagicBolt` provides a second, directional visual magic attack on
@@ -107,3 +107,11 @@ All these actions are **technical prototypes** based on the public doc's
 possible interactions, not a final approved combat, health, or scoring system.
 Future balancing needs team input on double-jump reach, whether books should
 use true physics bodies, and which appliance effects are wanted in production.
+
+
+### Later merge notes
+
+Ethan's exact MaterialGrid source file from `46c3df2` is now present on the
+**local branch**, replacing the previous duplicate flame-state demo.
+The local pixel-art flame renderer and material setup live under `gameplay/`.
+This is not evidence that Ethan's PR has been merged into the team mainline.
