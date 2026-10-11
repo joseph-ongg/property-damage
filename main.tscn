@@ -1,10 +1,7 @@
-[gd_scene format=3]
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://gameplay/demo/gameplay_test.tscn" id="1_demo"]
 
 [node name="Main" type="Node2D"]
 
-[node name="Label" type="Label" parent="."]
-offset_left = 32.0
-offset_top = 32.0
-offset_right = 432.0
-offset_bottom = 72.0
-text = "Property Damage: it runs. Now go break something."
+[node name="GameplayDemo" parent="." instance=ExtResource("1_demo")]

@@ -1,0 +1,83 @@
+# Gameplay MSD — modular two-player demo
+
+**Start:** run the repository's `main.tscn` (F5 / Cmd+B), or open
+`gameplay/demo/gameplay_test.tscn` and run the current scene (F6).
+Godot 4.7.2 Standard and GDScript; there are **no external runtime dependencies**.
+
+## Controls
+
+| | Run | Jump | Spark |
+| --- | --- | --- | --- |
+| P1 (turquoise) | A / D | W | F |
+| P2 (orange) | Left / Right | Up | Enter/Return |
+
+Sparks target one grid cell just ahead of the character's current facing.
+P1 and P2 share the same keyboard but have separate InputMap actions. Players
+are `CharacterBody2D`s on layer **2** with mask **1** (world), so they pass
+through each other; the arena's floor/walls use world layer **1**.
+
+## Modules — submit only what your assigned task needs
+
+| Feature / independent PR area | Owned file(s) | Depends on |
+| --- | --- | --- |
+| Input mappings | `gameplay/input_actions.gd` | Godot InputMap |
+| Character movement/jump physics | `gameplay/components/player_motor.gd` | CharacterBody2D |
+| Simulation grid adapter | `gameplay/components/fire_bridge.gd` | Existing `MaterialGrid` API (or any compatible grid) |
+| Facing-aware spark & feedback | `gameplay/components/spark_emitter.gd` | Fire bridge |
+| Optional fire damage contact | `gameplay/components/fire_hazard.gd` | Fire bridge |
+| Reusable player + colored placeholder | `gameplay/player.gd`, `gameplay/player.tscn` | Input + Motor + Spark + Hazard |
+| Fake static arena + graphics | `gameplay/demo/gameplay_test.tscn`, `arena_visuals.gd` | Player prefab |
+| Demo-only fire storage | `gameplay/demo/demo_fire_grid.gd` | No Sim dependencies |
+| Demo bootstrap and UI | `gameplay/demo/demo_controller.gd` | All above; registered input |
+| F5 entry point | `main.tscn` | Demo scene |
+
+Files are intentionally separate. For a small PR, select the script(s)
+corresponding to your task **and their dependencies**; don't push the complete
+demo if your assigned task only covers a component. The local git history is
+also separated into topic commits to make cherry-picking easier.
+
+## Integrating with Simulation
+
+1. Instance `gameplay/player.tscn` twice inside the real arena. Assign
+   `player_index=1` and `2` and distinct tints. Keep `collision_layer=2`,
+   `collision_mask=1` and add world colliders on layer 1.
+2. Add `gameplay/components/fire_bridge.gd` to a Node and set its `grid_path`
+   to the real `MaterialGrid` node (the Node with `world_to_cell`, `ignite`,
+   `is_burning`, and optionally `in_bounds`).
+3. Point both Player nodes' `fire_bridge_path` at that FireBridge Node.
+4. Run `GameplayInputActions.register_actions()` in the real scene's
+   `_enter_tree()` using the preloaded `gameplay/input_actions.gd` script.
+5. Remove the `DemoFireGrid`, fake arena and HUD from the real game. **Never
+   modify `onboarding/burn-box/burn_box.tscn`.**
+
+The demo fire grid is purely a testing stand-in because the current Simulation
+storage methods are placeholders. Its cells glow for eight seconds after
+ignition. It is **not** the production fire simulation or an implementation
+of propagation/material rules. Spark feedback appears even when a real grid
+ignition has no visible effect yet.
+
+`GameplayFireHazard` is an **optional disabled-by-default** sensor. Enable it
+and connect `touched_fire` to a future health component once Sim has working
+`is_burning` storage. No health/damage system is asserted to be complete.
+
+## Tests
+
+```sh
+"/path/to/Godot.app/Contents/MacOS/Godot" --headless --path . \
+  --script res://gameplay/tests/gameplay_smoke_test.gd
+```
+
+Checks both control schemes, movement, jumping, one-way collisions, wall
+boundaries, player layers, facing, spark keys, and fire-grid adapter. Exit
+status 0 means all checks passed.
+
+## Suggested independent team PRs
+
+- `suwen/input-movement`: input actions + motor (or compose player if needed)
+- `suwen/spark-fire-bridge`: grid integration + spark component
+- `suwen/player-prefab`: reusable player scene; include its dependencies
+- `suwen/test-arena`: demo-only sandbox; submit only if requested
+
+The MCP Toolkit is a **local development tool**; it is not a project runtime
+dependency. Do not commit `project.godot` changes caused by enabling the MCP
+plugin, or the local `addons/godot_mcp_toolkit/` folder, to team PRs.
