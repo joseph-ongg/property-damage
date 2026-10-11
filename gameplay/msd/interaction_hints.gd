@@ -1,5 +1,7 @@
 ## 仅在玩家接近物品时显示简短操作提示；与真正的目标选择共用控制器 API。
+## EN: Show context prompts only nearby, using the same target selection as gameplay.
 ## 中文维护：提示绝不决定可否交互，它只读取 get_interaction_offer()。
+## EN: Prompts only reflect get_interaction_offer(); they do not determine interactions.
 extends Node2D
 
 @onready var room: Node2D = get_parent()
@@ -58,6 +60,7 @@ func _draw() -> void:
 		var x := clampf(location.x - width * 0.5, 12.0, 948.0 - width)
 		var y := clampf(location.y - (30.0 if player.player_index == 1 else 0.0), 73.0, 471.0)
 		# 小型实心底板让文字在像素背景上保持可读。
+		# EN: Use a small solid backdrop to keep text readable over pixel art.
 		draw_rect(Rect2(x, y, width, 23), Color("142231", 0.93))
 		draw_rect(Rect2(x, y, width, 23), accent, false, 1.0)
 		draw_string(font, Vector2(x + 9, y + 16), content, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("e4eef0"))

@@ -1,4 +1,5 @@
 ## 实际操作合同：桌面留白、附近提示与按键执行一致、空调真实减速与恢复。
+## EN: Interaction tests cover desk spacing, actionable prompts and AC speed changes.
 extends SceneTree
 var failures: Array[String] = []
 
@@ -72,6 +73,7 @@ func _run() -> void:
 	check(p1.velocity.x > chilled_speed + 80.0, "normal movement is measurably faster without AC")
 
 	# 空中惯性在无空调时保留；进入冷气区后逐步降到低速上限。
+	# EN: Keep air momentum without AC; gradually enforce the lower cap inside its zone.
 	_reset(p1, Vector2(649, 403))
 	await frames(2)
 	p1.velocity = Vector2(208.0, 0.0)

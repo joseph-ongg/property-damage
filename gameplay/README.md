@@ -89,3 +89,9 @@ done
 - 原作者代码的文件和历史来源应保留。Godot API 与 GDScript 标识符保持英文，避免翻译造成兼容问题。
 
 像素美术与源码关系见 [`ART_SOURCES.md`](ART_SOURCES.md)；团队范围及待确认机制见 [`msd/DESIGN_NOTES.md`](msd/DESIGN_NOTES.md)。
+
+## 7. 绘制层级 / Rendering layers
+
+默认客厅在 `gameplay/msd/gameplay_msd.tscn` 中显式配置了 `z_index`，防止冰箱打开后的内部以及壁挂空调遮挡角色：背景 -5、家具 2、玩家 10、书本 12、魔法 14、互动提示 30 / 状态提示 31。这个层级只改变**绘制顺序**，不改变物理碰撞。验证脚本是 `gameplay/tests/gameplay_render_layers_test.gd`。
+
+**EN:** The living-room scene explicitly sets render layers so the open fridge interior and wall-mounted AC remain behind players. Room background is -5, appliances 2, players 10, books 12, projectiles 14, and prompts/status overlays 30/31. This changes drawing order only, not collision. Run `gameplay_render_layers_test.gd` for regression coverage.
