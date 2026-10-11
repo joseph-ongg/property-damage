@@ -95,3 +95,39 @@ a Simulation backend that hasn't implemented cell storage yet.
 The MCP Toolkit is a **local development tool**; it is not a project runtime
 dependency. Do not commit `project.godot` changes caused by enabling the MCP
 plugin, or the local `addons/godot_mcp_toolkit/` folder, to team PRs.
+
+## Moonlit Ruins — optional art and quest layer
+
+This original pixel-art direction uses a layered dusk sky, warm lantern light,
+ornate mages, textured stone, copper-topped wood, and atmospheric ruins.
+It draws from the general mood of HD-2D RPGs, but all artwork here is freshly
+created and **does not reuse any existing game's assets or characters**.
+
+The new gameplay features are **separate from the required two-player core**:
+
+| Mechanic | Files | Details |
+| --- | --- | --- |
+| Dashing | `components/player_dash.gd` | P1 = Q, P2 = `/`; tuned 0.15s / 0.8s cooldown |
+| Ember shards | `interactables/ember_shard.gd`, `.tscn` | Five pickups; either player collects on overlap |
+| Fire braziers | `interactables/ember_brazier.gd`, `.tscn` | Directional spark ignites three nearby shrines |
+| Duo spark combo | `demo/demo_controller.gd` | Alternating players within 2.5 seconds adds a combo |
+| Completion condition | `demo/demo_controller.gd` | Gather all shards + light all three shrines |
+| Restart | `demo/demo_controller.gd` | Press R in the playable demo |
+| Original visual assets | `art/*.png` | Nine pixel-art PNGs, all local and reusable |
+| Art source | `art/generate_art.py` | Deterministic source for regenerating PNGs (Pillow, development only) |
+| World rendering | `demo/environment_art.gd`, `arena_visuals.gd` | Decorative backgrounds and tile visuals only; physics is untouched |
+
+The base `GameplayPlayer` prefab now includes a `Dash` component and sprite.
+It still only collides with World Layer 1, still uses `CharacterBody2D`, and
+remains compatible with real Simulation once the fire bridge points to it.
+The test arena is still isolated from `onboarding/burn-box/burn_box.tscn`.
+
+```sh
+"/path/to/Godot.app/Contents/MacOS/Godot" --headless --path . \
+  --script res://gameplay/tests/gameplay_quest_test.gd
+```
+
+**Porting note:** omit the entire demo quest layer in production if the team
+assigns only movement, spark, or arena work. The quests never modify fire
+storage, spread, or MaterialGrid scripts. Default maze art is a prototype, not
+an exact implementation of a final Simulation arena or a real HD-2D renderer.
