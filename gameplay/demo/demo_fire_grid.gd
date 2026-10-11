@@ -57,18 +57,15 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	draw_rect(Rect2(0, 0, width * cell_size, height * cell_size), Color("131d30"))
-	for row in range(height):
-		var t := float(row) / float(height)
-		draw_rect(Rect2(0, row * cell_size, width * cell_size, cell_size), Color(0.025, 0.055, 0.10, 0.20 + t * 0.32))
+	# Transparent overlay; the painted moonlit backdrop stays visible.
 	for x in range(0, width * cell_size, cell_size):
-		draw_line(Vector2(x, 0), Vector2(x, height * cell_size), Color(0.24, 0.36, 0.52, 0.12), 1)
+		draw_line(Vector2(x, 0), Vector2(x, height * cell_size), Color(0.58, 0.68, 0.79, 0.055))
 	for y in range(0, height * cell_size, cell_size):
-		draw_line(Vector2(0, y), Vector2(width * cell_size, y), Color(0.24, 0.36, 0.52, 0.12), 1)
+		draw_line(Vector2(0, y), Vector2(width * cell_size, y), Color(0.58, 0.68, 0.79, 0.055))
 	for cell: Vector2i in _burning:
 		var p := Vector2(cell * cell_size)
 		var t: float = clampf(_burning[cell] / flame_seconds, 0.0, 1.0)
-		draw_rect(Rect2(p + Vector2(1, 1), Vector2(cell_size - 2, cell_size - 2)), Color(1.0, 0.31, 0.08, 0.26 + t * 0.18))
-		draw_rect(Rect2(p + Vector2(2, 2), Vector2(cell_size - 4, cell_size - 4)), Color(1.0, 0.65, 0.14, 0.85), false, 2.0)
+		draw_rect(Rect2(p + Vector2(1, 1), Vector2(cell_size - 2, cell_size - 2)), Color(1.0, 0.31, 0.08, 0.32 + t * 0.18))
+		draw_rect(Rect2(p + Vector2(2, 2), Vector2(cell_size - 4, cell_size - 4)), Color(1.0, 0.72, 0.24, 0.80), false, 2.0)
 		draw_colored_polygon(PackedVector2Array([p + Vector2(10, 28), p + Vector2(7, 15), p + Vector2(15, 4), p + Vector2(25, 26), p + Vector2(19, 29)]), Color(1.0, 0.65, 0.11, t))
 		draw_circle(p + Vector2(16, 22), 6, Color(1.0, 0.95, 0.53, t))
