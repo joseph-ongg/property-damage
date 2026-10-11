@@ -3,6 +3,8 @@ class_name GameplayPlayer
 extends CharacterBody2D
 
 const GameplayInputs = preload("res://gameplay/input_actions.gd")
+const MAGE1: Texture2D = preload("res://gameplay/art/mage_1.png")
+const MAGE2: Texture2D = preload("res://gameplay/art/mage_2.png")
 
 signal sparked(player_index: int, target: Vector2, accepted: bool)
 
@@ -12,12 +14,16 @@ signal sparked(player_index: int, target: Vector2, accepted: bool)
 @export var reset_height: float = 580.0
 
 @onready var motor: GameplayMotor = $Motor
+@onready var dash: GameplayDash = $Dash
+@onready var sprite: Sprite2D = $Sprite2D
 @onready var spark: GameplaySparkEmitter = $SparkEmitter
 @onready var hazard: GameplayFireHazard = $FireHazard
 
 var facing: int = 1
 var _spawn: Vector2
 var _bridge: GameplayFireBridge
+var _animation_clock: float = 0.0
+var _dash_was_active: bool = false
 
 
 func _enter_tree() -> void:
@@ -32,6 +38,8 @@ func _ready() -> void:
 	_bridge = get_node_or_null(fire_bridge_path) as GameplayFireBridge
 	if player_index == 2:
 		facing = -1
+	sprite.texture = MAGE1 if player_index == 1 else MAGE2
+	sprite.flip_h = facing < 0
 	$NameTag.text = "P%d" % player_index
 	$NameTag.add_theme_color_override("font_color", tint)
 	queue_redraw()
@@ -47,9 +55,21 @@ func _physics_process(delta: float) -> void:
 		next_facing = -1
 	if next_facing != facing:
 		facing = next_facing
+		sprite.flip_h = facing < 0
 		queue_redraw()
 	var jump := Input.is_action_just_pressed(prefix + "jump")
-	motor.step(self, delta, horizontal, jump)
+	if Input.is_action_just_pressed(prefix + "dash"):
+		if dash.begin():
+			queue_redraw()
+	var forced_x := float(facing) * dash.dash_speed if dash.active() else INF
+	motor.step(self, delta, horizontal, jump, forced_x)
+	dash.tick(delta)
+	_animation_clock += delta
+	var moving := is_on_floor() and absf(velocity.x) > 18.0
+	sprite.position.y = -2.0 + (sin(_animation_clock * 17.0) * 1.0 if moving else 0.0)
+	if dash.active() or _dash_was_active:
+		queue_redraw()
+	_dash_was_active = dash.active()
 	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
 		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
 		sparked.emit(player_index, global_position + Vector2(facing * spark.reach, 0), accepted)
@@ -58,15 +78,13 @@ func _physics_process(delta: float) -> void:
 		global_position = _spawn
 		velocity = Vector2.ZERO
 		motor.reset()
+		dash.reset()
 
 
 func _draw() -> void:
-	# Temporary wizard silhouette; replace with mage art without touching physics.
-	var dark := tint.darkened(0.48)
-	draw_rect(Rect2(-11, -19, 22, 35), dark, true)
-	draw_rect(Rect2(-9, -17, 18, 30), tint, true)
-	draw_rect(Rect2(-13, 12, 26, 5), dark, true)
-	draw_colored_polygon(PackedVector2Array([Vector2(-12, -17), Vector2(0, -30), Vector2(12, -17)]), tint)
-	draw_rect(Rect2(-8, -15, 16, 5), Color(0.94, 0.90, 0.78), true)
-	draw_circle(Vector2(float(facing) * 6.0, -11.5), 2.0, Color("17202c"))
-	draw_line(Vector2(float(facing) * 11.0, 0), Vector2(float(facing) * 17.0, -6.0), Color("e1c58f"), 3.0)
+	# Procedural contact shadow under the interchangeable pixel-art mage.
+	draw_circle(Vector2(0, 18), 12.0, Color(0.04, 0.04, 0.08, 0.38))
+	if dash.active():
+		var trail_color := Color(tint.r, tint.g, tint.b, 0.38)
+		for distance: float in [19.0, 29.0, 39.0]:
+			draw_line(Vector2(-facing * distance, -15), Vector2(-facing * (distance + 10), -15), trail_color, 2.0)

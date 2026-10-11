@@ -21,7 +21,7 @@ func reset() -> void:
 	_jump_buffer_left = 0.0
 
 
-func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool) -> void:
+func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool, forced_x: float = INF) -> void:
 	var grounded := body.is_on_floor()
 	if grounded:
 		_coyote_left = coyote_time
@@ -45,5 +45,8 @@ func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool)
 		body.velocity.y = minf(body.velocity.y + gravity * delta, max_fall_speed)
 
 	var acceleration := ground_acceleration if grounded else air_acceleration
-	body.velocity.x = move_toward(body.velocity.x, horizontal * speed, acceleration * delta)
+	if is_inf(forced_x):
+		body.velocity.x = move_toward(body.velocity.x, horizontal * speed, acceleration * delta)
+	else:
+		body.velocity.x = forced_x
 	body.move_and_slide()
