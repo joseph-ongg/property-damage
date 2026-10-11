@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/demo/demo_controller.gd" id="2_controller"]
@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://gameplay/demo/visual_feedback.gd" id="11_feedback"]
 [ext_resource type="Script" path="res://gameplay/demo/pause_overlay.gd" id="12_pause"]
 [ext_resource type="Script" path="res://gameplay/demo/victory_overlay.gd" id="13_victory"]
+[ext_resource type="Script" path="res://gameplay/demo/help_overlay.gd" id="14_help"]
+[ext_resource type="Script" path="res://gameplay/demo/objective_guides.gd" id="15_guides"]
 
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
@@ -139,6 +141,9 @@ position = Vector2(470, 338)
 [node name="Brazier3" parent="Braziers" instance=ExtResource("8_brazier")]
 position = Vector2(672, 498)
 
+[node name="ObjectiveGuides" type="Node2D" parent="."]
+script = ExtResource("15_guides")
+
 [node name="Feedback" type="Node2D" parent="."]
 script = ExtResource("11_feedback")
 
@@ -150,14 +155,15 @@ script = ExtResource("9_hudframe")
 
 [node name="Title" type="Label" parent="HUD"]
 offset_left = 34.0
-offset_top = 20.0
-offset_right = 542.0
-offset_bottom = 47.0
-theme_override_font_sizes/font_size = 21
+offset_top = 17.0
+offset_right = 507.0
+offset_bottom = 42.0
+theme_override_font_sizes/font_size = 19
 theme_override_colors/font_color = Color(0.97, 0.9, 0.73, 1)
 text = "MOONLIT RUINS  /  CO-OP QUEST"
 
 [node name="Controls" type="Label" parent="HUD"]
+visible = false
 offset_left = 27.0
 offset_top = 49.0
 offset_right = 555.0
@@ -167,6 +173,7 @@ theme_override_colors/font_color = Color(0.56, 0.93, 0.86, 1)
 text = "P1  A / D MOVE   W JUMP   F SPARK   Q DASH"
 
 [node name="ControlsP2" type="Label" parent="HUD"]
+visible = false
 offset_left = 27.0
 offset_top = 70.0
 offset_right = 555.0
@@ -176,29 +183,29 @@ theme_override_colors/font_color = Color(0.97, 0.73, 0.54, 1)
 text = "P2  ← / → MOVE   ↑ JUMP   ENTER SPARK   / DASH"
 
 [node name="Status" type="Label" parent="HUD"]
-offset_left = 27.0
-offset_top = 101.0
-offset_right = 555.0
-offset_bottom = 122.0
+offset_left = 26.0
+offset_top = 49.0
+offset_right = 512.0
+offset_bottom = 69.0
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.78, 0.51, 1)
 text = "COLLECT THE SHARDS. REKINDLE THE THREE BRAZIERS."
 
 [node name="FireCounter" type="Label" parent="HUD"]
-offset_left = 27.0
-offset_top = 126.0
-offset_right = 540.0
-offset_bottom = 147.0
-theme_override_font_sizes/font_size = 13
+offset_left = 26.0
+offset_top = 93.0
+offset_right = 512.0
+offset_bottom = 113.0
+theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.75, 0.87, 0.95, 1)
 text = "SPARKS SENT   P1: 0   P2: 0"
 
 [node name="Cooldowns" type="Label" parent="HUD"]
-offset_left = 27.0
-offset_top = 148.0
-offset_right = 550.0
-offset_bottom = 170.0
-theme_override_font_sizes/font_size = 13
+offset_left = 26.0
+offset_top = 111.0
+offset_right = 512.0
+offset_bottom = 131.0
+theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.67, 0.83, 0.86, 1)
 text = "P1 SPARK: READY    P2 SPARK: READY"
 
@@ -208,14 +215,14 @@ offset_top = 508.0
 offset_right = 925.0
 offset_bottom = 532.0
 theme_override_colors/font_color = Color(0.78, 0.86, 0.96, 1)
-text = "R RESTART   •   P / ESC PAUSE   •   TAP JUMP = LOW   •   HOLD JUMP = HIGH   •   AIM MARKS SPARK"
+text = "H HELP / CONTROLS    •    P / ESC PAUSE    •    R RESTART    •    TAP / HOLD JUMP"
 
 [node name="Quest" type="Label" parent="HUD"]
-offset_left = 27.0
-offset_top = 175.0
-offset_right = 550.0
-offset_bottom = 196.0
-theme_override_font_sizes/font_size = 13
+offset_left = 26.0
+offset_top = 72.0
+offset_right = 512.0
+offset_bottom = 92.0
+theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.96, 0.83, 0.59, 1)
 text = "EMBER SHARDS 0/5   BRAZIERS 0/3"
 
@@ -306,3 +313,100 @@ horizontal_alignment = 1
 theme_override_font_sizes/font_size = 17
 theme_override_colors/font_color = Color(0.77, 0.89, 0.93, 1)
 text = "PRESS  R  TO BEGIN AGAIN"
+
+[node name="HelpOverlay" type="CanvasLayer" parent="."]
+layer = 13
+script = ExtResource("14_help")
+
+[node name="Backdrop" type="ColorRect" parent="HelpOverlay"]
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.024, 0.038, 0.066, 0.86)
+
+[node name="Border" type="ColorRect" parent="HelpOverlay/Backdrop"]
+offset_left = 119.0
+offset_top = 68.0
+offset_right = 841.0
+offset_bottom = 470.0
+mouse_filter = 2
+color = Color(0.80, 0.64, 0.43, 0.93)
+
+[node name="Panel" type="ColorRect" parent="HelpOverlay/Backdrop"]
+offset_left = 121.0
+offset_top = 70.0
+offset_right = 839.0
+offset_bottom = 468.0
+mouse_filter = 2
+color = Color(0.064, 0.092, 0.145, 0.98)
+
+[node name="Heading" type="Label" parent="HelpOverlay/Backdrop"]
+offset_left = 170.0
+offset_top = 92.0
+offset_right = 790.0
+offset_bottom = 138.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 28
+theme_override_colors/font_color = Color(0.97, 0.85, 0.60, 1)
+text = "TRAVELER'S FIELD GUIDE"
+
+[node name="P1Title" type="Label" parent="HelpOverlay/Backdrop"]
+offset_left = 163.0
+offset_top = 155.0
+offset_right = 455.0
+offset_bottom = 185.0
+theme_override_font_sizes/font_size = 19
+theme_override_colors/font_color = Color(0.49, 0.92, 0.84, 1)
+text = "PLAYER 1  /  TURQUOISE"
+
+[node name="P1Keys" type="Label" parent="HelpOverlay/Backdrop"]
+offset_left = 163.0
+offset_top = 196.0
+offset_right = 460.0
+offset_bottom = 313.0
+theme_override_font_sizes/font_size = 16
+text = "A / D     WALK
+W         JUMP
+F          SPARK
+Q         DASH"
+
+[node name="P2Title" type="Label" parent="HelpOverlay/Backdrop"]
+offset_left = 501.0
+offset_top = 155.0
+offset_right = 814.0
+offset_bottom = 185.0
+theme_override_font_sizes/font_size = 19
+theme_override_colors/font_color = Color(1, 0.72, 0.49, 1)
+text = "PLAYER 2  /  AMBER"
+
+[node name="P2Keys" type="Label" parent="HelpOverlay/Backdrop"]
+offset_left = 501.0
+offset_top = 196.0
+offset_right = 816.0
+offset_bottom = 313.0
+theme_override_font_sizes/font_size = 16
+text = "← / →     WALK
+↑           JUMP
+ENTER   SPARK
+/            DASH"
+
+[node name="Objective" type="Label" parent="HelpOverlay/Backdrop"]
+offset_left = 164.0
+offset_top = 326.0
+offset_right = 815.0
+offset_bottom = 394.0
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.90, 0.87, 0.75, 1)
+text = "COLLECT ALL 5 EMBER SHARDS AND LIGHT 3 BRAZIERS.
+TAP JUMP FOR A SHORT HOP, HOLD TO REACH HIGH PLATFORMS.
+GREEN RINGS SHOW BRAZIERS IN SPARK RANGE."
+
+[node name="CloseHint" type="Label" parent="HelpOverlay/Backdrop"]
+offset_left = 180.0
+offset_top = 425.0
+offset_right = 780.0
+offset_bottom = 450.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.95, 0.76, 0.48, 1)
+text = "PRESS H TO RETURN TO YOUR QUEST"

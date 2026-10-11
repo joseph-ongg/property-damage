@@ -15,14 +15,14 @@ func set_progress(shards: int, braziers: int) -> void:
 
 func _draw() -> void:
 	# Left-aligned, low-contrast HUD protects legibility without hiding the moon.
-	var main := Rect2(14, 12, 550, 205)
+	var main := Rect2(14, 12, 507, 132)
 	_draw_panel(main)
 	draw_rect(Rect2(22, 18, 3, 26), Color("deb579"))
-	draw_rect(Rect2(22, 95, 530, 1), Color("8d806f", 0.45))
-	draw_rect(Rect2(22, 123, 530, 1), Color("8d806f", 0.30))
+	draw_rect(Rect2(22, 46, 492, 1), Color("8d806f", 0.45))
+	draw_rect(Rect2(22, 68, 492, 1), Color("8d806f", 0.30))
 	# Quest progress strips give persistent feedback without huge text.
-	_draw_meter(Rect2(25, 202, 237, 6), _shards, 5, Color("f9d694"))
-	_draw_meter(Rect2(292, 202, 235, 6), _braziers, 3, Color("f18e57"))
+	_draw_meter(Rect2(25, 135, 230, 6), _shards, 5, Color("f9d694"))
+	_draw_meter(Rect2(271, 135, 231, 6), _braziers, 3, Color("f18e57"))
 	# Bottom caption.
 	draw_rect(Rect2(14, 506, 931, 27), Color(0.035, 0.05, 0.09, 0.81))
 	draw_rect(Rect2(14, 506, 931, 1), Color("c6a97a", 0.48))

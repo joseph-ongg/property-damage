@@ -12,6 +12,10 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey or not event.pressed or event.echo:
 		return
+	# Help is its own exclusive paused overlay; never stack pause menus.
+	var help: CanvasLayer = get_parent().get_node_or_null("HelpOverlay")
+	if help != null and help.get("is_open"):
+		return
 	# Prefer physical controls, but support synthetic/accessibility key events.
 	var key: Key = event.physical_keycode if event.physical_keycode != 0 else event.keycode
 	if key in [KEY_P, KEY_ESCAPE]:

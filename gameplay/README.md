@@ -177,3 +177,19 @@ These additions affect the standalone demo, not `burn_box.tscn`.
 This checks short-vs-high jumps, dash direction locking under opposing input,
 aim marker alignment, landing FX cleanup, and the missing-grid fire-brazier
 fallback. All new systems remain inside `gameplay/`.
+
+## Compact in-game HUD, controls help and objective guidance
+
+- The default upper-left HUD is intentionally compact; long key mappings no
+  longer obscure the moonlit level. **Press H** for the full two-player control
+  guide (including short/long jump tips and the three objectives).
+- While the help guide is visible, the world is paused; **H closes it**.
+  The help and `P`/`Esc` pause menu are mutually exclusive and cannot stack.
+- `demo/objective_guides.gd` places subtle gold marks above uncollected shards
+  and amber chevrons above unlit braziers. When a player's spark target is
+  within the brazier's ignition radius, its guide turns green; once completed,
+  the marker disappears.
+- These are self-contained, optional demo visual modules. All existing
+  `GameplayPlayer`, `MaterialGrid`, collision, and Simulation APIs are unchanged.
+- Check `gameplay/tests/gameplay_guidance_test.gd` for help/pause and objective
+  regression coverage.
