@@ -1,8 +1,8 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/demo/demo_controller.gd" id="2_controller"]
-[ext_resource type="Script" path="res://gameplay/demo/demo_fire_grid.gd" id="3_grid"]
+[ext_resource type="Script" path="res://onboarding/burn-box/material_grid.gd" id="3_grid"]
 [ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="4_bridge"]
 [ext_resource type="Script" path="res://gameplay/demo/arena_visuals.gd" id="5_visuals"]
 [ext_resource type="Script" path="res://gameplay/demo/environment_art.gd" id="6_environment"]
@@ -15,6 +15,8 @@
 [ext_resource type="Script" path="res://gameplay/demo/victory_overlay.gd" id="13_victory"]
 [ext_resource type="Script" path="res://gameplay/demo/help_overlay.gd" id="14_help"]
 [ext_resource type="Script" path="res://gameplay/demo/objective_guides.gd" id="15_guides"]
+[ext_resource type="Script" path="res://gameplay/demo/fire_visuals.gd" id="16_fire_vfx"]
+[ext_resource type="Script" path="res://gameplay/integration/material_setup.gd" id="17_setup"]
 
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
@@ -40,12 +42,25 @@ script = ExtResource("6_environment")
 [node name="AmbientMotes" type="Node2D" parent="."]
 script = ExtResource("10_motes")
 
-[node name="DemoFireGrid" type="Node2D" parent="."]
+[node name="MaterialGrid" type="Node2D" parent="."]
 script = ExtResource("3_grid")
+width = 30
+height = 17
+cell_size = 32
+
+[node name="TickTimer" type="Timer" parent="MaterialGrid"]
+
+[node name="DemoMaterials" type="Node" parent="MaterialGrid"]
+script = ExtResource("17_setup")
+legacy_all_wood = true
+
+[node name="FireVisuals" type="Node2D" parent="."]
+script = ExtResource("16_fire_vfx")
+grid_path = NodePath("../MaterialGrid")
 
 [node name="FireBridge" type="Node" parent="."]
 script = ExtResource("4_bridge")
-grid_path = NodePath("../DemoFireGrid")
+grid_path = NodePath("../MaterialGrid")
 
 [node name="ArenaVisuals" type="Node2D" parent="."]
 script = ExtResource("5_visuals")

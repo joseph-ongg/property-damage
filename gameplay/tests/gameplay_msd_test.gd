@@ -33,8 +33,10 @@ func _run() -> void:
 	var arena := instance.get_node("GameplayMSD")
 	var p1: GameplayPlayer = arena.get_node("Player1")
 	var p2: GameplayPlayer = arena.get_node("Player2")
-	var grid: Node2D = arena.get_node("DemoFireGrid")
+	var grid: Node2D = arena.get_node("MaterialGrid")
 	var bridge: GameplayFireBridge = arena.get_node("FireBridge")
+	check(grid is MaterialGrid and grid.get_script().resource_path == "res://onboarding/burn-box/material_grid.gd", "default demo uses Ethan's original MaterialGrid script")
+	check(arena.has_node("FireVisuals") and not arena.has_node("DemoFireGrid"), "visual overlay no longer owns a duplicate burning store")
 	check(arena.get_node("HUD/Title").text == "PROPERTY DAMAGE", "official title replaces invented quest name")
 	check(arena.get_node("HUD/Subtitle").text.contains("PROTOTYPE"), "demo explicitly labeled prototype")
 	check(arena.get_node("HUD").get_children().size() <= 6, "default HUD contains only essential indicators")
@@ -58,21 +60,27 @@ func _run() -> void:
 	Input.action_release("p1_right")
 	Input.action_release("p2_left")
 	check(p1.global_position.x > x1 + 20 and p2.global_position.x < x2 - 20, "two players move independently toward each other")
-	# In the MSD, sparks affect the world ahead rather than a made-up victory score.
-	var target: Vector2 = p1.global_position + Vector2(p1.facing * p1.spark.reach, 0)
-	var cell: Vector2i = grid.call("world_to_cell", target)
+	# 上游真实 Grid 的 cell_size=16，玩家在空中会保留惯性；必须验证实际施法坐标。
+	var p1_targets: Array[Vector2] = []
+	var p2_targets: Array[Vector2] = []
+	p1.sparked.connect(func(_index: int, pos: Vector2, _accepted: bool): p1_targets.append(pos))
+	p2.sparked.connect(func(_index: int, pos: Vector2, _accepted: bool): p2_targets.append(pos))
 	Input.action_press("p1_spark")
 	await frames(3)
 	Input.action_release("p1_spark")
-	check(grid.call("is_burning", cell.x, cell.y), "P1 spark ignites a cell ahead")
+	check(p1_targets.size() == 1, "P1 emits actual spell target once")
+	var target: Vector2 = p1_targets[0]
+	var cell: Vector2i = grid.call("world_to_cell", target)
+	check(grid.call("is_burning", cell.x, cell.y), "P1 spark ignites the actual target cell")
 	check(arena.sparks_p1 == 1 and arena.sparks_p2 == 0, "only correct player's ignition count increments")
-	check(bridge.is_burning_world(target), "Simulation-compatible bridge reads burning cell")
-	target = p2.global_position + Vector2(p2.facing * p2.spark.reach, 0)
-	cell = grid.call("world_to_cell", target)
+	check(bridge.is_burning_world(target), "MaterialGrid fire bridge reads real burning cell")
 	Input.action_press("p2_spark")
 	await frames(3)
 	Input.action_release("p2_spark")
-	check(grid.call("is_burning", cell.x, cell.y), "P2 spark ignites a cell ahead")
+	check(p2_targets.size() == 1, "P2 emits actual spell target once")
+	target = p2_targets[0]
+	cell = grid.call("world_to_cell", target)
+	check(grid.call("is_burning", cell.x, cell.y), "P2 spark ignites the actual target cell")
 	check(arena.sparks_p2 == 1, "P2 ignition recorded")
 	# Existing pause control retained with much less screen UI.
 	var pause: CanvasLayer = arena.get_node("PauseOverlay")
