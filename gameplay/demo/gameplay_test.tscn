@@ -1,0 +1,135 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="PackedScene" path="res://gameplay/player.tscn" id="1_player"]
+[ext_resource type="Script" path="res://gameplay/demo/demo_controller.gd" id="2_controller"]
+[ext_resource type="Script" path="res://gameplay/demo/demo_fire_grid.gd" id="3_grid"]
+[ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="4_bridge"]
+[ext_resource type="Script" path="res://gameplay/demo/arena_visuals.gd" id="5_visuals"]
+
+[sub_resource type="RectangleShape2D" id="shape_floor"]
+size = Vector2(960, 40)
+
+[sub_resource type="RectangleShape2D" id="shape_wall"]
+size = Vector2(32, 600)
+
+[sub_resource type="RectangleShape2D" id="shape_platform_a"]
+size = Vector2(175, 12)
+
+[sub_resource type="RectangleShape2D" id="shape_platform_b"]
+size = Vector2(185, 12)
+
+[sub_resource type="RectangleShape2D" id="shape_platform_c"]
+size = Vector2(165, 12)
+
+[node name="GameplayDemo" type="Node2D"]
+script = ExtResource("2_controller")
+
+[node name="DemoFireGrid" type="Node2D" parent="."]
+script = ExtResource("3_grid")
+
+[node name="FireBridge" type="Node" parent="."]
+script = ExtResource("4_bridge")
+grid_path = NodePath("../DemoFireGrid")
+
+[node name="ArenaVisuals" type="Node2D" parent="."]
+script = ExtResource("5_visuals")
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(480, 518)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("shape_floor")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(-16, 270)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("shape_wall")
+
+[node name="RightWall" type="StaticBody2D" parent="."]
+position = Vector2(976, 270)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall"]
+shape = SubResource("shape_wall")
+
+[node name="LowerPlatform" type="StaticBody2D" parent="."]
+position = Vector2(240, 426)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LowerPlatform"]
+shape = SubResource("shape_platform_a")
+one_way_collision = true
+
+[node name="UpperPlatform" type="StaticBody2D" parent="."]
+position = Vector2(470, 344)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="UpperPlatform"]
+shape = SubResource("shape_platform_b")
+one_way_collision = true
+
+[node name="RightPlatform" type="StaticBody2D" parent="."]
+position = Vector2(737, 426)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightPlatform"]
+shape = SubResource("shape_platform_c")
+one_way_collision = true
+
+[node name="Player1" parent="." instance=ExtResource("1_player")]
+position = Vector2(130, 460)
+player_index = 1
+tint = Color(0.29, 0.9, 0.78, 1)
+fire_bridge_path = NodePath("../FireBridge")
+
+[node name="Player2" parent="." instance=ExtResource("1_player")]
+position = Vector2(833, 460)
+player_index = 2
+tint = Color(1, 0.66, 0.37, 1)
+fire_bridge_path = NodePath("../FireBridge")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Title" type="Label" parent="HUD"]
+offset_left = 26.0
+offset_top = 16.0
+offset_right = 700.0
+offset_bottom = 42.0
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.9, 0.96, 1, 1)
+text = "PROPERTY DAMAGE   /   GAMEPLAY TEST"
+
+[node name="Controls" type="Label" parent="HUD"]
+offset_left = 27.0
+offset_top = 51.0
+offset_right = 925.0
+offset_bottom = 75.0
+theme_override_font_sizes/font_size = 15
+theme_override_colors/font_color = Color(0.72, 0.85, 0.95, 1)
+text = "P1  A / D MOVE  |  W JUMP  |  F SPARK          P2  LEFT / RIGHT MOVE  |  UP JUMP  |  ENTER SPARK"
+
+[node name="Status" type="Label" parent="HUD"]
+offset_left = 27.0
+offset_top = 95.0
+offset_right = 750.0
+offset_bottom = 125.0
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.93, 0.78, 0.51, 1)
+text = "SPARKS IGNITE THE GRID IN FRONT OF EACH PLAYER"
+
+[node name="Footer" type="Label" parent="HUD"]
+offset_left = 26.0
+offset_top = 510.0
+offset_right = 760.0
+offset_bottom = 536.0
+theme_override_colors/font_color = Color(0.78, 0.86, 0.96, 1)
+text = "ONE-WAY PLATFORMS   •   SOLID WALLS   •   PLAYERS PASS THROUGH EACH OTHER"
