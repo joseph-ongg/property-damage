@@ -59,6 +59,12 @@ func get_interaction_offer(player: GameplayPlayer) -> Dictionary:
 	var carried: GameplayBurnableProp = held_books.get(player.player_index) as GameplayBurnableProp
 	if carried != null and is_instance_valid(carried) and carried.carried_by == player:
 		return {"kind": "throw", "target": carried, "action": "THROW BOOK"}
+	# Keep the running fan controllable while it blows a player toward nearby
+	# books. Otherwise the book's higher pickup priority steals the off key.
+	if experimental_appliances_enabled:
+		var active_fan: GameplayAppliance = $Appliances/FanDevice
+		if active_fan.switched_on and active_fan.can_interact(player):
+			return {"kind": "device", "target": active_fan, "action": "TURN OFF FAN"}
 	var best_distance: float = INF
 	var book_target: GameplayBurnableProp = null
 	if experimental_books_enabled:
@@ -73,7 +79,7 @@ func get_interaction_offer(player: GameplayPlayer) -> Dictionary:
 	var device_target: GameplayAppliance = null
 	if experimental_appliances_enabled:
 		for device: GameplayAppliance in $Appliances.get_children():
-			var distance: float = device.global_position.distance_to(player.global_position)
+			var distance: float = device.interaction_point().distance_to(player.global_position)
 			if device.can_interact(player) and distance < best_distance:
 				best_distance = distance
 				device_target = device

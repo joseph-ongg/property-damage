@@ -79,6 +79,10 @@ func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool,
 
 	var target_speed := horizontal * speed * speed_scale
 	var acceleration := ground_acceleration if grounded else air_acceleration
+	# Let ambient wind accelerate an idle player instead of having ground
+	# friction cancel the force every frame. Leaving the fan restores braking.
+	if grounded and is_zero_approx(horizontal) and not is_zero_approx(environment_acceleration_x):
+		acceleration = 0.0
 	# 只在空中松方向键时保留惯性，地面仍会正常减速。
 	# Keep horizontal momentum when releasing direction midair; brake normally on the ground.
 	if is_zero_approx(horizontal) and not grounded and preserve_air_momentum:

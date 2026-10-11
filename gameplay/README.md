@@ -65,6 +65,7 @@ Run an individual test from the repository root using Godot 4.7.2 Standard:
 | `gameplay_upstream_drop_test.gd` | Independent one-way-platform drop and solid-floor safety |
 | `gameplay_upstream_grid_test.gd` | Combustible/noncombustible materials and redraw events |
 | `gameplay_advanced_test.gd` | Double jumps, air momentum, book pickup, and appliances |
+| `gameplay_fan_playtest.gd` | Floor-level P1/P2 fan interaction, physical wind push, and safe turn-off near books |
 | `gameplay_magic_test.gd` | Directional magic projectiles and prop effects |
 | `gameplay_props_test.gd` | Scorching, embers, and repeated-hit protection |
 | `gameplay_layout_feedback_test.gd` | Context prompts, AC slowdown, and range exit |

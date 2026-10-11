@@ -16,8 +16,16 @@ var charred: bool = false
 var _clock: float = 0.0
 
 
+# The fan is drawn on the table; its node origin is above a standing player's
+# interaction height. Use the base/control point, not the artwork's origin.
+func interaction_point() -> Vector2:
+	if device == Device.FAN:
+		return global_position + Vector2(0.0, 24.0)
+	return global_position
+
+
 func can_interact(player: GameplayPlayer) -> bool:
-	return not charred and global_position.distance_to(player.global_position) <= interaction_radius
+	return not charred and interaction_point().distance_to(player.global_position) <= interaction_radius
 
 
 func interact(player: GameplayPlayer) -> bool:
