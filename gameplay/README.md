@@ -293,3 +293,10 @@ Run:
 "/path/to/Godot.app/Contents/MacOS/Godot" --headless --path . \\
   --script res://gameplay/tests/gameplay_magic_test.gd
 ```
+
+## 中文快速维护提示：远端模块整合
+
+- 双人平台下穿：`GameplayPlayer` → `GameplayPlatformDrop`，默认场景 P1 `S+W` / P2 `↓+↑`，实体地板不会下穿。
+- 火焰适配：`GameplayFireBridge` 参考 Ethan 材料接口，`ignite()` 不等于一定点燃，必须检查 `is_burning()`。
+- 可选网格预览：`gameplay/integration/material_grid_preview.gd`，参考 Jackson 的信号驱动重绘；不用于默认像素客厅。
+- 各来源、具体原始 SHA、原因和验证方式见 [`UPSTREAM_INTEGRATION.md`](UPSTREAM_INTEGRATION.md)。
