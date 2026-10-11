@@ -249,3 +249,47 @@ briefly show embers and leave a persistent charred appearance. This does not
 modify `MaterialGrid` or spread fire; switch
 `GameplayMSD.experimental_books_enabled = false` to disable the mock response.
 Run `gameplay/tests/gameplay_props_test.gd` for its interaction regression.
+
+## New experimental controls: fixed jumps, interactions, ranged magic
+
+In the **default F5 Property Damage MSD prototype** both players now use:
+
+| Action | P1 | P2 |
+| --- | --- | --- |
+| Walk / steer in air | A / D | Left / Right |
+| Fixed-height first + second jump | W (tap twice) | Up (tap twice) |
+| Ignite cell directly in front (Simulation bridge) | F | Enter |
+| Independent ranged magic bolt (visual prop interaction) | G | . (period) |
+| Pick up nearby book / throw held book / toggle appliance | E | Shift |
+| Pause / restart | P or Esc / R | Same global controls |
+
+The standard MSD players opt into `enhanced_jumping` (fixed arc, exactly two
+jumps, no automatic midair brake on released horizontal input). Collision
+behavior, jump buffering and coyote allowance remain active. Air steering
+still works; ground braking is unchanged. The prior Moonlit Ruins **optional**
+scene retains its existing movement tuning until separately approved.
+
+`gameplay/msd/burnable_prop.gd` can be picked up, carried and thrown along a
+simple gravity arc and land on the test arena geometry. These are lightweight
+visual/kinematic prototype books, not full RigidBody2D or Simulation materials.
+`gameplay/msd/appliance.gd` supports these clearly experimental interactions:
+fridge opening, table fan's leftward push, a floor-accessible AC switch that
+slows nearby movement, and a computer with toggle and magic/spark-short states.
+`gameplay/msd/magic_bolt.gd` travels in the facing direction, can scorch books
+and short the computer, and is deliberately **not** `MaterialGrid.ignite()`.
+The actual fire-cell Spark continues to work independently on F/Enter.
+
+No HP, mana, scaling damage, property-damage score, opponent damage, win
+conditions or approval of these appliance mechanics is claimed. Switch off
+`experimental_books_enabled` and/or `experimental_appliances_enabled` on the
+MSD controller to isolate the approved baseline (G/. magic visual projectiles
+also require one of those experimental categories).
+
+Run:
+
+```sh
+"/path/to/Godot.app/Contents/MacOS/Godot" --headless --path . \\
+  --script res://gameplay/tests/gameplay_advanced_test.gd
+"/path/to/Godot.app/Contents/MacOS/Godot" --headless --path . \\
+  --script res://gameplay/tests/gameplay_magic_test.gd
+```

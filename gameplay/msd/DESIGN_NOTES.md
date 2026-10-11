@@ -94,3 +94,16 @@ material damage or fire spread; toggle it off if the team wants pure MSD.
 
 Sources: Gameplay subteam Slack 2026-10-06;
 https://docs.google.com/document/d/1iVnXhmA9XLGX5hUUSrxCrNm4u9ljC8tZb10seZF4FE8/edit
+
+## Local interaction prototype update (not approved rules)
+
+Implemented after the initial MSD prototype as separately editable modules:
+`GameplayMotor` now supports a fixed-height double jump with inherited
+midair horizontal momentum. `GameplayBurnableProp` supports E/Shift pickup and
+throw, and `GameplayAppliance` toggles four distinct appliance experiments.
+`GameplayMagicBolt` provides a second, directional visual magic attack on
+G/period, while Spark F/Enter continues through `MaterialGrid`'s adapter.
+All these actions are **technical prototypes** based on the public doc's
+possible interactions, not a final approved combat, health, or scoring system.
+Future balancing needs team input on double-jump reach, whether books should
+use true physics bodies, and which appliance effects are wanted in production.
