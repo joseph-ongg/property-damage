@@ -1,32 +1,54 @@
-# 远端分支择优整合记录（本地实验）
+# Gameplay–Simulation integration boundary
 
-本文件用于后续和组员对接；这里**不是**宣称整个远端分支已合并，也不代表 PR 已获批准。
-大部分适配与测试都在 `gameplay/`。按本次「以远端实现替换重复本地实现」的要求，
-**唯一直接同步的 Simulation 源文件**是 `onboarding/burn-box/material_grid.gd`：
-它与 Ethan 上游 `46c3df2` 的文件内容完全一致。`burn_box.tscn` 未修改，
-远端 `main` 也未修改或推送。将来 PR #3 合并时需要再次核对差异。
+**Status:** Local prototype only; no PR has been opened or merged. The Gameplay
+branch leaves all files in `onboarding/` exactly as they are in `main`.
 
-| 原作者 / 分支 | 原始来源 | 引入的功能 | 本地文件 |
-| --- | --- | --- | --- |
-| Austin (`chouhuaidan`) / `sim/jackson/burn-box-render` | `a529274`, `player.gd` | 借鉴 `↓ + Jump` 下穿平台；重写为双玩家独立输入和临时平台碰撞例外，不允许穿实体地板 | `components/platform_drop.gd`, `player.gd`, `input_actions.gd` |
-| Ethan (`Miao-Zinan`) / `ethan/burn-box-grid` | `46c3df2`, `onboarding/burn-box/material_grid.gd` | 用上游原始 `MaterialGrid` 直接替换测试假存储；点火 API 同时验证状态，拒绝空气、石头和水 | `onboarding/burn-box/material_grid.gd`, `integration/material_setup.gd`, `components/fire_bridge.gd` |
-| Jackson / `sim/jackson/burn-box-render` | `c897a2e`, `onboarding/burn-box/grid_renderer.gd` | 借鉴 `cell_changed` 触发重绘和材料与燃烧状态分色；封装为**可选调试预览**，不会默认遮盖现有像素场景 | `integration/material_grid_preview.gd` |
+## Ownership
 
-## 为什么没有直接 cherry-pick 整个分支
+| Owner | Source reference | Adaptation in Gameplay |
+| --- | --- | --- |
+| Austin | `a529274` from `sim/jackson/burn-box-render` | Adapted independent jump counters and Down+Jump one-way platform drops in `gameplay/components/` |
+| Ethan | `46c3df2` from `ethan/burn-box-grid` | Followed the public `MaterialGrid` methods, enum, and `cell_changed` signal in `GameplayFireBridge` |
+| Jackson | `c897a2e` from `sim/jackson/burn-box-render` | Optional `cell_changed`-driven fire and material preview in `gameplay/` only |
 
-1. Austin 的 `main.tscn` 含冲突标记，而他的 `player.gd` 使用单人的 `ui_*` 输入，不兼容当前双人控制。保留我们的可复用电机 API，但把内部跳跃次数换成 Austin 的 `jumps_left` 模式。
-2. Ethan 的存储已经按要求**从远端原样引入本地测试分支**，无需保留第二套存储实现。团队的 PR #3 仍由 Simulation 负责人决定是否合并；不要拿本地同步冒充团队 merge。
-3. Jackson 的原始渲染器将整屏格子画成色块；默认界面改用纯火焰 VFX，按 `cell_changed` 重绘，避免盖住像素客厅。
-4. `angela/CollisionShape2D` 当前与远端 main 相同，不能据此找到可直接引入的新代码。
+**Do not merge or overwrite Ethan's `onboarding/burn-box/material_grid.gd` via a
+Gameplay PR.** Main still has a scaffold for that file; Ethan owns the real
+implementation. The exact `MaterialGrid` file in this branch was restored to
+`main`, so the Gameplay PR will have no diff in `onboarding/`.
 
-## 输入和验收
+## Why the standalone demo still ignites cells
 
-- 默认 Gameplay MSD：P1 `S + W`，P2 `↓ + ↑` 从**单向平台**落下，普通地板不能穿透。此功能为对 Austin 方案的安全化适配。
-- `gameplay/tests/gameplay_upstream_drop_test.gd`：检查双人单向下穿及实体地板保护。
-- `gameplay/tests/gameplay_upstream_grid_test.gd`：直接实例化 Ethan 的真实 MaterialGrid 测试材料、点火和事件；另验证 Jackson 式预览仅在格子变化时更新。
-- 本地已使用真实 MaterialGrid 实测；仍需要在 Ethan 的 PR 正式合并后，在团队集成分支重新跑测试，检查其他 Simulation 模块是否有变化。
+`gameplay/integration/demo_material_grid.gd` is a clearly named, temporary
+`GameplayDemoMaterialGrid extends MaterialGrid`. It stores only the material
+and burning values required for a standalone demo, implementing the same public
+methods. It does **not** implement propagation, burnout, damage, or Simulation
+storage, and the fire bridge/visual renderer do not have their own fire state.
 
-Git 来源（以原 SHA 为准，避免本地改写提交标题造成歧义）：
-- https://github.com/joseph-ongg/property-damage/commit/a5292743351c673dcd095efabcba34f6f996219b
-- https://github.com/joseph-ongg/property-damage/commit/46c3df2d01275ce1ebbaee87bb3f7ba19e4dabb4
-- https://github.com/joseph-ongg/property-damage/commit/c897a2e735c4c65f4173cb4b4a542e94f512323b
+Both standalone `.tscn` scenes instantiate this Gameplay-only subclass.
+The Simulation-owned base file is unchanged; the demo adapter can be removed
+once the real material system and map are integrated.
+
+## Handoff procedure after Ethan's PR merges
+
+1. Pull the latest `main` after the Simulation owners merge Ethan's grid.
+2. In the production scene, change the `MaterialGrid` node's script from
+   `res://gameplay/integration/demo_material_grid.gd` to
+   `res://onboarding/burn-box/material_grid.gd`.
+3. Replace `DemoMaterials` test painting with the real arena's material data.
+4. Keep `GameplayFireBridge.grid_path` pointing to the scene's grid and both
+   players' `fire_bridge_path` pointing to the bridge. It checks actual
+   `is_burning()` state after calling `ignite()` (which returns `void`).
+5. Re-run the Gameplay tests, especially `gameplay_simulation_contract_test.gd`,
+   `gameplay_upstream_grid_test.gd`, and `gameplay_msd_test.gd`. Also test the
+   exact production scene in Godot before merging.
+
+The tests are designed to handle both today's unimplemented `main` scaffold
+and Ethan's actual storage. Compatibility with Ethan's original file can be
+verified in a **temporary project copy**, replacing only that file there;
+never do this by editing the production branch's Simulation file.
+
+## Original references
+
+- [Austin: `a529274`](https://github.com/joseph-ongg/property-damage/commit/a5292743351c673dcd095efabcba34f6f996219b)
+- [Ethan: `46c3df2`](https://github.com/joseph-ongg/property-damage/commit/46c3df2d01275ce1ebbaee87bb3f7ba19e4dabb4)
+- [Jackson: `c897a2e`](https://github.com/joseph-ongg/property-damage/commit/c897a2e735c4c65f4173cb4b4a542e94f512323b)

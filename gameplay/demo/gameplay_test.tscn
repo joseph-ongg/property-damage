@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://gameplay/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/demo/demo_controller.gd" id="2_controller"]
-[ext_resource type="Script" path="res://onboarding/burn-box/material_grid.gd" id="3_grid"]
+[ext_resource type="Script" path="res://gameplay/integration/demo_material_grid.gd" id="3_grid"]
 [ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="4_bridge"]
 [ext_resource type="Script" path="res://gameplay/demo/arena_visuals.gd" id="5_visuals"]
 [ext_resource type="Script" path="res://gameplay/demo/environment_art.gd" id="6_environment"]

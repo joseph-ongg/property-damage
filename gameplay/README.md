@@ -20,7 +20,7 @@ Start with the [root README](../README.md) for the complete feature list, contro
 | Motor | `components/player_motor.gd` | Fixed-height double jump, air momentum, coyote time, and jump buffer |
 | Platform drop | `components/platform_drop.gd` | Temporarily ignores the one-way platform under the player, never solid ground |
 | Spark | `components/spark_emitter.gd` | Directional ignition target and independent cooldown |
-| Simulation bridge | `components/fire_bridge.gd` | Calls Ethan's `MaterialGrid` interface and checks actual burning state |
+| Simulation bridge | `components/fire_bridge.gd` | Calls the Simulation `MaterialGrid` public API and checks actual burning state |
 | Optional components | `components/player_dash.gd`, `components/fire_hazard.gd` | Experimental Dash (disabled in default MSD) and fire-contact logic |
 
 Player collision layer is 2 and the world collision layer is 1. Players collide with the world, not each other. Static world collision bodies must exist separately from visual background textures.
@@ -34,18 +34,19 @@ Player collision layer is 2 and the world collision layer is 1. Players collide 
 - `msd/interaction_hints.gd`: Nearby interaction instructions that share target selection with the controller's `get_interaction_offer()`.
 - `msd/player_conditions.gd`: `SLOW` and `WIND` visual states; physics remains owned by the motor and MSD controller.
 - `msd/room_visuals.gd`, `msd/art/generate_room.py`: Pixel-art room visuals, independent of collisions.
+- `integration/demo_material_grid.gd`: Gameplay-owned temporary `MaterialGrid` subclass for standalone prototype fire state; replace with Simulation's implementation after it merges.
 - `integration/material_setup.gd`: Paints test materials only; it does not store burning state.
 - `demo/fire_visuals.gd`: Listens to `MaterialGrid.cell_changed` and draws subtle fire effects without implementing ignition or storage.
 
 ## 4. Integrating with the team's scene
 
 1. Instantiate `gameplay/player.tscn` twice, using `player_index=1` and `2`, and configure distinct appearances.
-2. Point `GameplayFireBridge.grid_path` to the real `MaterialGrid`; both players' `fire_bridge_path` references should resolve to that bridge.
+2. Replace the standalone scene's `GameplayDemoMaterialGrid` script with the merged Simulation `MaterialGrid` and configure its real material map. Point `GameplayFireBridge.grid_path` to that grid; both players' `fire_bridge_path` references should resolve to the bridge.
 3. Use world collision layer 1 and player layer 2 (player mask 1). Configure one-way tabletops using `CollisionShape2D.one_way_collision`.
 4. Replace the temporary living room, material seeding, and test HUD with final team art and scenes. **Do not modify `onboarding/burn-box/burn_box.tscn`.**
 5. Confirm final materials, mage sprites, propagation API, interactions, and game objectives with the Simulation, Art, and Design teams before including optional mechanics in the main build.
 
-Austin's jump counter and platform-drop approach were adapted for this prototype. Ethan's original `MaterialGrid` source was synchronized from his remote branch. See [`UPSTREAM_INTEGRATION.md`](UPSTREAM_INTEGRATION.md) for original commit SHAs and merge boundaries. Local integration does not mean a team PR has been approved.
+Austin's jump counter and platform-drop approach were adapted for this prototype. Ethan's `MaterialGrid` was used as an API reference, but the Simulation-owned file is now identical to `main`, and temporary storage is isolated inside Gameplay. See [`UPSTREAM_INTEGRATION.md`](UPSTREAM_INTEGRATION.md) for original commit SHAs and merge boundaries. Local integration does not mean a team PR has been approved.
 
 ## 5. Regression tests
 
@@ -61,9 +62,11 @@ Run an individual test from the repository root using Godot 4.7.2 Standard:
 | `gameplay_smoke_test.gd` | Two-player basics and ignition |
 | `gameplay_edge_test.gd` | Jump buffering, boundary checks, and movement tolerances |
 | `gameplay_controls_test.gd` | Actions and control response |
-| `gameplay_msd_test.gd` | Default MSD scene with Ethan's material storage |
+| `gameplay_msd_test.gd` | Default MSD scene with Gameplay-only demo material storage |
 | `gameplay_upstream_drop_test.gd` | Independent one-way-platform drop and solid-floor safety |
-| `gameplay_upstream_grid_test.gd` | Combustible/noncombustible materials and redraw events |
+| `gameplay_upstream_grid_test.gd` | Demo grid and Simulation-compatible fire API, materials, redraw events |
+| `gameplay_simulation_contract_test.gd` | Integration behavior against main's scaffold or the installed Ethan grid |
+| `gameplay_grid_scene_handoff_test.gd` | Active MSD scene wiring, material seeding, Spark, and grid replacement smoke test |
 | `gameplay_advanced_test.gd` | Double jumps, air momentum, book pickup, and appliances |
 | `gameplay_fan_playtest.gd` | Floor-level P1/P2 fan interaction, physical wind push, and safe turn-off near books |
 | `gameplay_magic_test.gd` | Directional magic projectiles and prop effects |

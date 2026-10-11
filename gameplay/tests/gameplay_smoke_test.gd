@@ -34,7 +34,7 @@ func _run() -> void:
 	var p2: GameplayPlayer = arena.get_node("Player2")
 	var bridge: GameplayFireBridge = arena.get_node("FireBridge")
 	var grid: Node2D = arena.get_node("MaterialGrid")
-	check(grid is MaterialGrid, "optional quest also uses Ethan MaterialGrid backend")
+	check(grid is GameplayDemoMaterialGrid, "optional quest uses isolated demo storage behind MaterialGrid API")
 	check(InputMap.has_action("p1_jump") and InputMap.has_action("p2_spark"), "isolated controls registered")
 	check(p1.collision_layer == 2 and p1.collision_mask == 1, "P1 only collides with world")
 	check(p2.collision_layer == 2 and p2.collision_mask == 1, "P2 passes through P1")

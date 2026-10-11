@@ -63,7 +63,7 @@ material damage or fire spread; toggle it off if the team wants pure MSD.
 | P0 | Implemented locally | One-screen legibility: P1 mint / P2 warm amber; few HUD labels; test scene isolated from `burn_box.tscn` | Gameplay |
 | P1, after Simulation handoff | Pending | Replace fake grid/arena paths, validate real materials and burn visuals, remove experimental fallback | Simulation + Gameplay |
 | P1, with Design/Art review | Proposed, optional prototype exists | 3 book props can show local scorch feedback; confirm interaction rules, materials and ownership | Design + Art + Gameplay |
-| P2, after agreement | Not implemented | Pickup/throw, outlet/fan force, fridge trapping, clock and other complex furniture | Design + relevant teams |
+| P2, after agreement | Partly prototyped; not approved | Book pickup/throw and fan force are experimental; fridge trapping, clock interactions, and broader furniture rules remain unspecified | Design + relevant teams |
 | P2, after PM approval | Undefined | Damage scoring, victory/defeat, rounds, mana or power scaling | Design + PM |
 
 ## Pixel-art style guide
@@ -111,7 +111,11 @@ use true physics bodies, and which appliance effects are wanted in production.
 
 ### Later merge notes
 
-Ethan's exact MaterialGrid source file from `46c3df2` is now present on the
-**local branch**, replacing the previous duplicate flame-state demo.
-The local pixel-art flame renderer and material setup live under `gameplay/`.
-This is not evidence that Ethan's PR has been merged into the team mainline.
+The Gameplay branch now leaves `onboarding/burn-box/material_grid.gd` exactly
+as it is on `main`; the standalone scenes instead use the explicitly named
+`gameplay/integration/demo_material_grid.gd` for minimal temporary storage.
+The production adapter already calls only `MaterialGrid`'s public API. When
+Ethan's implementation merges, replace the demo grid scene script and remove
+the temporary storage from the production scene. Both variants are covered by
+`gameplay_simulation_contract_test.gd`, and the external branch is separately
+tested in an isolated copy.

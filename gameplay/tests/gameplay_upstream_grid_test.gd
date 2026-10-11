@@ -17,9 +17,9 @@ func _run() -> void:
 	var stage := Node2D.new()
 	stage.name = "GridContract"
 	root.add_child(stage)
-	# 直接测试 Ethan 真正的 MaterialGrid，不再保留本地仿制数据仓库。
-	# Test Ethan's actual MaterialGrid instead of maintaining a local simulation copy.
-	var grid := MaterialGrid.new()
+	# Test the Gameplay-owned demo grid via the same public API as the Simulation grid.
+	# Upstream Ethan compatibility is verified separately against his branch.
+	var grid := GameplayDemoMaterialGrid.new()
 	var timer := Timer.new()
 	timer.name = "TickTimer"
 	grid.add_child(timer)

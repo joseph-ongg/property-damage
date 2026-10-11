@@ -34,7 +34,7 @@ Dash is disabled in the default living-room scene. The separate fantasy test sce
 - Fixed-height jumps, horizontal momentum retained when releasing direction in midair, aerial steering, coyote time, and jump buffering.
 - Solid floors and walls; one-way furniture platforms that can be jumped through from below or deliberately dropped through.
 - Players on collision layer 2 interact with world layer 1 but pass through each other.
-- Directional Spark via `GameplayFireBridge`, connected to **Ethan's `MaterialGrid`** for material and burning state. Gameplay does not maintain a duplicate flame-state store.
+- Directional Spark via `GameplayFireBridge`, using the **`MaterialGrid` public API**. The standalone scenes use a Gameplay-owned demo subclass for temporary ignition; production should connect the real Simulation grid after the Simulation team merges it. No extra burning-state store exists in the bridge or effects renderer.
 
 ### Optional visual and interaction prototypes
 
@@ -61,7 +61,8 @@ Dash is disabled in the default living-room scene. The separate fantasy test sce
 | `gameplay/components/player_motor.gd` | Acceleration, jump logic, air momentum |
 | `gameplay/components/platform_drop.gd` | Safe drop-through on one-way platforms |
 | `gameplay/components/spark_emitter.gd` / `gameplay/components/fire_bridge.gd` | Spark direction, cooldown, Simulation integration |
-| `onboarding/burn-box/material_grid.gd` | Material and burning storage synchronized from Ethan's remote branch |
+| `onboarding/burn-box/material_grid.gd` | Simulation-owned public interface, left identical to `main` |
+| `gameplay/integration/demo_material_grid.gd` | Gameplay-only temporary fire storage for the standalone prototype |
 | `gameplay/msd/msd_controller.gd` | Living-room controller for players, Spark, props, and appliances |
 | `gameplay/msd/burnable_prop.gd` | Book carrying, throwing, and scorch visuals |
 | `gameplay/msd/appliance.gd` | Fridge, fan, AC, and computer |
@@ -88,7 +89,7 @@ These are representative tests, not the entire suite. See the Gameplay README fo
 ## Code and art attribution
 
 - **Austin:** Remaining-jump counting and the approach to dropping through one-way platforms, adapted for independent two-player controls.
-- **Ethan:** Original `MaterialGrid` implementation, synchronized locally. This does **not** imply his PR is merged into the team's `main` branch.
+- **Ethan:** The `MaterialGrid` public API and storage implementation on his separate `ethan/burn-box-grid` branch. The Gameplay branch does not modify or ship his Simulation file, and his PR has not yet been merged into `main`.
 - **Jackson:** `cell_changed`-driven material and burning-state rendering approach, adapted into lightweight visual feedback.
 - **Local prototype artwork:** Generated with original Pillow drawing scripts (`gameplay/art/generate_art.py` and `gameplay/msd/art/generate_room.py`), rather than downloaded commercial-game assets.
 
