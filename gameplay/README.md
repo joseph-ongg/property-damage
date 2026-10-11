@@ -1,8 +1,24 @@
-# Gameplay MSD — modular two-player demo
+# Property Damage — Gameplay development
 
-**Start:** run the repository's `main.tscn` (F5 / Cmd+B), or open
-`gameplay/demo/gameplay_test.tscn` and run the current scene (F6).
-Godot 4.7.2 Standard and GDScript; there are **no external runtime dependencies**.
+**Default F5 / Godot `main.tscn`:** `gameplay/msd/gameplay_msd.tscn`,
+which implements the Gameplay subteam's Oct 15 MSD scope. Two players run,
+jump and face left/right; each has a Spark key to ignite a grid cell in front
+of them. They collide with solid floor/walls and one-way furniture platforms.
+This prototype uses a stand-in `DemoFireGrid` until the actual arena and
+Simulation storage are integrated.
+
+**Experimental optional scene:** `gameplay/demo/gameplay_test.tscn` (the
+previously-created "Moonlit Ruins" art/quest prototype with shards, braziers,
+dash, combos and a victory screen). Its invented fantasy names, quests,
+collectibles and win conditions are **NOT** official Property Damage design.
+They are not in the default scene, and should not be submitted as team
+requirements without design approval.
+
+**Sources of record:** Zander's Oct 6 Gameplay subteam MSD instructions; the
+project's [PUBLIC] DP Designs document. The design document describes
+possible living-room/bedroom environments, magic attacks, object interaction,
+bookshelves, fridge, clock, fan and destructible furniture. Several suggestions
+are explicitly tentative; an overall winning condition has not been confirmed.
 
 ## Controls
 
@@ -10,6 +26,9 @@ Godot 4.7.2 Standard and GDScript; there are **no external runtime dependencies*
 | --- | --- | --- | --- |
 | P1 (turquoise) | A / D | W | F |
 | P2 (orange) | Left / Right | Up | Enter/Return |
+
+The default MSD scene does not activate the optional Q or / dash mechanic;
+those controls are available in the separate experimental quest scene only.
 
 Sparks target one grid cell just ahead of the character's current facing.
 P1 and P2 share the same keyboard but have separate InputMap actions. Players
@@ -193,3 +212,25 @@ fallback. All new systems remain inside `gameplay/`.
   `GameplayPlayer`, `MaterialGrid`, collision, and Simulation APIs are unchanged.
 - Check `gameplay/tests/gameplay_guidance_test.gd` for help/pause and objective
   regression coverage.
+
+## Testing the team-scoped default MSD
+
+- Open the repository with Godot 4, press F5.
+- P1: A/D to move, W to jump, F to Spark.
+- P2: left/right to move, Up to jump, Enter to Spark.
+- Press P or Escape to pause, R to restart when not paused.
+- The colored player art is a temporary independent local sprite, **not** the
+  Art team's approved final sprite.
+- In `gameplay/msd/`, `room_visuals.gd` is a decorative placeholder for a
+  living room with bookshelf, table and fridge. `gameplay_msd.tscn` owns their
+  world collision and one-way platform setup. Replace this fake arena once
+  Simulation supplies the real collisions.
+- There is no score, health bar, fake win condition or invented quest UI.
+  Spark status only reports whether a fire-grid ignition request was accepted.
+  Real material damage/spread and victory mechanics remain unimplemented.
+- Test the official MSD independently with:
+
+```sh
+"/path/to/Godot.app/Contents/MacOS/Godot" --headless --path . \
+  --script res://gameplay/tests/gameplay_msd_test.gd
+```

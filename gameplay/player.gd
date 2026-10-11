@@ -12,6 +12,7 @@ signal sparked(player_index: int, target: Vector2, accepted: bool)
 @export var tint: Color = Color("51d8c5")
 @export_node_path("Node") var fire_bridge_path: NodePath
 @export var reset_height: float = 580.0
+@export var dash_enabled: bool = true  # Optional extra; off in the team MSD demo.
 
 @onready var motor: GameplayMotor = $Motor
 @onready var dash: GameplayDash = $Dash
@@ -61,7 +62,7 @@ func _physics_process(delta: float) -> void:
 		sprite.flip_h = facing < 0
 		queue_redraw()
 	var jump := Input.is_action_just_pressed(prefix + "jump")
-	if Input.is_action_just_pressed(prefix + "dash"):
+	if dash_enabled and Input.is_action_just_pressed(prefix + "dash"):
 		if dash.begin(facing):
 			queue_redraw()
 	var forced_x := float(dash.direction) * dash.dash_speed if dash.active() else INF

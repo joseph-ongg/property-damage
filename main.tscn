@@ -1,7 +1,7 @@
 [gd_scene load_steps=2 format=3]
 
-[ext_resource type="PackedScene" path="res://gameplay/demo/gameplay_test.tscn" id="1_demo"]
+[ext_resource type="PackedScene" path="res://gameplay/msd/gameplay_msd.tscn" id="1_msd"]
 
 [node name="Main" type="Node2D"]
 
-[node name="GameplayDemo" parent="." instance=ExtResource("1_demo")]
+[node name="GameplayMSD" parent="." instance=ExtResource("1_msd")]
