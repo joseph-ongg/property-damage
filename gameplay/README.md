@@ -131,3 +131,20 @@ The test arena is still isolated from `onboarding/burn-box/burn_box.tscn`.
 assigns only movement, spark, or arena work. The quests never modify fire
 storage, spread, or MaterialGrid scripts. Default maze art is a prototype, not
 an exact implementation of a final Simulation arena or a real HD-2D renderer.
+
+## Presentation polish (optional, no Simulation dependency)
+
+- `demo/hud_frame.gd`: legible framed HUD with separate player colors and
+  real-time shard/brazier progress meters.
+- `demo/ambient_motes.gd`: lightweight deterministic background motes, drawn
+  at a 24 fps cadence independently of gameplay physics.
+- `demo/visual_feedback.gd`: pooled ephemeral burst labels on sparks,
+  pickups, and braziers; expires automatically after 1.05 seconds.
+- `demo/pause_overlay.gd`: press P or Escape to pause/resume. In the paused
+  screen press R to restart; this has no effect on other teams' scenes.
+- `demo/victory_overlay.gd`: completion presentation with player contributions
+  and combo stats. Press R to play the demo again.
+
+Run `gameplay/tests/gameplay_ui_test.gd` headlessly to verify pause/resume,
+visual-feedback expiry, HUD progress updates and completion overlay.
+These additions affect the standalone demo, not `burn_box.tscn`.

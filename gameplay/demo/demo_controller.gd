@@ -5,6 +5,9 @@ extends Node2D
 @onready var fire_counter: Label = $HUD/FireCounter
 @onready var cooldown_text: Label = $HUD/Cooldowns
 @onready var quest_text: Label = $HUD/Quest
+@onready var feedback = $Feedback
+@onready var hud_frame = $HUD/Frame
+@onready var victory_overlay = $VictoryOverlay
 
 var fires_p1: int = 0
 var fires_p2: int = 0
@@ -26,9 +29,9 @@ func _ready() -> void:
 	$Player1.sparked.connect(_on_sparked)
 	$Player2.sparked.connect(_on_sparked)
 	for shard: GameplayEmberShard in $Shards.get_children():
-		shard.collected.connect(_on_shard_collected)
+		shard.collected.connect(_on_shard_collected.bind(shard.global_position))
 	for brazier: GameplayEmberBrazier in $Braziers.get_children():
-		brazier.lit_by.connect(_on_brazier_lit)
+		brazier.lit_by.connect(_on_brazier_lit.bind(brazier.global_position))
 	_update_hud()
 
 
@@ -43,12 +46,13 @@ func _process(delta: float) -> void:
 func _update_hud() -> void:
 	var p1: GameplaySparkEmitter = $Player1/SparkEmitter
 	var p2: GameplaySparkEmitter = $Player2/SparkEmitter
-	cooldown_text.text = "P1 F: %s / Q DASH: %s     P2 ENTER: %s / / DASH: %s" % [
+	cooldown_text.text = "P1 SPARK %s  DASH %s     P2 SPARK %s  DASH %s" % [
 		_spark_state(p1), _dash_state($Player1/Dash),
 		_spark_state(p2), _dash_state($Player2/Dash)]
 	fire_counter.text = "SPARKS P1:%d P2:%d   DUO COMBOS:%d" % [fires_p1, fires_p2, combo_count]
-	quest_text.text = "EMBER SHARDS %d/5  (P1:%d / P2:%d)    BRAZIERS %d/3" % [
+	quest_text.text = "SHARDS %d/5  (P1:%d  P2:%d)      BRAZIERS %d/3" % [
 		shards_p1 + shards_p2, shards_p1, shards_p2, braziers_lit]
+	hud_frame.set_progress(shards_p1 + shards_p2, braziers_lit)
 
 
 func _spark_state(spark: GameplaySparkEmitter) -> String:
@@ -72,9 +76,11 @@ func _on_sparked(player_index: int, target: Vector2, accepted: bool) -> void:
 	if _last_spark_player != 0 and _last_spark_player != player_index and _world_time - _last_spark_time <= 2.5:
 		combo_count += 1
 		status_text.text = "DUO SPARK COMBO  x%d!" % combo_count
+		feedback.emit(target, "DUO COMBO +1", Color("ffe2a0"))
 	else:
 		var cell: Vector2i = $FireBridge.world_to_cell(target)
 		status_text.text = "P%d IGNITED CELL %s" % [player_index, str(cell)] if $FireBridge.is_burning_world(target) else "P%d SPARK SENT (WAITING FOR SIMULATION)" % player_index
+	feedback.emit(target, "+ SPARK", Color("f2a968"))
 	_last_spark_player = player_index
 	_last_spark_time = _world_time
 	for brazier: GameplayEmberBrazier in $Braziers.get_children():
@@ -82,18 +88,20 @@ func _on_sparked(player_index: int, target: Vector2, accepted: bool) -> void:
 	_update_hud()
 
 
-func _on_shard_collected(player_index: int) -> void:
+func _on_shard_collected(player_index: int, origin: Vector2) -> void:
 	if player_index == 1:
 		shards_p1 += 1
 	else:
 		shards_p2 += 1
 	status_text.text = "P%d FOUND AN EMBER SHARD" % player_index
+	feedback.emit(origin, "SHARD +1", Color("ffe0a2"))
 	_check_win()
 
 
-func _on_brazier_lit(player_index: int) -> void:
+func _on_brazier_lit(player_index: int, origin: Vector2) -> void:
 	braziers_lit += 1
 	status_text.text = "P%d RESTORED A RUIN BRAZIER" % player_index
+	feedback.emit(origin + Vector2(0, -30), "REKINDLED", Color("ffb778"))
 	_check_win()
 
 
@@ -102,9 +110,12 @@ func _check_win() -> void:
 	if not _won and shards_p1 + shards_p2 >= 5 and braziers_lit >= 3:
 		_won = true
 		status_text.text = "RUINS RESTORED! ALL SHARDS AND BRAZIERS COMPLETE"
+		victory_overlay.show_result(shards_p1, shards_p2, combo_count)
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_R:
-		# Restart is confined to the demo; production scenes own their match flow.
-		get_tree().reload_current_scene()
+	if event is InputEventKey and event.pressed and not event.echo:
+		var key: Key = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+		if key == KEY_R:
+			# Restart is confined to the demo; production scenes own their match flow.
+			get_tree().reload_current_scene()
