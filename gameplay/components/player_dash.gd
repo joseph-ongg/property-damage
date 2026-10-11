@@ -8,11 +8,13 @@ extends Node
 
 var time_left: float = 0.0
 var cooldown_left: float = 0.0
+var direction: int = 1
 
 
-func begin() -> bool:
+func begin(facing: int = 1) -> bool:
 	if cooldown_left > 0.0:
 		return false
+	direction = 1 if facing >= 0 else -1
 	time_left = dash_duration
 	cooldown_left = cooldown
 	return true
@@ -34,3 +36,4 @@ func ready() -> bool:
 func reset() -> void:
 	time_left = 0.0
 	cooldown_left = 0.0
+	direction = 1

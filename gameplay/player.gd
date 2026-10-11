@@ -17,6 +17,7 @@ signal sparked(player_index: int, target: Vector2, accepted: bool)
 @onready var dash: GameplayDash = $Dash
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var spark: GameplaySparkEmitter = $SparkEmitter
+@onready var landing_fx: Node2D = $LandingFX
 @onready var hazard: GameplayFireHazard = $FireHazard
 
 var facing: int = 1
@@ -49,20 +50,25 @@ func _physics_process(delta: float) -> void:
 	var prefix := "p%d_" % player_index
 	var horizontal := Input.get_axis(prefix + "left", prefix + "right")
 	var next_facing := facing
-	if horizontal > 0.05:
-		next_facing = 1
-	elif horizontal < -0.05:
-		next_facing = -1
+	# Lock direction for the duration of a dash; turning mid-burst feels erratic.
+	if not dash.active():
+		if horizontal > 0.05:
+			next_facing = 1
+		elif horizontal < -0.05:
+			next_facing = -1
 	if next_facing != facing:
 		facing = next_facing
 		sprite.flip_h = facing < 0
 		queue_redraw()
 	var jump := Input.is_action_just_pressed(prefix + "jump")
 	if Input.is_action_just_pressed(prefix + "dash"):
-		if dash.begin():
+		if dash.begin(facing):
 			queue_redraw()
-	var forced_x := float(facing) * dash.dash_speed if dash.active() else INF
-	motor.step(self, delta, horizontal, jump, forced_x)
+	var forced_x := float(dash.direction) * dash.dash_speed if dash.active() else INF
+	var was_grounded := is_on_floor()
+	motor.step(self, delta, horizontal, jump, forced_x, Input.is_action_just_released(prefix + "jump"))
+	if not was_grounded and is_on_floor():
+		landing_fx.trigger()
 	dash.tick(delta)
 	_animation_clock += delta
 	var moving := is_on_floor() and absf(velocity.x) > 18.0

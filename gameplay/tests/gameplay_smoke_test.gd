@@ -92,9 +92,9 @@ func _run() -> void:
 	p1.velocity = Vector2.ZERO
 	await _frames(5)
 	Input.action_press("p1_jump")
-	await _frames(2)
+	await _frames(20)  # Hold for the full-height platform jump.
 	Input.action_release("p1_jump")
-	await _frames(23)
+	await _frames(5)
 	check(p1.global_position.y < 400, "P1 can jump through one-way platform from underneath")
 	await _frames(45)
 	check(p1.is_on_floor() and absf(p1.global_position.y - 400.0) < 3.0, "P1 lands and stands ON one-way platform")

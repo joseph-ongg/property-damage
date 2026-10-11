@@ -11,6 +11,7 @@ extends Node
 @export var max_fall_speed: float = 750.0
 @export_range(0.0, 0.3, 0.01) var coyote_time: float = 0.10
 @export_range(0.0, 0.3, 0.01) var jump_buffer_time: float = 0.12
+@export_range(0.15, 1.0, 0.05) var jump_cut_multiplier: float = 0.48
 
 var _coyote_left: float = 0.0
 var _jump_buffer_left: float = 0.0
@@ -21,7 +22,7 @@ func reset() -> void:
 	_jump_buffer_left = 0.0
 
 
-func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool, forced_x: float = INF) -> void:
+func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool, forced_x: float = INF, jump_released: bool = false) -> void:
 	var grounded := body.is_on_floor()
 	if grounded:
 		_coyote_left = coyote_time
@@ -38,6 +39,9 @@ func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool,
 		body.velocity.y = -jump_speed
 		_jump_buffer_left = 0.0
 		_coyote_left = 0.0
+	elif jump_released and body.velocity.y < -55.0:
+		# Tap for a short hop; holding jump preserves the full arc.
+		body.velocity.y *= jump_cut_multiplier
 	elif grounded:
 		if body.velocity.y > 0.0:
 			body.velocity.y = 0.0
