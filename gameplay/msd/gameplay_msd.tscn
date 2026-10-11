@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://gameplay/demo/demo_fire_grid.gd" id="4_fire"]
 [ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="5_bridge"]
 [ext_resource type="Script" path="res://gameplay/demo/pause_overlay.gd" id="6_pause"]
+[ext_resource type="Script" path="res://gameplay/msd/burnable_prop.gd" id="7_books"]
 
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
@@ -99,6 +100,20 @@ player_index = 2
 tint = Color(1, 0.66, 0.37, 1)
 fire_bridge_path = NodePath("../FireBridge")
 dash_enabled = false
+
+[node name="Books" type="Node2D" parent="."]
+
+[node name="FloorBooks" type="Node2D" parent="Books"]
+position = Vector2(343, 485)
+script = ExtResource("7_books")
+
+[node name="TableBooks" type="Node2D" parent="Books"]
+position = Vector2(504, 394)
+script = ExtResource("7_books")
+
+[node name="ShelfBooks" type="Node2D" parent="Books"]
+position = Vector2(237, 332)
+script = ExtResource("7_books")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 

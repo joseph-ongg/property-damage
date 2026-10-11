@@ -7,6 +7,7 @@ extends Node2D
 var sparks_p1: int = 0
 var sparks_p2: int = 0
 var _last_status_age: float = 0.0
+@export var experimental_books_enabled: bool = true  # Tentative design, toggle off before integration.
 
 
 func _ready() -> void:
@@ -26,6 +27,12 @@ func _process(delta: float) -> void:
 
 
 func _on_sparked(player_index: int, target: Vector2, accepted: bool) -> void:
+	# Optional prop feedback never replaces the team's Simulation ignite() call.
+	var books_reacted := false
+	if experimental_books_enabled:
+		for books: GameplayBurnableProp in $Books.get_children():
+			if books.try_scorch(target, player_index):
+				books_reacted = true
 	var cell: Vector2i = $FireBridge.world_to_cell(target)
 	if not accepted:
 		status_text.text = "P%d  •  NO FIRE GRID AT TARGET" % player_index
@@ -38,6 +45,8 @@ func _on_sparked(player_index: int, target: Vector2, accepted: bool) -> void:
 			status_text.text = "P%d  •  CELL %s IGNITED" % [player_index, str(cell)]
 		else:
 			status_text.text = "P%d  •  SPARK SENT (SIM PENDING)" % player_index
+	if books_reacted:
+		status_text.text = "P%d  •  BOOKS SCORCHED (VISUAL TEST)" % player_index
 	_last_status_age = 2.0
 
 
