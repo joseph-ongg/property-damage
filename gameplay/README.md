@@ -313,3 +313,11 @@ Run:
 - **Jackson**：原版格子渲染会遮挡房间，改为只绘制燃烧火星，保留 `cell_changed` 驱动的刷新方式。仍可单独使用调试预览。
 - 真实的 `MaterialGrid` **没有火势传播和燃烧自动结束**；演示火焰会保持到 `extinguish()` 或改变材料。不要误认为完整 Simulation 已完成。
 - 上游脚本的作者和 SHA 记录在 `UPSTREAM_INTEGRATION.md`，导入上游源文件后不要隐去原始来源。
+
+## 中文：像素客厅 UI 与空调交互（本地实验）
+
+- `gameplay/msd/art/generate_room.py`：去掉了与 `ComputerDevice` 重叠的旧桌灯。电脑、桌面书本、风扇现在错开放置；移动它们时同时检查桌面碰撞高度。
+- `gameplay/msd/interaction_hints.gd`：仅在玩家接近时显示 `E`（P1）或 `SHIFT`（P2）及具体操作，内容和 `msd_controller.gd` 的 `get_interaction_offer()` 共用目标选择，避免提示与实际按键不一致。
+- `gameplay/msd/appliance.gd`：空调为壁挂外形，玩家仍通过地面控制面板开关；开启后 `cold_speed_scale=0.45`、`effect_radius=130`，冷气粒子及地板蓝色短线提示生效区域。
+- `gameplay/msd/player_conditions.gd`：玩家进入空调范围时显示 `SLOW`，风扇推力显示 `WIND`；离开范围或关闭设备后自动消失。
+- 没有新增伤害数值或胜利条件。交互仍属于设计待确认的原型。
