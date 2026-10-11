@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://gameplay/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/components/player_motor.gd" id="2_motor"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://gameplay/components/player_dash.gd" id="5_dash"]
 [ext_resource type="Script" path="res://gameplay/components/spark_aim.gd" id="6_aim"]
 [ext_resource type="Script" path="res://gameplay/components/landing_fx.gd" id="7_landing"]
+[ext_resource type="Script" path="res://gameplay/components/platform_drop.gd" id="8_platform_drop"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(22, 40)
@@ -28,6 +29,9 @@ script = ExtResource("5_dash")
 
 [node name="Motor" type="Node" parent="."]
 script = ExtResource("2_motor")
+
+[node name="PlatformDrop" type="Node" parent="."]
+script = ExtResource("8_platform_drop")
 
 [node name="SparkEmitter" type="Node2D" parent="."]
 script = ExtResource("3_spark")

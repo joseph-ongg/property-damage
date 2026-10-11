@@ -16,9 +16,11 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 @export var reset_height: float = 580.0
 @export var dash_enabled: bool = true  # Optional extra; off in the team MSD demo.
 @export var enhanced_jumping: bool = false  # Opt in to two fixed-height jumps + airborne momentum.
+@export var platform_drop_enabled: bool = false  # Austin a529274: 可选的单向平台下穿。
 
 @onready var motor: GameplayMotor = $Motor
 @onready var dash: GameplayDash = $Dash
+@onready var platform_drop: GameplayPlatformDrop = $PlatformDrop
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var spark: GameplaySparkEmitter = $SparkEmitter
 @onready var landing_fx: Node2D = $LandingFX
@@ -41,6 +43,7 @@ func _ready() -> void:
 	collision_layer = 2  # players
 	collision_mask = 1   # only world; players pass through each other
 	_spawn = global_position
+	platform_drop.enabled = platform_drop_enabled
 	if enhanced_jumping:
 		motor.fixed_jump_height = true
 		motor.max_jumps = 2
@@ -59,6 +62,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	var prefix := "p%d_" % player_index
+	# 中文：输入名以 p1_/p2_ 区分，两名玩家互不抢按键。
 	var horizontal := Input.get_axis(prefix + "left", prefix + "right")
 	var next_facing := facing
 	# Lock direction for the duration of a dash; turning mid-burst feels erratic.
@@ -72,12 +76,16 @@ func _physics_process(delta: float) -> void:
 		sprite.flip_h = facing < 0
 		queue_redraw()
 	var jump := Input.is_action_just_pressed(prefix + "jump")
+	# 中文：只有站在单向平台上按住下+跳才下穿，实体地板不会失效。
+	if jump and Input.is_action_pressed(prefix + "down") and platform_drop.try_drop(self):
+		jump = false
 	if dash_enabled and Input.is_action_just_pressed(prefix + "dash"):
 		if dash.begin(facing):
 			queue_redraw()
 	var forced_x := float(dash.direction) * dash.dash_speed if dash.active() else INF
 	var was_grounded := is_on_floor()
-	motor.step(self, delta, horizontal, jump, forced_x, Input.is_action_just_released(prefix + "jump"))
+	motor.step(self, delta, horizontal, jump, forced_x, Input.is_action_just_released(prefix + "jump"), platform_drop.is_dropping())
+	platform_drop.tick(self, delta)  # 中文：离开单向平台后立即恢复原碰撞。
 	if not was_grounded and is_on_floor():
 		landing_fx.trigger()
 	if enhanced_jumping:
@@ -107,6 +115,7 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		motor.reset()
 		dash.reset()
+		platform_drop.reset(self)
 
 
 func _draw() -> void:

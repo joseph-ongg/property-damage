@@ -95,6 +95,7 @@ tint = Color(0.29, 0.9, 0.78, 1)
 fire_bridge_path = NodePath("../FireBridge")
 dash_enabled = false
 enhanced_jumping = true
+platform_drop_enabled = true
 
 [node name="Player2" parent="." instance=ExtResource("1_player")]
 position = Vector2(884, 459)
@@ -103,6 +104,7 @@ tint = Color(1, 0.66, 0.37, 1)
 fire_bridge_path = NodePath("../FireBridge")
 dash_enabled = false
 enhanced_jumping = true
+platform_drop_enabled = true
 
 [node name="Books" type="Node2D" parent="."]
 
@@ -194,7 +196,7 @@ offset_right = 947.0
 offset_bottom = 534.0
 theme_override_font_sizes/font_size = 13
 theme_override_colors/font_color = Color(0.86, 0.9, 0.91, 1)
-text = "P1 A/D · W x2 · F SPARK · G MAGIC · E USE      P2 ←/→ · ↑ x2 · ENTER SPARK · . MAGIC · SHIFT USE"
+text = "P1 A/D · W x2 · S+W DROP · F SPARK · G MAGIC · E USE    P2 ←/→ · ↑ x2 · ↓+↑ DROP · ENTER · . · SHIFT"
 
 [node name="PauseOverlay" type="CanvasLayer" parent="."]
 layer = 12

@@ -35,8 +35,9 @@ func jumps_remaining() -> int:
 	return maxi(0, max_jumps - _jumps_used)
 
 
-func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool, forced_x: float = INF, jump_released: bool = false) -> void:
-	var grounded := body.is_on_floor()
+func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool, forced_x: float = INF, jump_released: bool = false, force_airborne: bool = false) -> void:
+	# 中文：主动下穿单向平台的几帧按空中处理，避免重新把下落速度清零。
+	var grounded := body.is_on_floor() and not force_airborne
 	if grounded:
 		_coyote_left = coyote_time
 		_jumps_used = 0
@@ -69,6 +70,7 @@ func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool,
 
 	var target_speed := horizontal * speed * speed_scale
 	var acceleration := ground_acceleration if grounded else air_acceleration
+	# 中文：只在空中松方向键时保留惯性，地面仍会正常减速。
 	if is_zero_approx(horizontal) and not grounded and preserve_air_momentum:
 		acceleration = 0.0  # No horizontal braking just because the key was released.
 	if is_inf(forced_x):
