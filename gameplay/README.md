@@ -148,3 +148,32 @@ an exact implementation of a final Simulation arena or a real HD-2D renderer.
 Run `gameplay/tests/gameplay_ui_test.gd` headlessly to verify pause/resume,
 visual-feedback expiry, HUD progress updates and completion overlay.
 These additions affect the standalone demo, not `burn_box.tscn`.
+
+
+## Input and visual response refinements
+
+- Jump **tap** now produces a short hop; **hold** jump to reach tall one-way
+  platforms. `GameplayMotor.jump_cut_multiplier` (default `0.48`) controls the
+  shortened arc. Coyote time and buffering continue to work.
+- Dash locks its starting direction for the full burst, even if the opposite
+  direction is pressed. Steering returns automatically when the dash ends.
+  Both players retain separate cooldowns and collision with world only.
+- `components/spark_aim.gd` draws a small pixel target at exactly the same
+  offset used by `SparkEmitter` for ignition. It dims during cooldown.
+- `components/landing_fx.gd` provides a brief landing dust effect, independent
+  of Simulation and character art. Neither VFX script modifies collisions.
+- In the **demo only**, fire cells now appear as subtle ember clusters rather
+  than opaque burning squares in empty air; the `MaterialGrid` API and stored
+  fire state have not been changed.
+- Nearby fire braziers can still be lit by a valid spark target if the real
+  Simulation grid is disconnected. Gameplay objectives are therefore not
+  incorrectly blocked by placeholder Simulation storage.
+
+```sh
+"/path/to/Godot.app/Contents/MacOS/Godot" --headless --path . \
+  --script res://gameplay/tests/gameplay_controls_test.gd
+```
+
+This checks short-vs-high jumps, dash direction locking under opposing input,
+aim marker alignment, landing FX cleanup, and the missing-grid fire-brazier
+fallback. All new systems remain inside `gameplay/`.

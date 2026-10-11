@@ -66,8 +66,18 @@ func _dash_state(dash: GameplayDash) -> String:
 
 
 func _on_sparked(player_index: int, target: Vector2, accepted: bool) -> void:
+	# Props are independent Gameplay objectives: missing Simulation storage must
+	# not prevent a correctly aimed spark from lighting an adjacent brazier.
+	var brazier_lit := false
+	for brazier: GameplayEmberBrazier in $Braziers.get_children():
+		if brazier.try_ignite(target, player_index):
+			brazier_lit = true
 	if not accepted:
-		status_text.text = "P%d: NO GRID AT TARGET" % player_index
+		if not brazier_lit:
+			status_text.text = "P%d: SPARK HAS NO VALID FIRE GRID" % player_index
+			feedback.emit(target, "NO GRID", Color("99abc4"))
+		else:
+			feedback.emit(target, "REKINDLED!", Color("ffbf74"))
 		return
 	if player_index == 1:
 		fires_p1 += 1
@@ -83,8 +93,6 @@ func _on_sparked(player_index: int, target: Vector2, accepted: bool) -> void:
 	feedback.emit(target, "+ SPARK", Color("f2a968"))
 	_last_spark_player = player_index
 	_last_spark_time = _world_time
-	for brazier: GameplayEmberBrazier in $Braziers.get_children():
-		brazier.try_ignite(target, player_index)
 	_update_hud()
 
 

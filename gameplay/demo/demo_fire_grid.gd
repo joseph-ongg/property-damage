@@ -63,9 +63,16 @@ func _draw() -> void:
 	for y in range(0, height * cell_size, cell_size):
 		draw_line(Vector2(0, y), Vector2(width * cell_size, y), Color(0.58, 0.68, 0.79, 0.055))
 	for cell: Vector2i in _burning:
-		var p := Vector2(cell * cell_size)
+		var center := Vector2(cell * cell_size) + Vector2(cell_size / 2.0, cell_size / 2.0)
 		var t: float = clampf(_burning[cell] / flame_seconds, 0.0, 1.0)
-		draw_rect(Rect2(p + Vector2(1, 1), Vector2(cell_size - 2, cell_size - 2)), Color(1.0, 0.31, 0.08, 0.32 + t * 0.18))
-		draw_rect(Rect2(p + Vector2(2, 2), Vector2(cell_size - 4, cell_size - 4)), Color(1.0, 0.72, 0.24, 0.80), false, 2.0)
-		draw_colored_polygon(PackedVector2Array([p + Vector2(10, 28), p + Vector2(7, 15), p + Vector2(15, 4), p + Vector2(25, 26), p + Vector2(19, 29)]), Color(1.0, 0.65, 0.11, t))
-		draw_circle(p + Vector2(16, 22), 6, Color(1.0, 0.95, 0.53, t))
+		# A soft ember cluster is visually less misleading than a solid block of
+		# fire floating in the sky. The simulation-facing cell is unchanged.
+		draw_circle(center, 12.0, Color(1.0, 0.37, 0.08, 0.11 + t * 0.12))
+		draw_colored_polygon(PackedVector2Array([
+			center + Vector2(-5, 7), center + Vector2(-7, 0),
+			center + Vector2(-2, -9), center + Vector2(2, -3),
+			center + Vector2(5, -12), center + Vector2(8, 2),
+			center + Vector2(3, 8)]), Color(1.0, 0.55, 0.19, 0.6 + 0.35 * t))
+		draw_circle(center + Vector2(0, 3), 3.5, Color(1.0, 0.93, 0.55, 0.86 * t))
+		for offset: Vector2 in [Vector2(-9, -6), Vector2(11, -8), Vector2(3, -15)]:
+			draw_rect(Rect2((center + offset).round(), Vector2(2, 2)), Color(1.0, 0.75, 0.27, 0.63 * t))
