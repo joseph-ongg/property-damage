@@ -1,0 +1,26 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://gameplay/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://gameplay/components/player_motor.gd" id="2_motor"]
+[ext_resource type="Script" path="res://gameplay/components/spark_emitter.gd" id="3_spark"]
+[ext_resource type="Script" path="res://gameplay/components/fire_hazard.gd" id="4_hazard"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(22, 40)
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_player")
+
+[node name="Motor" type="Node" parent="."]
+script = ExtResource("2_motor")
+
+[node name="SparkEmitter" type="Node2D" parent="."]
+script = ExtResource("3_spark")
+
+[node name="FireHazard" type="Node" parent="."]
+script = ExtResource("4_hazard")
