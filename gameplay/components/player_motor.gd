@@ -82,6 +82,11 @@ func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool,
 	else:
 		body.velocity.x = forced_x
 	body.velocity.x += environment_acceleration_x * delta
+	# 中文：空调是外部减速效果；即使玩家在空中松开方向键保留惯性，
+	# 进入冷气区也应逐渐降到减速后的上限，离开后不再施加这段阻力。
+	if speed_scale < 0.99 and absf(body.velocity.x) > speed * speed_scale:
+		var limit := signf(body.velocity.x) * speed * speed_scale
+		body.velocity.x = move_toward(body.velocity.x, limit, ground_acceleration * delta * 0.7)
 	body.move_and_slide()
 	if body.is_on_floor():
 		_jumps_left = max_jumps

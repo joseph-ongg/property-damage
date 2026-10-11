@@ -7,9 +7,9 @@ signal state_changed(device: int, state: bool, player_index: int)
 
 @export var device: Device = Device.FRIDGE
 @export var interaction_radius: float = 78.0
-@export var effect_radius: float = 122.0
+@export var effect_radius: float = 130.0
 @export var wind_acceleration: float = -420.0
-@export_range(0.25, 1.0, 0.05) var cold_speed_scale: float = 0.60
+@export_range(0.25, 1.0, 0.05) var cold_speed_scale: float = 0.45  # 中文：开启后区域内速度约为 45%。
 
 var switched_on: bool = false
 var charred: bool = false
@@ -54,7 +54,7 @@ func device_name() -> String:
 
 func _process(delta: float) -> void:
 	_clock += delta
-	if switched_on and device == Device.FAN:
+	if switched_on and device in [Device.FAN, Device.AC]:
 		queue_redraw()
 
 
@@ -67,6 +67,14 @@ func _draw() -> void:
 				draw_rect(Rect2(-55, -108, 92, 92), Color("26333e"))
 				draw_rect(Rect2(-54, -107, 90, 6), Color("909ca2"))
 				draw_rect(Rect2(-51, -98, 82, 5), Color("6c7a80"))
+				# 中文：打开的冰箱用两层货架和小容器强调这是内部空间，不是一块黑洞。
+				for shelf_y in [-69.0, -41.0]:
+					draw_rect(Rect2(-45, shelf_y, 70, 3), Color("667882"))
+					draw_rect(Rect2(-45, shelf_y - 3, 70, 2), Color("b4c4c0", 0.6))
+				draw_rect(Rect2(-38, -84, 15, 13), Color("b5d7c3"))
+				draw_rect(Rect2(-16, -82, 11, 11), Color("dfad83"))
+				draw_rect(Rect2(0, -52, 21, 11), Color("b4c1d5"))
+				draw_rect(Rect2(-38, -29, 22, 10), Color("759fb2"))
 				draw_rect(Rect2(35, -108, 18, 94), Color("c5c5b9"))
 				draw_rect(Rect2(38, -84, 3, 25), Color("737d83"))
 			else:
@@ -81,13 +89,31 @@ func _draw() -> void:
 				draw_line(Vector2(0, -8), Vector2(0, -8) + blade, Color("99c7cb") if switched_on else Color("778b96"), 4.0)
 			draw_circle(Vector2(0, -8), 3, gold)
 		Device.AC:
-			# Floor-accessible control for the wall-mounted air conditioner.
-			draw_rect(Rect2(-14, -24, 28, 22), Color("9aa7a6"))
-			draw_rect(Rect2(-10, -19, 20, 12), Color("394d55"))
-			draw_rect(Rect2(5, -16, 4, 4), Color("82c9d4") if switched_on else Color("bd796b"))
+			# 中文：空调本体挂在墙上，交互开关仍在地面玩家伸手可及的位置。
+			# 用独立大轮廓避免误看成桌旁插座。
+			var housing := Rect2(-45, -147, 90, 35)
+			draw_rect(Rect2(-49, -151, 98, 42), Color("414e5b"))
+			draw_rect(housing, Color("b5c0bd"))
+			draw_rect(Rect2(-42, -144, 84, 8), Color("d1d1bc"))
+			draw_rect(Rect2(-41, -131, 82, 13), Color("60737e"))
+			for i in 9:
+				draw_rect(Rect2(-37 + i * 9, -126, 5, 3), Color("324a59"))
+			draw_rect(Rect2(33, -142, 5, 5), Color("6be4db") if switched_on else Color("c28e67"))
+			# 中文：墙壁开关与作用范围独立标记，玩家走近时才显示互动键。
+			draw_rect(Rect2(-12, -19, 24, 21), Color("63737d"))
+			draw_rect(Rect2(-9, -16, 18, 15), Color("283c4a"))
+			draw_rect(Rect2(3, -13, 4, 4), Color("82e4ed") if switched_on else Color("b36b63"))
 			if switched_on:
-				for i in range(3):
-					draw_line(Vector2(-12+i*9, -30), Vector2(-15+i*9, -39), Color("89c7df", 0.76), 2.0)
+				# 细冷气像素粒子，提示开关已生效，不盖住整个地图。
+				for i in 7:
+					var drift := fmod(_clock * 27.0 + float(i * 23), 76.0)
+					var x := -35.0 + float(i * 11) + sin(_clock * 1.5 + i) * 4.0
+					draw_rect(Rect2(Vector2(x, -102 + drift).round(), Vector2(3, 5)), Color(0.56, 0.88, 0.97, 0.34))
+				# 中文：将范围提示压在地板边缘，不再让半圆弧横穿桌面、遮挡角色。
+				for i in range(-6, 7):
+					var offset := float(i) * 18.0
+					if absf(offset) <= effect_radius:
+						draw_rect(Rect2(offset - 5.0, 21.0, 10.0, 2.0), Color(0.50, 0.87, 1.0, 0.29))
 		Device.COMPUTER:
 			draw_rect(Rect2(-22, -35, 44, 30), Color("4e525b"))
 			draw_rect(Rect2(-19, -32, 38, 24), Color("2e343b") if charred else Color("2a5673") if switched_on else Color("57707c"))

@@ -53,40 +53,56 @@ func _on_magic_hit(target_name: String, player_index: int) -> void:
 	_show_status("P%d  •  MAGIC HIT %s (PROTOTYPE)" % [player_index, target_name])
 
 
-func _on_interact(player_index: int, player: GameplayPlayer) -> void:
-	if not experimental_books_enabled and not experimental_appliances_enabled:
-		return
-	var carried: GameplayBurnableProp = held_books.get(player_index) as GameplayBurnableProp
-	if carried != null:
-		if carried.throw_from(player):
-			held_books.erase(player_index)
-			_show_status("P%d THREW BOOK (PROTOTYPE)" % player_index)
-		return
-	# Pick up the closest valid book before checking appliance interaction.
-	var nearest_book: GameplayBurnableProp = null
+# 中文：提示与实际交互共用同一套目标选择，避免 UI 提示 A、按键却触发 B。
+func get_interaction_offer(player: GameplayPlayer) -> Dictionary:
+	var carried: GameplayBurnableProp = held_books.get(player.player_index) as GameplayBurnableProp
+	if carried != null and is_instance_valid(carried) and carried.carried_by == player:
+		return {"kind": "throw", "target": carried, "action": "THROW BOOK"}
 	var best_distance: float = INF
+	var book_target: GameplayBurnableProp = null
 	if experimental_books_enabled:
 		for book: GameplayBurnableProp in $Books.get_children():
-			var dist: float = book.global_position.distance_to(player.global_position)
-			if book.can_pick_up(player) and dist < best_distance:
-				best_distance = dist
-				nearest_book = book
-	if nearest_book != null and nearest_book.pick_up(player):
-		held_books[player_index] = nearest_book
-		_show_status("P%d PICKED UP BOOK (PROTOTYPE)" % player_index)
-		return
+			var distance: float = book.global_position.distance_to(player.global_position)
+			if book.can_pick_up(player) and distance < best_distance:
+				best_distance = distance
+				book_target = book
+	if book_target != null:
+		return {"kind": "pick", "target": book_target, "action": "PICK BOOK"}
+	best_distance = INF
+	var device_target: GameplayAppliance = null
 	if experimental_appliances_enabled:
-		var nearest_device: GameplayAppliance = null
-		best_distance = INF
 		for device: GameplayAppliance in $Appliances.get_children():
-			var dist: float = device.global_position.distance_to(player.global_position)
-			if device.can_interact(player) and dist < best_distance:
-				best_distance = dist
-				nearest_device = device
-		if nearest_device != null and nearest_device.interact(player):
-			_show_status("P%d  •  %s %s (PROTOTYPE)" % [player_index, nearest_device.device_name(), "ON" if nearest_device.switched_on else "OFF"])
-			return
-	_show_status("P%d  •  NO OBJECT IN REACH" % player_index)
+			var distance: float = device.global_position.distance_to(player.global_position)
+			if device.can_interact(player) and distance < best_distance:
+				best_distance = distance
+				device_target = device
+	if device_target != null:
+		return {"kind": "device", "target": device_target,
+			"action": ("CLOSE " if device_target.switched_on else "OPEN ") + "FRIDGE"
+				if device_target.device == GameplayAppliance.Device.FRIDGE
+				else ("TURN OFF " if device_target.switched_on else "TURN ON ") + device_target.device_name()}
+	return {}
+
+
+func _on_interact(player_index: int, player: GameplayPlayer) -> void:
+	var offer := get_interaction_offer(player)
+	if offer.is_empty():
+		_show_status("P%d  •  NO OBJECT IN REACH" % player_index)
+		return
+	var target: Node2D = offer["target"]
+	match offer["kind"]:
+		"throw":
+			if (target as GameplayBurnableProp).throw_from(player):
+				held_books.erase(player_index)
+				_show_status("P%d THREW BOOK (PROTOTYPE)" % player_index)
+		"pick":
+			if (target as GameplayBurnableProp).pick_up(player):
+				held_books[player_index] = target
+				_show_status("P%d PICKED UP BOOK (PROTOTYPE)" % player_index)
+		"device":
+			var appliance := target as GameplayAppliance
+			if appliance.interact(player):
+				_show_status("P%d  •  %s %s (PROTOTYPE)" % [player_index, appliance.device_name(), "ON" if appliance.switched_on else "OFF"])
 
 
 func _show_status(message: String) -> void:

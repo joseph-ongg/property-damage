@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
@@ -10,6 +10,8 @@
 [ext_resource type="Script" path="res://gameplay/msd/appliance.gd" id="8_appliance"]
 [ext_resource type="Script" path="res://gameplay/demo/fire_visuals.gd" id="9_fire_vfx"]
 [ext_resource type="Script" path="res://gameplay/integration/material_setup.gd" id="10_material_setup"]
+[ext_resource type="Script" path="res://gameplay/msd/interaction_hints.gd" id="11_hints"]
+[ext_resource type="Script" path="res://gameplay/msd/player_conditions.gd" id="12_conditions"]
 
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
@@ -126,7 +128,7 @@ position = Vector2(343, 485)
 script = ExtResource("7_books")
 
 [node name="TableBooks" type="Node2D" parent="Books"]
-position = Vector2(504, 394)
+position = Vector2(473, 400)
 script = ExtResource("7_books")
 
 [node name="ShelfBooks" type="Node2D" parent="Books"]
@@ -143,7 +145,7 @@ script = ExtResource("8_appliance")
 device = 0
 
 [node name="FanDevice" type="Node2D" parent="Appliances"]
-position = Vector2(421, 384)
+position = Vector2(413, 389)
 script = ExtResource("8_appliance")
 device = 1
 
@@ -153,9 +155,15 @@ script = ExtResource("8_appliance")
 device = 2
 
 [node name="ComputerDevice" type="Node2D" parent="Appliances"]
-position = Vector2(552, 387)
+position = Vector2(552, 404)
 script = ExtResource("8_appliance")
 device = 3
+
+[node name="InteractionHints" type="Node2D" parent="."]
+script = ExtResource("11_hints")
+
+[node name="PlayerConditions" type="Node2D" parent="."]
+script = ExtResource("12_conditions")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
