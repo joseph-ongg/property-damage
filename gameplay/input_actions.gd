@@ -7,11 +7,15 @@ static func register_actions() -> void:
 	_ensure("p1_right", KEY_D)
 	_ensure("p1_jump", KEY_W)
 	_ensure("p1_spark", KEY_F)
+	_ensure("p1_interact", KEY_E)
+	_ensure("p1_attack", KEY_G)
 	_ensure("p1_dash", KEY_Q)
 	_ensure("p2_left", KEY_LEFT)
 	_ensure("p2_right", KEY_RIGHT)
 	_ensure("p2_jump", KEY_UP)
 	_ensure("p2_spark", KEY_ENTER)
+	_ensure("p2_interact", KEY_SHIFT)
+	_ensure("p2_attack", KEY_PERIOD)
 	_ensure("p2_dash", KEY_SLASH)
 
 

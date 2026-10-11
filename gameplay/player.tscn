@@ -50,3 +50,14 @@ offset_bottom = -29.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 12
 text = "P1"
+
+[node name="JumpCharges" type="Label" parent="."]
+visible = false
+offset_left = -19.0
+offset_top = -65.0
+offset_right = 19.0
+offset_bottom = -49.0
+horizontal_alignment = 1
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+text = "◆ ◆"

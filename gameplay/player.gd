@@ -7,12 +7,15 @@ const MAGE1: Texture2D = preload("res://gameplay/art/mage_1.png")
 const MAGE2: Texture2D = preload("res://gameplay/art/mage_2.png")
 
 signal sparked(player_index: int, target: Vector2, accepted: bool)
+signal interact_pressed(player_index: int, player: GameplayPlayer)
+signal magic_attacked(player_index: int, player: GameplayPlayer)
 
 @export_range(1, 2) var player_index: int = 1
 @export var tint: Color = Color("51d8c5")
 @export_node_path("Node") var fire_bridge_path: NodePath
 @export var reset_height: float = 580.0
 @export var dash_enabled: bool = true  # Optional extra; off in the team MSD demo.
+@export var enhanced_jumping: bool = false  # Opt in to two fixed-height jumps + airborne momentum.
 
 @onready var motor: GameplayMotor = $Motor
 @onready var dash: GameplayDash = $Dash
@@ -26,6 +29,7 @@ var _spawn: Vector2
 var _bridge: GameplayFireBridge
 var _animation_clock: float = 0.0
 var _dash_was_active: bool = false
+var _magic_cooldown: float = 0.0
 
 
 func _enter_tree() -> void:
@@ -37,6 +41,10 @@ func _ready() -> void:
 	collision_layer = 2  # players
 	collision_mask = 1   # only world; players pass through each other
 	_spawn = global_position
+	if enhanced_jumping:
+		motor.fixed_jump_height = true
+		motor.max_jumps = 2
+		motor.preserve_air_momentum = true
 	_bridge = get_node_or_null(fire_bridge_path) as GameplayFireBridge
 	if player_index == 2:
 		facing = -1
@@ -44,6 +52,8 @@ func _ready() -> void:
 	sprite.flip_h = facing < 0
 	$NameTag.text = "P%d" % player_index
 	$NameTag.add_theme_color_override("font_color", tint)
+	$JumpCharges.visible = enhanced_jumping
+	$JumpCharges.add_theme_color_override("font_color", tint)
 	queue_redraw()
 
 
@@ -70,6 +80,11 @@ func _physics_process(delta: float) -> void:
 	motor.step(self, delta, horizontal, jump, forced_x, Input.is_action_just_released(prefix + "jump"))
 	if not was_grounded and is_on_floor():
 		landing_fx.trigger()
+	if enhanced_jumping:
+		var remaining := motor.jumps_remaining()
+		var charge_text := "◆ ".repeat(remaining).strip_edges() if remaining > 0 else "·"
+		if $JumpCharges.text != charge_text:
+			$JumpCharges.text = charge_text
 	dash.tick(delta)
 	_animation_clock += delta
 	var moving := is_on_floor() and absf(velocity.x) > 18.0
@@ -77,6 +92,12 @@ func _physics_process(delta: float) -> void:
 	if dash.active() or _dash_was_active:
 		queue_redraw()
 	_dash_was_active = dash.active()
+	_magic_cooldown = maxf(0.0, _magic_cooldown - delta)
+	if Input.is_action_just_pressed(prefix + "attack") and _magic_cooldown <= 0.0:
+		_magic_cooldown = 0.32
+		magic_attacked.emit(player_index, self)
+	if Input.is_action_just_pressed(prefix + "interact"):
+		interact_pressed.emit(player_index, self)
 	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
 		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
 		sparked.emit(player_index, global_position + Vector2(facing * spark.reach, 0), accepted)
