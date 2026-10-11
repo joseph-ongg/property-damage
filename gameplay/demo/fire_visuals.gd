@@ -1,9 +1,9 @@
 ## 唯一燃烧状态来源：Ethan 的 MaterialGrid。
-## EN: Source: Ethan (Miao-Zinan), remote ethan/burn-box-grid, commit 46c3df2.
-## 中文：此节点只绘制火星，不维护 _burning 字典，不负责点火或火势传播。
-## EN: Only render fire effects here; do not own burning storage, ignition or propagation.
+## Source: Ethan (Miao-Zinan), remote ethan/burn-box-grid, commit 46c3df2.
+## 此节点只绘制火星，不维护 _burning 字典，不负责点火或火势传播。
+## Only render fire effects here; do not own burning storage, ignition or propagation.
 ## 参考 Jackson / c897a2e 的 cell_changed 信号驱动重绘。
-## EN: Based on Jackson commit c897a2e: redraw in response to cell_changed.
+## Based on Jackson commit c897a2e: redraw in response to cell_changed.
 extends Node2D
 
 @export_node_path("Node2D") var grid_path: NodePath
@@ -18,7 +18,7 @@ func _ready() -> void:
 		return
 	_grid.cell_changed.connect(_on_cell_changed)
 	# 已先加载的存档或测试材料也可以正确呈现。
-	# EN: Display burning cells that were already present at startup.
+	# Display burning cells that were already present at startup.
 	for x in _grid.width:
 		for y in _grid.height:
 			if _grid.is_burning(x, y):
@@ -43,7 +43,7 @@ func _draw() -> void:
 		var center := Vector2(cell) * size + Vector2.ONE * size * 0.5
 		var scale := minf(size / 24.0, 1.0)
 		# 像素火焰尽量小，避免盖住人物和室内原画。
-		# EN: Keep flame pixels subtle so players and the room artwork stay visible.
+		# Keep flame pixels subtle so players and the room artwork stay visible.
 		draw_circle(center, 12.0 * scale, Color(1.0, 0.37, 0.08, 0.17))
 		draw_colored_polygon(PackedVector2Array([
 			center + Vector2(-5, 7) * scale,

@@ -1,7 +1,7 @@
 ## 家电状态：空调减速和风扇吹力反馈，状态只来自 GameplayMotor，不改物理。
-## EN: Device conditions reflect Motor state; no additional physics calculations here.
+## Device conditions reflect Motor state; no additional physics calculations here.
 ## 中文维护：移动速度实际取决于 MSD Controller 写入的 motor.speed_scale。
-## EN: Actual movement speed uses motor.speed_scale set by the MSD controller.
+## Actual movement speed uses motor.speed_scale set by the MSD controller.
 extends Node2D
 
 @onready var room: Node2D = get_parent()
@@ -37,7 +37,7 @@ func _draw() -> void:
 		draw_rect(Rect2(point + Vector2(-3, -4), Vector2(49, 17)), color, false, 1.0)
 		draw_string(font, point + Vector2(2, 9), condition, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, color)
 		# 空调下方飘动的冷色像素，视觉上和橙色火焰形成区分。
-		# EN: Cold blue pixels distinguish AC effects from orange fire.
+		# Cold blue pixels distinguish AC effects from orange fire.
 		if cool:
 			for j in 3:
 				var dx := -17.0 + j * 15.0

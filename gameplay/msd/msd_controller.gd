@@ -53,8 +53,8 @@ func _on_magic_hit(target_name: String, player_index: int) -> void:
 	_show_status("P%d  •  MAGIC HIT %s (PROTOTYPE)" % [player_index, target_name])
 
 
-# 中文：提示与实际交互共用同一套目标选择，避免 UI 提示 A、按键却触发 B。
-# EN: Hints and interactions share target selection so the shown target matches the action.
+# 提示与实际交互共用同一套目标选择，避免 UI 提示 A、按键却触发 B。
+# Hints and interactions share target selection so the shown target matches the action.
 func get_interaction_offer(player: GameplayPlayer) -> Dictionary:
 	var carried: GameplayBurnableProp = held_books.get(player.player_index) as GameplayBurnableProp
 	if carried != null and is_instance_valid(carried) and carried.carried_by == player:
@@ -119,8 +119,8 @@ func _process(delta: float) -> void:
 		status_text.text = "F / ENTER  •  SPARK"
 
 
-# 中文：火焰数据归 Simulation 管；这里仅处理演示书本/电脑视觉和状态文字。
-# EN: Simulation owns fire data; this code only handles prop visuals and status text.
+# 火焰数据归 Simulation 管；这里仅处理演示书本/电脑视觉和状态文字。
+# Simulation owns fire data; this code only handles prop visuals and status text.
 func _on_sparked(player_index: int, target: Vector2, accepted: bool) -> void:
 	# Optional prop feedback never replaces the team's Simulation ignite() call.
 	var books_reacted := false

@@ -61,7 +61,7 @@ func _run() -> void:
 	Input.action_release("p2_left")
 	check(p1.global_position.x > x1 + 20 and p2.global_position.x < x2 - 20, "two players move independently toward each other")
 	# 上游真实 Grid 的 cell_size=16，玩家在空中会保留惯性；必须验证实际施法坐标。
-	# EN: The real 16px MaterialGrid requires validating the exact target emitted mid-movement.
+	# The real 16px MaterialGrid requires validating the exact target emitted mid-movement.
 	var p1_targets: Array[Vector2] = []
 	var p2_targets: Array[Vector2] = []
 	p1.sparked.connect(func(_index: int, pos: Vector2, _accepted: bool): p1_targets.append(pos))

@@ -1,7 +1,7 @@
 ## 来源：Austin / chouhuaidan，sim/jackson/burn-box-render @ a529274。
-## EN: Source: Austin (chouhuaidan), commit a529274, player jump counter.
+## Source: Austin (chouhuaidan), commit a529274, player jump counter.
 ## 验证：借鉴的 ↓+跳跃下穿动作仅作用于单向平台，P1/P2 输入相互独立。
-## EN: Validate that each player drops through one-way platforms independently, never solid floors.
+## Validate that each player drops through one-way platforms independently, never solid floors.
 extends SceneTree
 var failures: Array[String] = []
 

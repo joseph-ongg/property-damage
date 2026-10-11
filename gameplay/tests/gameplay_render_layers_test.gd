@@ -1,6 +1,6 @@
-## EN: Verify that wall/furniture art stays behind the player, while interaction feedback stays above.
-## 中文：固定像素客厅的层级，避免冰箱内部与空调贴图盖住人物。
-## EN: Keep fridge interior and AC art behind both player sprites.
+## Verify that wall/furniture art stays behind the player, while interaction feedback stays above.
+## 固定像素客厅的层级，避免冰箱内部与空调贴图盖住人物。
+## Keep fridge interior and AC art behind both player sprites.
 extends SceneTree
 
 var failures: Array[String] = []

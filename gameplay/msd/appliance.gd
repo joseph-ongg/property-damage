@@ -9,7 +9,7 @@ signal state_changed(device: int, state: bool, player_index: int)
 @export var interaction_radius: float = 78.0
 @export var effect_radius: float = 130.0
 @export var wind_acceleration: float = -420.0
-@export_range(0.25, 1.0, 0.05) var cold_speed_scale: float = 0.45  # 中文：开启后区域内速度约为 45%。 / EN: While the AC is on, nearby movement targets 45% of normal speed.
+@export_range(0.25, 1.0, 0.05) var cold_speed_scale: float = 0.45  # 开启后区域内速度约为 45%。 / While the AC is on, nearby movement targets 45% of normal speed.
 
 var switched_on: bool = false
 var charred: bool = false
@@ -67,8 +67,8 @@ func _draw() -> void:
 				draw_rect(Rect2(-55, -108, 92, 92), Color("26333e"))
 				draw_rect(Rect2(-54, -107, 90, 6), Color("909ca2"))
 				draw_rect(Rect2(-51, -98, 82, 5), Color("6c7a80"))
-				# 中文：打开的冰箱用两层货架和小容器强调这是内部空间，不是一块黑洞。
-				# EN: Use shelves and containers to make an open fridge read as an interior.
+				# 打开的冰箱用两层货架和小容器强调这是内部空间，不是一块黑洞。
+				# Use shelves and containers to make an open fridge read as an interior.
 				for shelf_y in [-69.0, -41.0]:
 					draw_rect(Rect2(-45, shelf_y, 70, 3), Color("667882"))
 					draw_rect(Rect2(-45, shelf_y - 3, 70, 2), Color("b4c4c0", 0.6))
@@ -90,10 +90,10 @@ func _draw() -> void:
 				draw_line(Vector2(0, -8), Vector2(0, -8) + blade, Color("99c7cb") if switched_on else Color("778b96"), 4.0)
 			draw_circle(Vector2(0, -8), 3, gold)
 		Device.AC:
-			# 中文：空调本体挂在墙上，交互开关仍在地面玩家伸手可及的位置。
-			# EN: Wall-mount the AC while keeping its control accessible to floor-level players.
+			# 空调本体挂在墙上，交互开关仍在地面玩家伸手可及的位置。
+			# Wall-mount the AC while keeping its control accessible to floor-level players.
 			# 用独立大轮廓避免误看成桌旁插座。
-			# EN: Use a distinct silhouette so it does not resemble a wall socket.
+			# Use a distinct silhouette so it does not resemble a wall socket.
 			var housing := Rect2(-45, -147, 90, 35)
 			draw_rect(Rect2(-49, -151, 98, 42), Color("414e5b"))
 			draw_rect(housing, Color("b5c0bd"))
@@ -102,20 +102,20 @@ func _draw() -> void:
 			for i in 9:
 				draw_rect(Rect2(-37 + i * 9, -126, 5, 3), Color("324a59"))
 			draw_rect(Rect2(33, -142, 5, 5), Color("6be4db") if switched_on else Color("c28e67"))
-			# 中文：墙壁开关与作用范围独立标记，玩家走近时才显示互动键。
-			# EN: Keep the switch and area indicator separate; show interaction keys only nearby.
+			# 墙壁开关与作用范围独立标记，玩家走近时才显示互动键。
+			# Keep the switch and area indicator separate; show interaction keys only nearby.
 			draw_rect(Rect2(-12, -19, 24, 21), Color("63737d"))
 			draw_rect(Rect2(-9, -16, 18, 15), Color("283c4a"))
 			draw_rect(Rect2(3, -13, 4, 4), Color("82e4ed") if switched_on else Color("b36b63"))
 			if switched_on:
 				# 细冷气像素粒子，提示开关已生效，不盖住整个地图。
-				# EN: Subtle cold-air pixels show AC status without covering the scene.
+				# Subtle cold-air pixels show AC status without covering the scene.
 				for i in 7:
 					var drift := fmod(_clock * 27.0 + float(i * 23), 76.0)
 					var x := -35.0 + float(i * 11) + sin(_clock * 1.5 + i) * 4.0
 					draw_rect(Rect2(Vector2(x, -102 + drift).round(), Vector2(3, 5)), Color(0.56, 0.88, 0.97, 0.34))
-				# 中文：将范围提示压在地板边缘，不再让半圆弧横穿桌面、遮挡角色。
-				# EN: Move range markers to the floor instead of covering the desk with an arc.
+				# 将范围提示压在地板边缘，不再让半圆弧横穿桌面、遮挡角色。
+				# Move range markers to the floor instead of covering the desk with an arc.
 				for i in range(-6, 7):
 					var offset := float(i) * 18.0
 					if absf(offset) <= effect_radius:

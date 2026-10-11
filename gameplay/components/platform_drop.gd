@@ -1,7 +1,7 @@
 ## 来源：Austin（chouhuaidan），远端 sim/jackson/burn-box-render，a529274。
-## EN: Source: Austin (chouhuaidan), remote sim/jackson/burn-box-render, a529274.
+## Source: Austin (chouhuaidan), remote sim/jackson/burn-box-render, a529274.
 ## 功能：借鉴 Down+Jump 穿过单向平台；这里改为只忽略脚下平台，不穿透实体地板。
-## EN: Adapt Down+Jump to ignore only the current one-way platform, never solid floors.
+## Adapt Down+Jump to ignore only the current one-way platform, never solid floors.
 class_name GameplayPlatformDrop
 extends Node
 
@@ -19,8 +19,8 @@ func is_dropping() -> bool:
 func try_drop(player: CharacterBody2D) -> bool:
 	if not enabled or is_dropping() or not player.is_on_floor():
 		return false
-	# 中文：从角色脚底往下探测，必须命中 one_way_collision 的平台。
-	# EN: Raycast below the player and require a one-way platform collision.
+	# 从角色脚底往下探测，必须命中 one_way_collision 的平台。
+	# Raycast below the player and require a one-way platform collision.
 	var point := player.global_position + Vector2(0, 13)
 	var query := PhysicsRayQueryParameters2D.create(point, point + Vector2(0, 21), 1)
 	query.exclude = [player.get_rid()]
@@ -48,8 +48,8 @@ func tick(player: CharacterBody2D, delta: float) -> void:
 		return
 	_time_left -= delta
 	var clearance := false
-	# 中文：整个角色低于平台底面后，再恢复碰撞；防止角色被卡回平台。
-	# EN: Restore the original collision once the whole player clears the platform.
+	# 整个角色低于平台底面后，再恢复碰撞；防止角色被卡回平台。
+	# Restore the original collision once the whole player clears the platform.
 	for child in _platform.get_children():
 		if child is CollisionShape2D and child.shape is RectangleShape2D:
 			var rect := child.shape as RectangleShape2D

@@ -1,5 +1,5 @@
 ## 来源：Ethan 46c3df2 / Jackson c897a2e。测试 Gameplay 适配器与远端公开契约。
-## EN: Source: Ethan (Miao-Zinan), remote ethan/burn-box-grid, commit 46c3df2.
+## Source: Ethan (Miao-Zinan), remote ethan/burn-box-grid, commit 46c3df2.
 extends SceneTree
 var failures: Array[String] = []
 
@@ -18,7 +18,7 @@ func _run() -> void:
 	stage.name = "GridContract"
 	root.add_child(stage)
 	# 直接测试 Ethan 真正的 MaterialGrid，不再保留本地仿制数据仓库。
-	# EN: Test Ethan's actual MaterialGrid instead of maintaining a local simulation copy.
+	# Test Ethan's actual MaterialGrid instead of maintaining a local simulation copy.
 	var grid := MaterialGrid.new()
 	var timer := Timer.new()
 	timer.name = "TickTimer"
@@ -36,7 +36,7 @@ func _run() -> void:
 	await frames(3)
 	var events: Array[Vector2i] = []
 	bridge.cell_ignited.connect(func(cell: Vector2i): events.append(cell))
-	var p := Vector2(43, 25)  # 第 (2,1) 格 / EN: Cell (2,1).
+	var p := Vector2(43, 25)  # 第 (2,1) 格 / Cell (2,1).
 	check(bridge.world_to_cell(p) == Vector2i(2,1), "Ethan's world_to_cell mapping is honored")
 	check(not bridge.ignite_world(p), "unpainted AIR is not falsely reported as ignited")
 	check(events.is_empty(), "AIR ignition does not emit success event")

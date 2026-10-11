@@ -19,9 +19,9 @@ extends Node
 var speed_scale: float = 1.0
 var environment_acceleration_x: float = 0.0
 # 来源：Austin / chouhuaidan，a529274 player.gd 的 jumps_left 计数方案。
-# EN: Source: Austin (chouhuaidan), commit a529274, player jump counter.
-# 中文：直接按剩余次数管理双跳；下方额外保留本地土狼时间、预输入和空中惯性。
-# EN: Count remaining jumps while retaining local coyote time, jump buffering and air momentum.
+# Source: Austin (chouhuaidan), commit a529274, player jump counter.
+# 直接按剩余次数管理双跳；下方额外保留本地土狼时间、预输入和空中惯性。
+# Count remaining jumps while retaining local coyote time, jump buffering and air momentum.
 var _jumps_left: int = 1
 var _coyote_left: float = 0.0
 var _jump_buffer_left: float = 0.0
@@ -40,8 +40,8 @@ func jumps_remaining() -> int:
 
 
 func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool, forced_x: float = INF, jump_released: bool = false, force_airborne: bool = false) -> void:
-	# 中文：主动下穿单向平台的几帧按空中处理，避免重新把下落速度清零。
-	# EN: Treat deliberate drop-through as airborne to preserve downward velocity.
+	# 主动下穿单向平台的几帧按空中处理，避免重新把下落速度清零。
+	# Treat deliberate drop-through as airborne to preserve downward velocity.
 	var grounded := body.is_on_floor() and not force_airborne
 	if grounded:
 		_coyote_left = coyote_time
@@ -58,9 +58,9 @@ func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool,
 		_jump_buffer_left = maxf(0.0, _jump_buffer_left - delta)
 
 	# Austin 上游逻辑：有 jumps_left 才能跳，起跳后减一。
-	# EN: Austin approach: permit a jump while jumps_left is positive, then decrement it.
-	# 中文：走出边缘后在 coyote 时间内仍可用第一次跳。
-	# EN: The first jump remains available briefly after walking off a ledge.
+	# Austin approach: permit a jump while jumps_left is positive, then decrement it.
+	# 走出边缘后在 coyote 时间内仍可用第一次跳。
+	# The first jump remains available briefly after walking off a ledge.
 	var first_jump_allowed := grounded or (_jumps_left == max_jumps and _coyote_left > 0.0)
 	var extra_jump_allowed := _jumps_left > 0 and _jumps_left < max_jumps
 	var launch := _jump_buffer_left > 0.0 and (first_jump_allowed or extra_jump_allowed)
@@ -79,8 +79,8 @@ func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool,
 
 	var target_speed := horizontal * speed * speed_scale
 	var acceleration := ground_acceleration if grounded else air_acceleration
-	# 中文：只在空中松方向键时保留惯性，地面仍会正常减速。
-	# EN: Keep horizontal momentum when releasing direction midair; brake normally on the ground.
+	# 只在空中松方向键时保留惯性，地面仍会正常减速。
+	# Keep horizontal momentum when releasing direction midair; brake normally on the ground.
 	if is_zero_approx(horizontal) and not grounded and preserve_air_momentum:
 		acceleration = 0.0  # No horizontal braking just because the key was released.
 	if is_inf(forced_x):
@@ -88,10 +88,10 @@ func step(body: CharacterBody2D, delta: float, horizontal: float, jumping: bool,
 	else:
 		body.velocity.x = forced_x
 	body.velocity.x += environment_acceleration_x * delta
-	# 中文：空调是外部减速效果；即使玩家在空中松开方向键保留惯性，
-	# EN: Air conditioning applies external slowdown even if horizontal air momentum is retained.
+	# 空调是外部减速效果；即使玩家在空中松开方向键保留惯性，
+	# Air conditioning applies external slowdown even if horizontal air momentum is retained.
 	# 进入冷气区也应逐渐降到减速后的上限，离开后不再施加这段阻力。
-	# EN: Slow to the chilled speed cap in the AC zone; stop applying drag outside it.
+	# Slow to the chilled speed cap in the AC zone; stop applying drag outside it.
 	if speed_scale < 0.99 and absf(body.velocity.x) > speed * speed_scale:
 		var limit := signf(body.velocity.x) * speed * speed_scale
 		body.velocity.x = move_toward(body.velocity.x, limit, ground_acceleration * delta * 0.7)
