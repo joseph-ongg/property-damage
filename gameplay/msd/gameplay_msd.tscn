@@ -32,6 +32,7 @@ size = Vector2(132, 12)
 script = ExtResource("2_game")
 
 [node name="RoomVisuals" type="Node2D" parent="."]
+z_index = -5
 script = ExtResource("3_room")
 
 [node name="MaterialGrid" type="Node2D" parent="."]
@@ -45,6 +46,7 @@ height = 34
 script = ExtResource("10_material_setup")
 
 [node name="FireVisuals" type="Node2D" parent="."]
+z_index = 4
 script = ExtResource("9_fire_vfx")
 grid_path = NodePath("../MaterialGrid")
 
@@ -104,6 +106,7 @@ shape = SubResource("shape_fridge")
 one_way_collision = true
 
 [node name="Player1" parent="." instance=ExtResource("1_player")]
+z_index = 10
 position = Vector2(80, 459)
 player_index = 1
 tint = Color(0.29, 0.9, 0.78, 1)
@@ -113,6 +116,7 @@ enhanced_jumping = true
 platform_drop_enabled = true
 
 [node name="Player2" parent="." instance=ExtResource("1_player")]
+z_index = 10
 position = Vector2(884, 459)
 player_index = 2
 tint = Color(1, 0.66, 0.37, 1)
@@ -122,6 +126,7 @@ enhanced_jumping = true
 platform_drop_enabled = true
 
 [node name="Books" type="Node2D" parent="."]
+z_index = 12
 
 [node name="FloorBooks" type="Node2D" parent="Books"]
 position = Vector2(343, 485)
@@ -136,8 +141,10 @@ position = Vector2(237, 332)
 script = ExtResource("7_books")
 
 [node name="Projectiles" type="Node2D" parent="."]
+z_index = 14
 
 [node name="Appliances" type="Node2D" parent="."]
+z_index = 2
 
 [node name="FridgeDevice" type="Node2D" parent="Appliances"]
 position = Vector2(780, 472)
@@ -160,9 +167,11 @@ script = ExtResource("8_appliance")
 device = 3
 
 [node name="InteractionHints" type="Node2D" parent="."]
+z_index = 30
 script = ExtResource("11_hints")
 
 [node name="PlayerConditions" type="Node2D" parent="."]
+z_index = 31
 script = ExtResource("12_conditions")
 
 [node name="HUD" type="CanvasLayer" parent="."]
