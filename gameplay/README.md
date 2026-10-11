@@ -234,3 +234,18 @@ fallback. All new systems remain inside `gameplay/`.
 "/path/to/Godot.app/Contents/MacOS/Godot" --headless --path . \
   --script res://gameplay/tests/gameplay_msd_test.gd
 ```
+
+## Living-room pixel art + property-damage exploration (optional)
+
+See `gameplay/msd/DESIGN_NOTES.md` for the confirmed Slack acceptance criteria,
+design-team proposals, comparison principles from TowerFall and Noita, and
+recommended staged implementation order. The pixel scene is generated from
+`gameplay/msd/art/generate_room.py` into `living_room_pixel.png` (Pillow only
+needed when **regenerating** this checked-in asset).
+
+The three book bundles in the default living-room prototype are a **tentative
+visual experiment**, not agreed scoring/game objectives. Spark near one to
+briefly show embers and leave a persistent charred appearance. This does not
+modify `MaterialGrid` or spread fire; switch
+`GameplayMSD.experimental_books_enabled = false` to disable the mock response.
+Run `gameplay/tests/gameplay_props_test.gd` for its interaction regression.
