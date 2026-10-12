@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
@@ -14,6 +14,7 @@
 [ext_resource type="Script" path="res://gameplay/msd/player_conditions.gd" id="12_conditions"]
 
 [ext_resource type="Script" path="res://gameplay/integration/team_material_renderer.gd" id="13_grid_render"]
+[ext_resource type="Script" path="res://gameplay/msd/room_depth_layer.gd" id="14_depth_layer"]
 
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
@@ -48,6 +49,17 @@ z_index = -4
 texture_filter = 1
 script = ExtResource("13_grid_render")
 grid_path = NodePath("../MaterialGrid")
+
+[node name="RoomLighting" type="Node2D" parent="."]
+z_index = -3
+texture_filter = 1
+script = ExtResource("14_depth_layer")
+
+[node name="RoomForeground" type="Node2D" parent="."]
+z_index = 11
+texture_filter = 1
+script = ExtResource("14_depth_layer")
+foreground = true
 
 [node name="TickTimer" type="Timer" parent="MaterialGrid"]
 

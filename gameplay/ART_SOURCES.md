@@ -43,3 +43,39 @@ surface matched to a source-proportional 90×154 pixel image. This alignment is
 specific to the independent Gameplay playtest scene.
 
 - **Design Team slide 12:** The central window was replaced by a smaller framed illustration to keep the agreed left-side window, shelf, desk, AC, clock and right-fridge hierarchy visible. Gameplay owns this independent prototype only.
+
+## Repaired Art Team clock and layered 2D room (October 12)
+
+The original `team_clock.png` is cropped at its rightmost edge in the source
+Art Team furniture collage. It remains preserved, unmodified, as an upstream
+source. `msd/art/generate_room.py` instead repaints **a complete pixel-art
+clock in the same position**, with a full outer ring, ivory dial, twelve
+hour ticks, two hands, a raised rim and a small drop shadow. This repair does
+not claim to be a new official Art Team deliverable.
+
+The isolated Gameplay room uses three distinct 960x540 painted pixel plates:
+
+1. `living_room_pixel.png`: original furniture composition, wall paneling,
+   stepped wood floor planks, platform edges, rug depth and grounding shadows.
+2. `living_room_lighting.png`: a transparent overlay of cool window rays,
+   warm light pools, and subtle wall occlusion. Runtime node `RoomLighting`
+   appears above the material marker layer and below Gameplay characters.
+3. `living_room_foreground.png`: transparent near-camera corner leaves and
+   tabletop apron; runtime node `RoomForeground` appears above actors only at
+   the scene edges, never across the core interactions.
+
+The runtime `room_depth_layer.gd` uses nearest-neighbor rendering of the two
+transparent plates. This is a deliberately restrained **HD-2D-inspired 2D
+layering treatment**, not a reproduction of the Octopath Traveler art assets,
+lighting engine or 3D environments. All assets were produced from local
+code and the team's existing raster inputs; no online art was downloaded.
+
+Regenerate the three aligned plates after layout tweaks:
+
+```bash
+/usr/bin/python3 gameplay/msd/art/generate_room.py
+```
+
+`gameplay/tests/gameplay_room_depth_test.gd` verifies the repaired clock dial
+and rim, translucent spatial layers, intended Z ordering, center playfield
+visibility and unchanged Simulation/physics contracts.

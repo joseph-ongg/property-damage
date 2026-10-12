@@ -182,3 +182,21 @@ main's API scaffold **and an isolated copy where the exact original Ethan
 `material_grid.gd` is installed**. The Art Team's alternate 736×736 casting
 pose is now selected *after* processing the relevant input event, removing
 the previous one-physics-frame latency for Spark/interact/magic.
+
+## 13. Pixel depth and restored wall clock
+
+The Art Team clock crop in the presentation's furniture composition is missing
+part of its right border. The Gameplay room now reconstructs a complete analog
+clock at the same wall location in `msd/art/generate_room.py`, while preserving
+the original `team_clock.png`. The room is composited with independent
+`RoomLighting` and `RoomForeground` sprites, both 960x540 transparent PNGs.
+Their Z depth is: background (-5), material markers (-4), soft stepped light
+(-3), actors (10), and only edge-of-frame foreground plants (11). All use
+pixelated, nearest-neighbor sampling, not blurred upscaling. Source files and
+attribution are listed in `ART_SOURCES.md`.
+
+The enhanced wall paneling, wood floor perspective, baseboard, shadow contacts
+and clock are **visual only**; static bodies, character interactions, material
+IDs and Simulation storage remain unchanged. The old Art Team clock texture
+is still included but intentionally no longer composited into the wall.
+`gameplay_room_depth_test.gd` checks pixel completeness and physics boundaries.
