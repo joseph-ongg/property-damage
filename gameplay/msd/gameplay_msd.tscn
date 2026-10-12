@@ -131,7 +131,7 @@ one_way_collision = true
 z_index = 10
 position = Vector2(80, 459)
 player_index = 1
-tint = Color(0.29, 0.9, 0.78, 1)
+tint = Color(0.35, 0.72, 1, 1)
 fire_bridge_path = NodePath("../FireBridge")
 dash_enabled = false
 enhanced_jumping = true
@@ -232,7 +232,7 @@ offset_right = 269.0
 offset_bottom = 58.0
 theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.72, 0.84, 0.87, 1)
-text = "LOCAL CO-OP  /  GAMEPLAY PROTOTYPE"
+text = "LOCAL CO-OP  /  PROTOTYPE"
 
 [node name="SystemHint" type="Label" parent="HUD"]
 offset_left = 304.0
@@ -267,7 +267,7 @@ offset_right = 941.0
 offset_bottom = 33.0
 theme_override_font_sizes/font_size = 10
 theme_override_colors/font_color = Color(0.9, 0.77, 0.59, 1)
-text = "FIRE / INTERACTION FEEDBACK"
+text = "GAMEPLAY EVENTS"
 
 [node name="SparkStatus" type="Label" parent="HUD"]
 offset_left = 570.0
@@ -276,7 +276,7 @@ offset_right = 941.0
 offset_bottom = 55.0
 theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.99, 0.88, 0.73, 1)
-text = "F / ENTER  -  SPARK READY"
+text = "P1 F   /   P2 ENTER   •   SPARK READY"
 
 [node name="BottomStrip" type="ColorRect" parent="HUD"]
 offset_top = 501.0
@@ -305,7 +305,7 @@ offset_top = 502.0
 offset_right = 5.0
 offset_bottom = 540.0
 mouse_filter = 2
-color = Color(0.35, 0.87, 0.75, 1)
+color = Color(0.35, 0.72, 1, 1)
 
 [node name="P1Chip" type="ColorRect" parent="HUD"]
 offset_left = 15.0
@@ -313,7 +313,7 @@ offset_top = 508.0
 offset_right = 53.0
 offset_bottom = 535.0
 mouse_filter = 2
-color = Color(0.15, 0.36, 0.37, 0.94)
+color = Color(0.14, 0.29, 0.45, 0.94)
 
 [node name="P1Tag" type="Label" parent="HUD"]
 offset_left = 22.0
@@ -321,7 +321,7 @@ offset_top = 511.0
 offset_right = 51.0
 offset_bottom = 530.0
 theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(0.67, 1, 0.88, 1)
+theme_override_colors/font_color = Color(0.78, 0.91, 1, 1)
 text = "P1"
 
 [node name="Controls" type="Label" parent="HUD"]
@@ -331,7 +331,7 @@ offset_right = 463.0
 offset_bottom = 520.0
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.91, 0.93, 0.91, 1)
-text = "A/D  MOVE    W x2  JUMP    S+W  DROP"
+text = "A/D MOVE     W x2 JUMP     S+W DROP"
 
 [node name="ControlsExtraP1" type="Label" parent="HUD"]
 offset_left = 66.0
@@ -340,7 +340,7 @@ offset_right = 463.0
 offset_bottom = 539.0
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.52, 0.87, 0.8, 1)
-text = "F  SPARK      E  USE      G  MAGIC"
+text = "F SPARK      E INTERACT      G MAGIC"
 
 [node name="P2Accent" type="ColorRect" parent="HUD"]
 offset_left = 481.0
@@ -374,7 +374,7 @@ offset_right = 948.0
 offset_bottom = 520.0
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.94, 0.9, 0.87, 1)
-text = "LEFT/RIGHT  MOVE    UP x2  JUMP    DOWN+UP  DROP"
+text = "ARROWS MOVE     UP x2 JUMP     DOWN+UP DROP"
 
 [node name="ControlsExtraP2" type="Label" parent="HUD"]
 offset_left = 545.0
@@ -383,7 +383,7 @@ offset_right = 948.0
 offset_bottom = 539.0
 theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(1, 0.66, 0.67, 1)
-text = "ENTER  SPARK    SHIFT  USE    .  MAGIC"
+text = "ENTER SPARK     SHIFT INTERACT     . MAGIC"
 
 [node name="PauseOverlay" type="CanvasLayer" parent="."]
 layer = 12

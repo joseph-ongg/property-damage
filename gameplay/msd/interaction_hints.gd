@@ -45,23 +45,48 @@ func _anchor_for(player: GameplayPlayer, offer: Dictionary) -> Vector2:
 	return target.global_position + Vector2(0, -60)
 
 
-func _draw() -> void:
+func prompt_layouts() -> Array[Dictionary]:
+	# Both players can approach the same object. Lay out prompts together so
+	# they don't cover one another, the HUD or the target at the playfield edge.
+	var layouts: Array[Dictionary] = []
 	var font: Font = ThemeDB.fallback_font
 	if font == null:
-		return
+		return layouts
 	for player: GameplayPlayer in [p1, p2]:
 		var offer: Dictionary = room.get_interaction_offer(player)
 		if offer.is_empty():
 			continue
 		var content := hint_for(player)
-		var accent := Color("69e5c9") if player.player_index == 1 else Color("ffb476")
 		var width: float = font.get_string_size(content, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x + 18.0
 		var location := _anchor_for(player, offer)
 		var x := clampf(location.x - width * 0.5, 12.0, 948.0 - width)
 		var y := clampf(location.y - (30.0 if player.player_index == 1 else 0.0), 73.0, 471.0)
-		# 小型实心底板让文字在像素背景上保持可读。
-		# Use a small solid backdrop to keep text readable over pixel art.
-		draw_rect(Rect2(x, y, width, 23), Color("142231", 0.93))
-		draw_rect(Rect2(x, y, width, 23), accent, false, 1.0)
-		draw_string(font, Vector2(x + 9, y + 16), content, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("e4eef0"))
-		draw_rect(Rect2(x + 2, y + 3, 3, 17), accent)
+		var panel := Rect2(x, y, width, 23)
+		# Prefer vertical separation; fall back to a side offset when the
+		# object is close to the top/bottom HUD boundaries.
+		for try_offset in [0.0, 28.0, -28.0, 56.0, -56.0]:
+			var proposal := Rect2(x, clampf(y + try_offset, 73.0, 471.0), width, 23)
+			var overlaps := false
+			for previous: Dictionary in layouts:
+				if proposal.intersects(previous["rect"] as Rect2):
+					overlaps = true
+					break
+			if not overlaps:
+				panel = proposal
+				break
+		layouts.append({"player_index": player.player_index, "rect": panel, "text": content})
+	return layouts
+
+
+func _draw() -> void:
+	var font: Font = ThemeDB.fallback_font
+	if font == null:
+		return
+	for item: Dictionary in prompt_layouts():
+		var panel: Rect2 = item["rect"]
+		var player_index: int = item["player_index"]
+		var accent := Color("70baff") if player_index == 1 else Color("ff7e83")
+		draw_rect(panel, Color("142231", 0.94))
+		draw_rect(panel, accent, false, 1.0)
+		draw_string(font, panel.position + Vector2(9, 16), str(item["text"]), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("e4eef0"))
+		draw_rect(Rect2(panel.position + Vector2(2, 3), Vector2(3, 17)), accent)

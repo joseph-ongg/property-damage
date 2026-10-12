@@ -109,7 +109,10 @@ func _on_interact(player_index: int, player: GameplayPlayer) -> void:
 		"device":
 			var appliance := target as GameplayAppliance
 			if appliance.interact(player):
-				_show_status("P%d  •  %s %s (PROTOTYPE)" % [player_index, appliance.device_name(), "ON" if appliance.switched_on else "OFF"])
+				# An opened fridge isn't a powered-on appliance. Match the prompt's
+				# OPEN/CLOSE language; other devices retain ON/OFF semantics.
+				var state := ("OPEN" if appliance.switched_on else "CLOSED") if appliance.device == GameplayAppliance.Device.FRIDGE else ("ON" if appliance.switched_on else "OFF")
+				_show_status("P%d  •  %s %s (PROTOTYPE)" % [player_index, appliance.device_name(), state])
 
 
 func _show_status(message: String) -> void:
@@ -122,7 +125,7 @@ func _process(delta: float) -> void:
 		return
 	_last_status_age = maxf(0.0, _last_status_age - delta)
 	if _last_status_age <= 0.0:
-		status_text.text = "F / ENTER  -  SPARK READY"
+		status_text.text = "P1 F   /   P2 ENTER   •   SPARK READY"
 
 
 # 火焰数据归 Simulation 管；这里仅处理演示书本/电脑视觉和状态文字。

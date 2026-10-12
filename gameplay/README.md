@@ -200,3 +200,15 @@ and clock are **visual only**; static bodies, character interactions, material
 IDs and Simulation storage remain unchanged. The old Art Team clock texture
 is still included but intentionally no longer composited into the wall.
 `gameplay_room_depth_test.gd` checks pixel completeness and physics boundaries.
+
+## Compact dual-player playtest feedback
+
+The bottom strip uses concise, independently labeled P1/P2 input reminders
+and matches the blue/red Art Team character colors. The room remains marked
+as a **prototype** to avoid implying an approved final game mode.
+`interaction_hints.gd` lays out the two nearby prompts together, keeping
+panels in the playable vertical range and avoiding overlap when both players
+reach the same object. Device prompt and event text share physical state:
+refrigerators now report `OPEN`/`CLOSED` rather than power `ON`/`OFF`, while
+fan/air-conditioner/computer retain their existing power semantics. See
+`gameplay_interaction_polish_test.gd` for scene-based acceptance checks.
