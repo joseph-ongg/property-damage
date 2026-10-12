@@ -84,31 +84,51 @@ for x in [3,24]:rect(d,(x,7,x+1,8),'c6a56c')
 for x in [0,15,31]:d.line((x,5,x,10),fill=rgb('594849'))
 save(im,'wood_platform.png')
 
-# Mages: unique 26x42 sprite designs, no copied external work
-for index,palette in [(1,{'cloak':'319d9f','light':'70ddbe','shade':'23596f','trim':'e1bd6e','hair':'29364d'}),
-                      (2,{'cloak':'bd614e','light':'f2b46b','shade':'743d5c','trim':'e9ce8a','hair':'4f354d'})]:
- im=Image.new('RGBA',(28,44),(0,0,0,0));d=ImageDraw.Draw(im)
- # boots and shadow
- rect(d,(7,38,12,41),'292c40');rect(d,(17,38,22,41),'292c40')
- rect(d,(4,26,25,37),palette['shade']);rect(d,(6,21,22,34),palette['cloak'])
- # flowing cloak cutouts
- rect(d,(5,30,7,40),palette['cloak']);rect(d,(20,29,23,40),palette['shade'])
- rect(d,(9,18,19,28),'d5a883');rect(d,(7,17,21,20),palette['hair'])
- rect(d,(9,12,18,17),'e9ba91')
- rect(d,(9,13,19,15),palette['hair'])
- rect(d,(11,16,12,16),'273347');rect(d,(16,16,17,16),'273347')
- # ornate gold pattern at chest
- rect(d,(11,22,16,23),palette['trim']);rect(d,(13,24,14,28),palette['trim'])
- rect(d,(10,33,12,35),palette['light']);rect(d,(17,32,18,36),palette['light'])
- # shoulder pauldron and arm
- rect(d,(5,21,9,26),palette['light']);rect(d,(20,21,23,26),palette['light'])
- # wizard hat and rim
- d.polygon([(4,13),(14,0),(24,13)],fill=rgb(palette['shade']))
- d.polygon([(9,9),(14,2),(17,9)],fill=rgb(palette['cloak']))
- rect(d,(3,12,25,15),palette['cloak']);rect(d,(8,10,20,11),palette['trim'])
- # staff: right hand
- rect(d,(24,15,25,35),'94664f');rect(d,(23,11,26,15),palette['trim'])
- rect(d,(24,8,25,10),palette['light'])
+# MSD co-op mages: readable 32x60 silhouettes that fit the 32x64
+# collision box (the sprite is centered 10px above the player origin).
+# Original pixel artwork, generated deterministically for easy Art handoff.
+for index,p in [(1,{'outline':'172c3f','cloak':'278a91','light':'76dace','shade':'28576d',
+                    'trim':'f0d28d','hair':'27374c','cape':'21566b','crystal':'a2fff0'}),
+                (2,{'outline':'362a3c','cloak':'bd6153','light':'ffc184','shade':'77415e',
+                    'trim':'f2d594','hair':'49324d','cape':'723d55','crystal':'ffe79c'})]:
+ im=Image.new('RGBA',(32,60),(0,0,0,0));d=ImageDraw.Draw(im)
+ # Back-facing coat tails, a stable triangular silhouette, and separate boots.
+ d.polygon([(6,30),(24,30),(28,55),(22,57),(18,54),(13,58),(6,57),(3,53)],fill=rgb(p['outline']))
+ d.polygon([(7,32),(25,32),(26,52),(21,54),(15,51),(10,55),(5,52)],fill=rgb(p['cape']))
+ rect(d,(8,51,12,57),p['outline']);rect(d,(19,51,24,57),p['outline'])
+ rect(d,(9,52,12,54),p['shade']);rect(d,(20,52,23,54),p['shade'])
+ rect(d,(7,32,23,48),p['cloak'])
+ d.polygon([(7,36),(10,41),(8,50),(5,54),(4,47)],fill=rgb(p['shade']))
+ rect(d,(21,35,25,51),p['shade'])
+ rect(d,(11,38,13,46),p['light']);rect(d,(19,39,21,46),p['shade'])
+ rect(d,(8,45,10,51),p['trim']);rect(d,(18,45,20,50),p['light'])
+ # Body, sleeves and a brighter central robe emblem.
+ rect(d,(7,29,24,38),p['outline']);rect(d,(8,29,23,35),p['cloak'])
+ rect(d,(3,30,8,40),p['outline']);rect(d,(4,31,8,38),p['light'])
+ rect(d,(23,30,28,38),p['outline']);rect(d,(23,31,27,37),p['shade'])
+ rect(d,(14,34,18,35),p['trim']);rect(d,(15,36,17,40),p['trim'])
+ rect(d,(15,42,16,45),p['trim']);rect(d,(14,47,17,49),p['trim'])
+ # Neck and face. Two eye pixels help readability at normal scale.
+ rect(d,(12,25,19,31),'b88265');rect(d,(11,17,21,28),'e0ac86')
+ rect(d,(12,19,19,27),'f0c49a');rect(d,(11,24,12,27),'d59679')
+ rect(d,(13,23,14,23),'233245');rect(d,(19,23,20,23),'233245')
+ rect(d,(15,27,19,27),'b77867')
+ rect(d,(10,17,21,20),p['hair'])
+ # Tall, iconic wizard hat; wide brim anchors the head without a big helmet.
+ d.polygon([(4,20),(15,1),(22,9),(26,20)],fill=rgb(p['outline']))
+ d.polygon([(7,19),(15,3),(20,11),(23,19)],fill=rgb(p['shade']))
+ d.polygon([(14,5),(11,14),(14,13),(18,7)],fill=rgb(p['cloak']))
+ rect(d,(3,18,27,21),p['outline']);rect(d,(5,18,25,19),p['trim'])
+ rect(d,(12,16,20,17),p['trim'])
+ rect(d,(15,7,16,10),p['light'])
+ # Staff and crystal: a vertical silhouette that immediately reads as a mage.
+ rect(d,(28,23,29,51),p['outline'])
+ rect(d,(29,24,29,48),'b78661')
+ rect(d,(28,20,30,23),p['trim'])
+ d.polygon([(29,11),(32-1,16),(29,21),(26,16)],fill=rgb(p['crystal']))
+ rect(d,(28,14,29,17),'fff5cb')
+ # Small cloak pin / faction jewel.
+ rect(d,(15,29,17,31),p['crystal'])
  save(im,f'mage_{index}.png')
 
 # Golden shards, idle/on fire shrine; transparent PNGs

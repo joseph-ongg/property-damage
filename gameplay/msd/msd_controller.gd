@@ -122,7 +122,7 @@ func _process(delta: float) -> void:
 		return
 	_last_status_age = maxf(0.0, _last_status_age - delta)
 	if _last_status_age <= 0.0:
-		status_text.text = "F / ENTER  •  SPARK"
+		status_text.text = "F / ENTER  -  SPARK READY"
 
 
 # 火焰数据归 Simulation 管；这里仅处理演示书本/电脑视觉和状态文字。

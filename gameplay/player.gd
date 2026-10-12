@@ -82,7 +82,10 @@ func _physics_process(delta: float) -> void:
 	var jump := Input.is_action_just_pressed(prefix + "jump")
 	# 只有站在单向平台上按住下+跳才下穿，实体地板不会失效。
 	# Require Down+Jump on a one-way platform; solid floors remain solid.
-	if jump and Input.is_action_pressed(prefix + "down") and platform_drop.try_drop(self):
+	if jump and Input.is_action_pressed(prefix + "down"):
+		# Down+Jump is a dedicated drop attempt, never an accidental jump
+		# from solid floors or an ordinary upward leap when no platform exists.
+		platform_drop.try_drop(self)
 		jump = false
 	if dash_enabled and Input.is_action_just_pressed(prefix + "dash"):
 		if dash.begin(facing):
@@ -101,7 +104,7 @@ func _physics_process(delta: float) -> void:
 	dash.tick(delta)
 	_animation_clock += delta
 	var moving := is_on_floor() and absf(velocity.x) > 18.0
-	sprite.position.y = -2.0 + (sin(_animation_clock * 17.0) * 1.0 if moving else 0.0)
+	sprite.position.y = -10.0 + (sin(_animation_clock * 17.0) * 1.0 if moving else 0.0)
 	if dash.active() or _dash_was_active:
 		queue_redraw()
 	_dash_was_active = dash.active()

@@ -24,7 +24,7 @@
 | Pause / resume | `P` or `Esc` | Shared |
 | Restart the currently played Gameplay scene when unpaused | `R` | Shared |
 
-Dash is disabled in the default living-room scene. The separate fantasy test scene uses `Q` and `/` for Dash. Available interactions appear contextually near nearby objects.
+Down+Jump only drops through one-way platforms; it does not jump from solid floors. Dash is disabled in the living-room playtest. The separate fantasy test scene uses `Q` and `/` for Dash. Available interactions appear contextually near nearby objects.
 
 ## Implemented features
 
@@ -38,7 +38,7 @@ Dash is disabled in the default living-room scene. The separate fantasy test sce
 
 ### Optional visual and interaction prototypes
 
-- Original pixel-art living room, distinct player palettes, concise HUD, landing and spark feedback, and nearby interaction prompts.
+- Original pixel-art living room with clear platform edges, redesigned mint/amber 32×60 mage textures, split P1/P2 control panels, landing and Spark feedback, and nearby interaction prompts.
 - Books can be picked up, carried, thrown, and visually scorched by Spark or magic.
 - A fridge with an opening door; a fan that pushes nearby players; an AC that slows nearby movement; and a computer with switch/shorted states.
 - When the AC is on, its **130-pixel** effect radius applies a **0.45** movement-speed multiplier. Inherited airborne momentum also slows toward the adjusted speed cap; `SLOW` and cool-colored particles indicate the effect. Movement returns to normal outside its range.

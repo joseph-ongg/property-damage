@@ -57,7 +57,7 @@ func _run() -> void:
 	await frames(4)
 	Input.action_release("p1_down")
 	Input.action_release("p1_jump")
-	check(p1.global_position.y < 470 and not p1.platform_drop.is_dropping(), "down+jump on solid floor remains safe")
+	check(absf(p1.global_position.y - 478.0) < 1.0 and p1.is_on_floor() and not p1.platform_drop.is_dropping(), "down+jump on solid floor neither jumps nor tunnels through ground")
 	scene.queue_free()
 	print("UPSTREAM_DROP_SUMMARY failures=",failures.size())
 	quit(0 if failures.is_empty() else 1)

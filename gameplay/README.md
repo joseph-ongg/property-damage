@@ -15,7 +15,7 @@ Start with the [root README](../README.md) for the complete feature list, contro
 
 | Module | Path | Purpose |
 | --- | --- | --- |
-| Player | `player.gd`, `player.tscn` | `CharacterBody2D`, action inputs, facing, and component connections |
+| Player | `player.gd`, `prefabs/gameplay_player.tscn` | `CharacterBody2D`, action inputs, facing, and component connections |
 | Input mapping | `input_actions.gd` | Registers `p1_*` / `p2_*` actions without requiring shared `project.godot` input changes |
 | Motor | `components/player_motor.gd` | Fixed-height double jump, air momentum, coyote time, and jump buffer |
 | Platform drop | `components/platform_drop.gd` | Temporarily ignores the one-way platform under the player, never solid ground |
@@ -70,6 +70,8 @@ Run an individual test from the repository root using Godot 4.7.2 Standard:
 | `gameplay_advanced_test.gd` | Double jumps, air momentum, book pickup, and appliances |
 | `gameplay_full_flow_test.gd` | Combined two-player movement, double jumps, Spark, drops, interactions, simultaneous magic, and long play |
 | `gameplay_keyboard_chords_test.gd` | Physical Shift+W, concurrent keyboard controls, and F/Enter Spark |
+| `gameplay_input_layout_test.gd` | Down+Jump on solid floors, independent on-screen P1/P2 key guides |
+| `gameplay_visual_design_test.gd` | Redesigned sprite footprints, room artwork dimensions, measured HUD text fitting |
 | `gameplay_collider_handoff_test.gd` | One-way drops with Angela-compatible 32×64 geometry and legacy 22×40 shapes |
 | `gameplay_art_handoff_test.gd` | Replace mage art without changing player physics or controls |
 | `gameplay_fan_playtest.gd` | Floor-level P1/P2 fan interaction, physical wind push, and safe turn-off near books |
@@ -103,3 +105,7 @@ The independent living-room scene explicitly sets `z_index` values to keep the o
 ## 8. Working with other teams
 
 See [`TEAM_INTEGRATION.md`](TEAM_INTEGRATION.md) for collision shape compatibility with Angela, Ethan/Jackson Simulation handoff, Art sprite overrides, and the independent playtest entry point.
+
+## 9. Local playtest presentation
+
+The MSD living-room scene uses a 960×540 pixel layout. P1 and P2 have separate always-visible control panels with their required core keys and optional interactions; a compact top banner shows pause/restart keys and real Simulation status. The pause overlay uses the same mint/amber player palette. `S+W` or `Down+Up` is a dedicated drop attempt: it will never trigger an accidental jump on a solid floor. Character textures are regenerated from `art/generate_art.py` (32×60) and match Angela-compatible 32×64 colliders while retaining the original feet height.

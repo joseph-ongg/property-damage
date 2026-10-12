@@ -57,11 +57,16 @@ rect((185,254,336,265),'#7d4b51')
 rect((190,257,332,262),'#966e5b')
 for x in range(193,334,18):
  d.polygon([(x,259),(x+6,255),(x+12,259),(x+6,263)],fill='#c39771')
-# glowing wall sconce; warm light painted pixel rings
+# Wall sconces: compact pixel silhouettes instead of large rings that
+# resemble gameplay targeting effects and compete with the two player sprites.
 for lx,ly in [(139,117),(344,117)]:
- for radius in (21,14,8):
-  d.ellipse((lx-radius,ly-radius,lx+radius,ly+radius),outline=['#64594e','#846b56','#bd945f'][[21,14,8].index(radius)])
- rect((lx-3,ly-4,lx+3,ly+8),'#6b514c');rect((lx-2,ly-6,lx+2,ly+4),'#f7c784')
+ rect((lx-10,ly+4,lx+10,ly+6),'#6f5850')
+ rect((lx-8,ly-3,lx+8,ly+3),'#b28766')
+ rect((lx-5,ly-8,lx+5,ly+1),'#e7bd7f')
+ rect((lx-3,ly-11,lx+3,ly-5),'#fbe2a0')
+ rect((lx-1,ly-12,lx+1,ly-9),'#fff2c6')
+ rect((lx-13,ly-4,lx-12,ly+2),'#625558')
+ rect((lx+12,ly-4,lx+13,ly+2),'#625558')
 # couch silhouette on left foreground; decorative, not a physical barrier
 rect((11,196,64,248),'#4d434f');rect((15,189,62,243),'#72616b')
 rect((17,200,61,231),'#8b6667');rect((13,222,65,247),'#9d7775')
@@ -97,6 +102,18 @@ rect((360,208,423,211),'#777f8a')
 rect((369,187,371,199),'#5b6470');rect((369,219,371,232),'#5b6470')
 # Small magnets reinforce pixel material detail
 for x,y,c in [(391,183,'#a96765'),(408,190,'#6e9d9f'),(394,198,'#d3b476')]:rect((x,y,x+4,y+4),c)
+# Tiny landing-edge inlays help players recognize where one-way platform
+# surfaces begin; these track the existing collision heights exactly.
+for x0,x1,y in [(76,164,171),(189,296,205),(362,423,175)]:
+ for x in range(x0+7,x1-4,15):
+  rect((x,y,x+4,y+1),'#f8dfac')
+# Subtle spawn-floor brackets match the two player's mint/amber palettes.
+# They are painted behind the feet, not as extra physics objects.
+for x,tint in [(40,'#5ab8ae'),(442,'#d69864')]:
+ rect((x-17,247,x-10,248),tint)
+ rect((x+10,247,x+17,248),tint)
+ rect((x-17,245,x-16,247),tint)
+ rect((x+16,245,x+17,247),tint)
 # Window curtain edges, in front of distant view
 rect((180,38,184,116),'#8e6770');rect((295,38,300,116),'#8e6770')
 for y in range(45,117,9):
