@@ -275,3 +275,30 @@ P2 recovering and re-throwing a settled book. The original two wall bugs
 were reproduced with failing assertions before this change. A real Godot
 runtime shelf-landing capture is kept under
 `presentation_media/screenshots/book_shelf_landing_live.png` locally.
+
+## 17. Resting book support after landing
+
+Thrown books previously stopped updating physics as soon as they landed.
+That left them suspended if a supporting `StaticBody2D` was moved, disabled,
+removed, or if the book was nudged over a platform edge. The standalone
+Gameplay prop now tracks the last **actual layer-1 collision body** it landed
+on, carries the book by that body's change in position, and probes bottom
+contact points each physics frame while the book is resting. Losing that
+support starts a new fall; a queued-for-deletion platform is handled without
+accessing a freed object. Landings keep a small fraction of horizontal
+momentum, reduced by friction, to allow a book to slide off marginal ledges.
+Support tracking is cleared on pickup and throw. Static books authored in the
+scene are left at their original art coordinates until first interacted with,
+so the Design/Art teams' initial furniture composition is unchanged.
+
+`gameplay_book_support_test.gd` covers stable tabletop landings, translating
+platforms, disabled collision, removed bodies, bookshelf edge departure,
+natural post-landing momentum sliding, stable floor recovery, and alternating
+P1/P2 pickup and re-throw. These tests modify **runtime instances only**, not
+team-owned scenes or Simulation `MaterialGrid`. The original unsupported
+behavior was reproduced by failing tests before the fix.
+
+The optional Gameplay bookshelf/table/floor are still prototype geometry;
+this change does not imply the final shared arena has dynamic platforms.
+Local Godot runtime evidence is recorded in
+`presentation_media/screenshots/book_platform_support_before_after.png`.

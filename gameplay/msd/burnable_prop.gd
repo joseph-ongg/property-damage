@@ -17,6 +17,12 @@ signal thrown_by(player_index: int)
 var carried_by: GameplayPlayer = null
 var flying: bool = false
 var flight_velocity: Vector2 = Vector2.ZERO
+# The last platform/floor that physically supports a *thrown* book. Static
+# designer-placed props stay parked until first picked up or thrown.
+var _support: CollisionObject2D = null
+var _support_last_position: Vector2 = Vector2.ZERO
+var _watch_resting: bool = false
+var _rest_slide_speed: float = 0.0
 
 var scorched: bool = false
 var flash_left: float = 0.0
@@ -32,6 +38,7 @@ func pick_up(player: GameplayPlayer) -> bool:
 		return false
 	carried_by = player
 	flying = false
+	_reset_resting()
 	flight_velocity = Vector2.ZERO
 	global_position = player.global_position + Vector2(player.facing * 22, -22)
 	picked_up_by.emit(player.player_index)
@@ -42,6 +49,7 @@ func throw_from(player: GameplayPlayer) -> bool:
 	if carried_by != player:
 		return false
 	carried_by = null
+	_reset_resting()
 	global_position = player.global_position + Vector2(player.facing * 27, -22)
 	flight_velocity = Vector2(float(player.facing) * throw_speed + player.velocity.x * 0.35, throw_lift)
 	flying = true
@@ -54,6 +62,75 @@ func _physics_process(delta: float) -> void:
 		global_position = carried_by.global_position + Vector2(carried_by.facing * 22, -22)
 	elif flying:
 		_step_flight(delta)
+	elif _watch_resting:
+		_step_resting(delta)
+
+
+func _reset_resting() -> void:
+	_support = null
+	_support_last_position = Vector2.ZERO
+	_watch_resting = false
+	_rest_slide_speed = 0.0
+
+
+func _settle(support: CollisionObject2D, momentum: float) -> void:
+	_support = support
+	_support_last_position = support.global_position if is_instance_valid(support) else Vector2.ZERO
+	_watch_resting = true
+	# Retain a little horizontal throw momentum, then quickly dissipate it.
+	# This allows a marginally supported book to slide over an edge naturally.
+	_rest_slide_speed = clampf(momentum * 0.35, -125.0, 125.0)
+	flight_velocity = Vector2.ZERO
+	flying = false
+
+
+func _bottom_support() -> Dictionary:
+	# The painted stack has a 13px bottom offset; sample several points so
+	# partial contact at a tabletop edge is valid while remaining on it.
+	var half_width: float = minf(width * 0.45, 14.0)
+	var nearest: Dictionary = {}
+	for offset in [-half_width * 0.55, 0.0, half_width * 0.55]:
+		var foot := global_position + Vector2(offset, 13)
+		var hit := _world_ray(foot + Vector2.UP * 3.0, foot + Vector2.DOWN * 3.0, false)
+		if not hit.is_empty() and hit.normal.y < -0.5:
+			if nearest.is_empty() or hit.position.y < nearest.position.y:
+				nearest = hit
+	return nearest
+
+
+func _step_resting(delta: float) -> void:
+	# A moving StaticBody2D does not wake a Node2D on its own. Follow the
+	# tracked body transform, then ask real collision whether support remains.
+	if is_instance_valid(_support):
+		global_position += _support.global_position - _support_last_position
+		_support_last_position = _support.global_position
+	else:
+		_support = null
+	if absf(_rest_slide_speed) > 0.01:
+		var dx: float = _rest_slide_speed * delta
+		var side: float = signf(dx) * minf(width * 0.45, 14.0)
+		var collision := _world_ray(global_position + Vector2(side, 0), global_position + Vector2(side + dx, 0), true)
+		if not collision.is_empty() and collision.normal.x * signf(dx) < -0.5:
+			global_position.x = collision.position.x - side - signf(dx) * 0.5
+			_rest_slide_speed = 0.0
+		else:
+			global_position.x = clampf(global_position.x + dx, 24.0, 936.0)
+		_rest_slide_speed = move_toward(_rest_slide_speed, 0.0, 420.0 * delta)
+	var contact: Dictionary = _bottom_support()
+	if not contact.is_empty():
+		_support = contact.collider as CollisionObject2D
+		_support_last_position = _support.global_position if is_instance_valid(_support) else Vector2.ZERO
+		# Stay positioned against the collision surface, even if its vertical
+		# motion differs by a tiny subpixel rounding amount.
+		global_position.y = contact.position.y - 13.0
+		return
+	# The physical body was removed/disabled or the book reached the ledge.
+	# Resume gravity instead of remaining suspended in its previous position.
+	flight_velocity = Vector2(_rest_slide_speed, 0.0)
+	_support = null
+	_watch_resting = false
+	_rest_slide_speed = 0.0
+	flying = true
 
 
 func _step_flight(delta: float) -> void:
@@ -97,14 +174,13 @@ func _step_flight(delta: float) -> void:
 					best_floor = hit
 		if not best_floor.is_empty():
 			proposed.y = best_floor.position.y - 13.0
-			flight_velocity = Vector2.ZERO
-			flying = false
+			_settle(best_floor.collider as CollisionObject2D, flight_velocity.x)
 	# Gameplay demo room floor top is 498, so painted books rest at y485.
 	# Retain this fallback for detached books if a collision frame is missed.
 	if proposed.y >= 485.0:
 		proposed.y = 485.0
-		flight_velocity = Vector2.ZERO
-		flying = false
+		if flying:
+			_settle(null, flight_velocity.x)
 	if proposed.x < 24.0:
 		proposed.x = 24.0
 		if flight_velocity.x < 0.0:
