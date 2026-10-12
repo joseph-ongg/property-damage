@@ -31,3 +31,12 @@ python3 gameplay/msd/art/generate_fireball.py
 The PPTX is an **input asset**, not part of the Gameplay code commit; the resulting PNGs are committed so Godot and teammates can run without Python, Pillow, or the presentation file. Other fantasy demo resources made by `gameplay/art/generate_art.py` can be regenerated independently without overwriting the Art-team mage sprites.
 
 Final Art can use `GameplayPlayer.sprite_override` to replace the default idle sprite; this intentionally disables the built-in GIF-derived animation when an override texture is configured, until the final Art animation set is integrated.
+
+## Art / collider reconciliation
+
+The image layout is derived from the source team's **original image pixel
+ratios**, rather than non-uniformly stretching a single shelf or fridge to
+cover a wider physics region. Two small bookshelf units together cover the
+unchanged top platform width. The refrigerator has its own narrowed one-way
+surface matched to a source-proportional 90×154 pixel image. This alignment is
+specific to the independent Gameplay playtest scene.

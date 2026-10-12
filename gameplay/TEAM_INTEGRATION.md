@@ -79,3 +79,20 @@ session), `gameplay_keyboard_chords_test.gd` (physical-key combinations),
 Angela's test arena and the Ethan+Jackson Simulation components were also
 loaded together with Gameplay in an **isolated temporary project copy**. That
 smoke test does not change or merge anyone's upstream branch.
+
+## Art and material integration notes
+
+- The independent Gameplay test scene derives visual composition and the mage
+  PNG/GIF from the Art Team's MidSem deck. The team keeps ownership of final
+  map art; Gameplay should not replace or overwrite a future production map.
+- The refrigerator's local one-way collider now matches the drawn Art Team
+  texture (96px platform versus 90px visual). Its top and bottom match
+  y=344 and y=498 respectively; the desk, bookshelf and world walls stay
+  at their existing positions.
+- The **demo-only** `gameplay/integration/material_setup.gd` must seed
+  flammable shelf cells at the standing player's Spark row. It intentionally
+  marks the fridge region, including the fridge footprint at floor level,
+  as nonflammable STONE. Production simulation's world material map should be
+  configured separately by the Simulation owners.
+- `gameplay_art_scene_alignment_test.gd` checks texture sizes, physical
+  overlap, nearest-neighbor rendering, and the Spark/Simulation boundary.

@@ -26,13 +26,14 @@ size = Vector2(187, 12)
 size = Vector2(218, 12)
 
 [sub_resource type="RectangleShape2D" id="shape_fridge"]
-size = Vector2(132, 12)
+size = Vector2(96, 12)
 
 [node name="GameplayMSD" type="Node2D"]
 script = ExtResource("2_game")
 
 [node name="RoomVisuals" type="Node2D" parent="."]
 z_index = -5
+texture_filter = 1
 script = ExtResource("3_room")
 
 [node name="MaterialGrid" type="Node2D" parent="."]
@@ -47,6 +48,7 @@ script = ExtResource("10_material_setup")
 
 [node name="FireVisuals" type="Node2D" parent="."]
 z_index = 4
+texture_filter = 1
 script = ExtResource("9_fire_vfx")
 grid_path = NodePath("../MaterialGrid")
 
@@ -142,9 +144,11 @@ script = ExtResource("7_books")
 
 [node name="Projectiles" type="Node2D" parent="."]
 z_index = 14
+texture_filter = 1
 
 [node name="Appliances" type="Node2D" parent="."]
 z_index = 2
+texture_filter = 1
 
 [node name="FridgeDevice" type="Node2D" parent="Appliances"]
 position = Vector2(780, 472)
@@ -324,7 +328,7 @@ offset_top = 502.0
 offset_right = 486.0
 offset_bottom = 540.0
 mouse_filter = 2
-color = Color(1, 0.66, 0.41, 1)
+color = Color(0.95, 0.35, 0.39, 1)
 
 [node name="P2Chip" type="ColorRect" parent="HUD"]
 offset_left = 493.0
@@ -332,7 +336,7 @@ offset_top = 508.0
 offset_right = 533.0
 offset_bottom = 535.0
 mouse_filter = 2
-color = Color(0.38, 0.25, 0.29, 0.96)
+color = Color(0.37, 0.19, 0.25, 0.96)
 
 [node name="P2Tag" type="Label" parent="HUD"]
 offset_left = 500.0
@@ -340,7 +344,7 @@ offset_top = 511.0
 offset_right = 531.0
 offset_bottom = 530.0
 theme_override_font_sizes/font_size = 14
-theme_override_colors/font_color = Color(1, 0.82, 0.62, 1)
+theme_override_colors/font_color = Color(1, 0.72, 0.72, 1)
 text = "P2"
 
 [node name="ControlsP2" type="Label" parent="HUD"]
@@ -358,7 +362,7 @@ offset_top = 523.0
 offset_right = 948.0
 offset_bottom = 539.0
 theme_override_font_sizes/font_size = 11
-theme_override_colors/font_color = Color(1, 0.73, 0.55, 1)
+theme_override_colors/font_color = Color(1, 0.66, 0.67, 1)
 text = "ENTER  SPARK    SHIFT  USE    .  MAGIC"
 
 [node name="PauseOverlay" type="CanvasLayer" parent="."]

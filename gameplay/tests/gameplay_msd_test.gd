@@ -76,6 +76,13 @@ func _run() -> void:
 	check(grid.call("is_burning", cell.x, cell.y), "P1 spark ignites the actual target cell")
 	check(arena.sparks_p1 == 1 and arena.sparks_p2 == 0, "only correct player's ignition count increments")
 	check(bridge.is_burning_world(target), "MaterialGrid fire bridge reads real burning cell")
+	# After the simultaneous approach P2 stands in front of the fridge. That
+	# target is now correctly STONE; move back to the adjacent wooden floor
+	# before testing a *successful* P2 ignition, not a burning fridge.
+	p2.global_position = Vector2(884, 478)
+	p2.velocity = Vector2.ZERO
+	p2.facing = -1
+	await frames(3)
 	Input.action_press("p2_spark")
 	await frames(3)
 	Input.action_release("p2_spark")

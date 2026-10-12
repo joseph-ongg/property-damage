@@ -40,17 +40,12 @@ func _draw() -> void:
 		return
 	var size: float = float(_grid.cell_size)
 	for cell: Vector2i in _burning_cells:
-		var center := Vector2(cell) * size + Vector2.ONE * size * 0.5
-		var scale := minf(size / 24.0, 1.0)
-		# 像素火焰尽量小，避免盖住人物和室内原画。
-		# Keep flame pixels subtle so players and the room artwork stay visible.
-		draw_circle(center, 12.0 * scale, Color(1.0, 0.37, 0.08, 0.17))
-		draw_colored_polygon(PackedVector2Array([
-			center + Vector2(-5, 7) * scale,
-			center + Vector2(-7, 0) * scale,
-			center + Vector2(-2, -9) * scale,
-			center + Vector2(2, -3) * scale,
-			center + Vector2(5, -12) * scale,
-			center + Vector2(8, 2) * scale,
-			center + Vector2(3, 8) * scale]), Color("ff8c36"))
-		draw_circle(center + Vector2(0, 3) * scale, 3.3 * scale, Color("ffe7a4"))
+		# All flame elements snap to whole pixels, matching the pixel projectile.
+		# Keep within the MaterialGrid cell and let Ethan own burn state.
+		var center := (Vector2(cell) * size + Vector2.ONE * size * 0.5).round()
+		var px := maxf(1.0, roundf(size / 16.0))
+		draw_rect(Rect2(center + Vector2(-5, 1) * px, Vector2(10, 5) * px), Color("ba391c"))
+		draw_rect(Rect2(center + Vector2(-4, -3) * px, Vector2(8, 7) * px), Color("ee681e"))
+		draw_rect(Rect2(center + Vector2(-2, -6) * px, Vector2(4, 8) * px), Color("ffa72c"))
+		draw_rect(Rect2(center + Vector2(-1, -2) * px, Vector2(2, 4) * px), Color("fff0a4"))
+		draw_rect(Rect2(center + Vector2(2, -6) * px, Vector2(2, 2) * px), Color("ffd86d"))

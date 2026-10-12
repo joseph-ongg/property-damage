@@ -71,19 +71,21 @@ box((23,200,61,226),'#b87570')
 box((15,224,72,246),'#ae756b')
 box((17,242,69,250),'#443843')
 box((31,208,42,219),'#dca47f')
-# Table, world coordinates [372..598] x [411] remain unchanged.
-box((186,205,300,213),'#443b42')
-box((188,205,298,208),'#b48f70')
+# Table platform's actual collision surface is y=405 in world space.
+# Keep the visible tabletop at y=404..410 instead of five pixels too low.
+box((186,202,300,210),'#443b42')
+box((188,202,298,205),'#b48f70')
 box((192,212,200,248),'#655153')
 box((287,212,295,248),'#655153')
 for x in [194,208,286]:box((x,209,x+4,213),'#d5b78a')
 box((182,246,302,249),'#514953')
-# Fridge top is a *separate* one-way platform: no new physics here.
-box((357,174,425,178),'#332e36')
-box((358,175,424,176),'#ecc590')
+# Art-team fridge is drawn by Appliances at x735..825 / y344..498.
+# Don't paint the former extra-wide 136px platform behind its top.
+box((365,171,414,175),'#332e36')
+box((366,172,413,173),'#ecc590')
 # Bookshelf platform at world 344; other shelves are inside art.
-box((72,170,168,174),'#42353a')
-box((72,171,168,171),'#f4d68e')
+box((72,169,168,173),'#42353a')
+box((72,169,168,170),'#f4d68e')
 # Small framed posters and shelf brackets.
 for x in (78,163): box((x,175,x+2,179),'#9d795d')
 for x in (189,295):box((x,211,x+3,217),'#ab815f')
@@ -99,12 +101,19 @@ def art(name,rect):
     sprite=Image.open(D/f'team_{name}.png').convert('RGBA')
     sprite=sprite.resize((w,h),Image.Resampling.NEAREST)
     im.alpha_composite(sprite,(x,y))
-art('shelf',(73,174,94,74))
-art('window',(41,31,81,69))
+# Original art ratio: shelf 178x230; use two narrow equal modules rather
+# than squeezing a tall bookshelf into a single artificially wide cabinet.
+# The combined modules span the existing bookshelf collision platform.
+box((73,231,167,248),'#554139')
+box((73,231,167,233),'#c9a36f')
+for base_x in (75,120):
+    art('shelf',(base_x,173,45,60))
+# Keep the plant window below the persistent top HUD, preserve 134:103 ratio.
+art('window',(41,40,81,62))
 art('clock',(397,51,40,40))
 # Add platform edge bright pixels above the furniture silhouettes.
 d=ImageDraw.Draw(im)
-for a,b,y in [(75,166,170),(188,298,205),(358,424,174)]:
+for a,b,y in [(75,166,169),(188,298,202),(366,414,172)]:
     for x in range(a,b,14): box((x,y,x+5,y+1),'#ffe7a9')
 # Local co-op spawn brackets; P1 blue, P2 red (match Character design).
 for x,c in ((40,'#4d9af2'),(442,'#f05e61')):

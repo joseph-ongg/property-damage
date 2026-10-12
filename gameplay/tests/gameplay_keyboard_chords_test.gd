@@ -24,6 +24,9 @@ func key_event(code: Key, pressed: bool, shift: bool = false) -> void:
 	event.pressed = pressed
 	event.shift_pressed = shift
 	Input.parse_input_event(event)
+	# In headless Godot the synthetic physical-key event can otherwise remain
+	# buffered until the next unrelated frame; flush before measuring movement.
+	Input.flush_buffered_events()
 
 
 func frames(n: int) -> void:
@@ -62,7 +65,7 @@ func _run() -> void:
 	key_event(KEY_D, false)
 	key_event(KEY_LEFT, false)
 	check(p1.global_position.x > p1_x + 3.0 and p1.velocity.x > 0.0, "physical D steers airborne P1 right")
-	check(p2.global_position.x < p2_x - 20.0, "physical Left arrow simultaneously moves P2 left")
+	check(p2.global_position.x < p2_x - 12.0 and p2.velocity.x < -100.0, "physical Left arrow simultaneously moves P2 left")
 	check(p1.facing == 1 and p2.facing == -1, "independent direction states survive simultaneous keys")
 
 	# Raw input preserves separate Spark hotkeys and cooldowns.

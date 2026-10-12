@@ -49,10 +49,14 @@ func cast_spark(world_center: Vector2, facing: int, bridge: GameplayFireBridge, 
 func _draw() -> void:
 	if _flash_remaining <= 0.0:
 		return
+	# The Art Team's room and magic bolts are hard-edge pixel art. Avoid the
+	# previous antialiased line/circle glow so Spark uses the same visual scale.
 	var alpha := _flash_remaining / flash_duration
-	var start := Vector2(float(_direction) * 13.0, 0.0)
-	var end := Vector2(float(_direction) * reach, 0.0)
-	var glow := Color(_tint.r, _tint.g, _tint.b, alpha)
-	draw_line(start, end, glow, 5.0, true)
-	draw_circle(end, 7.0, glow)
-	draw_circle(end, 3.0, Color(1.0, 0.98, 0.75, alpha))
+	var pixel_color := Color(_tint.r, _tint.g, _tint.b, alpha)
+	for i in range(6):
+		var distance := roundf(lerpf(13.0, reach, float(i) / 5.0))
+		var center := Vector2(float(_direction) * distance, 0.0)
+		draw_rect(Rect2(center + Vector2(-2, -2), Vector2(4, 4)), pixel_color)
+	var tip := Vector2(float(_direction) * reach, 0.0).round()
+	draw_rect(Rect2(tip + Vector2(-5, -3), Vector2(10, 6)), Color(1.0, 0.52, 0.19, alpha))
+	draw_rect(Rect2(tip + Vector2(-2, -1), Vector2(4, 3)), Color(1.0, 0.98, 0.77, alpha))

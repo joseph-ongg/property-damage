@@ -94,8 +94,10 @@ func _run() -> void:
 	check(p1.motor.jumps_remaining() == 2 and p2.motor.jumps_remaining() == 2, "jump charges reset separately upon landing")
 
 	# Real directional sparks target the cell in front, not beneath or behind.
+	# P2 must cast from the wood floor *outside* the fridge's STONE
+	# footprint. Former x=800 aimed inside the fridge and masked this bug.
 	reposition(p1, Vector2(142, 478))
-	reposition(p2, Vector2(800, 478))
+	reposition(p2, Vector2(884, 478))
 	p1.facing = 1
 	p2.facing = -1
 	await frames(3)

@@ -26,9 +26,15 @@ func _ready() -> void:
 	# Temporary material setup until the actual furniture/material artwork is ready.
 	for x in range(2, mini(grid.width, 59)):
 		_paint_if_valid(grid, x, 29)
-	_paint_band(grid, 9, 21, 20, MaterialGrid.Materials.WOOD) # 书架 / Bookshelf region.
+	# A standing player sparks from their body center: bookshelf platform top
+	# is y338, player's center y318 (grid row 19, not the old row 20 only).
+	_paint_band(grid, 9, 21, 19, MaterialGrid.Materials.WOOD)
+	_paint_band(grid, 9, 21, 20, MaterialGrid.Materials.WOOD) # Bookshelf region.
 	_paint_band(grid, 23, 37, 24, MaterialGrid.Materials.WOOD) # 桌子 / Table region.
-	_paint_band(grid, 45, 53, 20, MaterialGrid.Materials.STONE) # 冰箱：不可燃 / Fridge is nonflammable.
+	# Fridge spans x734..830. Its visible top, sides and floor footprint are
+	# STONE, preventing an accidental "burning fridge" after art replacement.
+	for row in [19, 20, 21, 29]:
+		_paint_band(grid, 45, 52, row, MaterialGrid.Materials.STONE)
 	_paint_if_valid(grid, 24, 29, MaterialGrid.Materials.OIL) # 少量实验油格 / A few test oil cells.
 
 
