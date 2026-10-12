@@ -38,9 +38,14 @@ For the separate fantasy experiment, open
 - Players use collision layer 2 and mask 1. World bodies use layer 1;
   solid walls/floors must be separate physics bodies, and furniture tops use
   `CollisionShape2D.one_way_collision`.
-- The current player prefab has a 22×40 shape; Angela's test scene uses
-  32×64. The platform-drop bounds adapt to either height. Keep a named
-  `CollisionShape2D` node on the final player prefab.
+- Both the Gameplay prefab and Angela's basic player scene now use a
+  **32×64** rectangle, with collision layer 2 / mask 1. The Gameplay collider
+  has a local **(0, -12)** offset to preserve the temporary 28×44 mage art's
+  existing feet alignment and Spark/interaction positions. Angela's sample
+  shape is centered at (0, 0); adjust that local offset alongside the final
+  mage art rather than shifting the entire room. The platform-drop component
+  calculates the real shape bounds and also handles a centered 32×64 or older
+  22×40 body. Keep the `CollisionShape2D` node name in the final prefab.
 
 ## Review / merge order
 
@@ -61,7 +66,7 @@ For the separate fantasy experiment, open
 Run every `.gd` in `gameplay/tests/` headlessly using Godot 4.7.2. The most
 relevant handoff checks are `gameplay_full_flow_test.gd` (whole cooperative
 session), `gameplay_keyboard_chords_test.gd` (physical-key combinations),
-`gameplay_collider_handoff_test.gd` (40px and 64px collider sizes),
+`gameplay_collider_handoff_test.gd` (two 32×64 placements and legacy 22×40),
 `gameplay_art_handoff_test.gd` (Inspector texture overrides),
 `gameplay_simulation_contract_test.gd` and
 `gameplay_grid_scene_handoff_test.gd` (Simulation integration), and

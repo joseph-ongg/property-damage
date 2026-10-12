@@ -70,7 +70,7 @@ Run an individual test from the repository root using Godot 4.7.2 Standard:
 | `gameplay_advanced_test.gd` | Double jumps, air momentum, book pickup, and appliances |
 | `gameplay_full_flow_test.gd` | Combined two-player movement, double jumps, Spark, drops, interactions, simultaneous magic, and long play |
 | `gameplay_keyboard_chords_test.gd` | Physical Shift+W, concurrent keyboard controls, and F/Enter Spark |
-| `gameplay_collider_handoff_test.gd` | One-way drops with 40px and 64px player collision shapes |
+| `gameplay_collider_handoff_test.gd` | One-way drops with Angela-compatible 32×64 geometry and legacy 22×40 shapes |
 | `gameplay_art_handoff_test.gd` | Replace mage art without changing player physics or controls |
 | `gameplay_fan_playtest.gd` | Floor-level P1/P2 fan interaction, physical wind push, and safe turn-off near books |
 | `gameplay_magic_test.gd` | Directional magic projectiles and prop effects |

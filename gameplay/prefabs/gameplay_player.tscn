@@ -10,7 +10,7 @@
 [ext_resource type="Script" path="res://gameplay/components/platform_drop.gd" id="8_platform_drop"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(22, 40)
+size = Vector2(32, 64)
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
@@ -18,6 +18,7 @@ collision_mask = 1
 script = ExtResource("1_player")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -12)
 shape = SubResource("RectangleShape2D_player")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
