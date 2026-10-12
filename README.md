@@ -8,7 +8,7 @@
 
 1. Install **Godot 4.7.2 Standard** (GDScript; the .NET edition is not required).
 2. Import the repository root containing `project.godot` into Godot.
-3. Press **F5** to run `main.tscn`, which loads `gameplay/msd/gameplay_msd.tscn` (the pixel-art living room).
+3. Open `gameplay/playtest_main.tscn` and press **F6** to run the independent two-player living-room prototype. The repository-owned `main.tscn` is intentionally unchanged for team integration.
 4. To try the unrelated fantasy prototype, open `gameplay/demo/gameplay_test.tscn` and press **F6**. Its Moonlit Ruins theme, collectibles, brazier objectives, and victory conditions are *not* confirmed team requirements.
 
 ## Controls
@@ -22,7 +22,7 @@
 | Ranged magic projectile (experimental) | `G` | `.` (period) |
 | Pick up / throw a book; interact with furniture | `E` | `Shift` |
 | Pause / resume | `P` or `Esc` | Shared |
-| Restart the default scene when unpaused | `R` | Shared |
+| Restart the currently played Gameplay scene when unpaused | `R` | Shared |
 
 Dash is disabled in the default living-room scene. The separate fantasy test scene uses `Q` and `/` for Dash. Available interactions appear contextually near nearby objects.
 
@@ -56,7 +56,7 @@ Dash is disabled in the default living-room scene. The separate fantasy test sce
 
 | Path | Responsibility |
 | --- | --- |
-| `gameplay/player.gd` / `gameplay/player.tscn` | Player character, input handling, and component wiring |
+| `gameplay/player.gd` / `gameplay/prefabs/gameplay_player.tscn` | Player character, input handling, and component wiring |
 | `gameplay/input_actions.gd` | Independent P1/P2 action maps |
 | `gameplay/components/player_motor.gd` | Acceleration, jump logic, air momentum |
 | `gameplay/components/platform_drop.gd` | Safe drop-through on one-way platforms |
@@ -71,7 +71,7 @@ Dash is disabled in the default living-room scene. The separate fantasy test sce
 | `gameplay/msd/art/generate_room.py` | Pillow script that generates the original pixel-art living room |
 | `gameplay/demo/gameplay_test.tscn` | Separate fantasy mechanics experiment |
 
-See [`gameplay/README.md`](gameplay/README.md) for module integration details and a complete test list.
+See [`gameplay/README.md`](gameplay/README.md) for module integration details and a complete test list. For the cross-team handoff, see [`gameplay/TEAM_INTEGRATION.md`](gameplay/TEAM_INTEGRATION.md).
 
 ## Testing
 

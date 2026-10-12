@@ -28,7 +28,7 @@ func _reset_player(player: GameplayPlayer, position: Vector2) -> void:
 
 
 func _run() -> void:
-	var scene := (load("res://main.tscn") as PackedScene).instantiate()
+	var scene := (load("res://gameplay/playtest_main.tscn") as PackedScene).instantiate()
 	root.add_child(scene)
 	await frames(65)
 	var room := scene.get_node("GameplayMSD")

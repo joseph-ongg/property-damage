@@ -28,7 +28,7 @@ func _press(action: String) -> void:
 	Input.action_release(action)
 
 func _run() -> void:
-	var instance := (load("res://main.tscn") as PackedScene).instantiate()
+	var instance := (load("res://gameplay/playtest_main.tscn") as PackedScene).instantiate()
 	root.add_child(instance)
 	await frames(65)
 	var arena: Node2D = instance.get_node("GameplayMSD")

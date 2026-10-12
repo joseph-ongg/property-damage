@@ -21,7 +21,10 @@ func try_drop(player: CharacterBody2D) -> bool:
 		return false
 	# 从角色脚底往下探测，必须命中 one_way_collision 的平台。
 	# Raycast below the player and require a one-way platform collision.
-	var point := player.global_position + Vector2(0, 13)
+	var half_height := _player_half_height(player)
+	# Start slightly inside the player's feet. Do not assume the 40px
+	# prototype collider: the Art/Gameplay integration may use a 64px body.
+	var point := Vector2(player.global_position.x, _player_shape_center_y(player) + half_height - 7.0)
 	var query := PhysicsRayQueryParameters2D.create(point, point + Vector2(0, 21), 1)
 	query.exclude = [player.get_rid()]
 	var hit := player.get_world_2d().direct_space_state.intersect_ray(query)
@@ -53,7 +56,7 @@ func tick(player: CharacterBody2D, delta: float) -> void:
 	for child in _platform.get_children():
 		if child is CollisionShape2D and child.shape is RectangleShape2D:
 			var rect := child.shape as RectangleShape2D
-			clearance = player.global_position.y - 20.0 > child.global_position.y + rect.size.y * 0.5 + 1.0
+			clearance = _player_shape_center_y(player) - _player_half_height(player) > child.global_position.y + rect.size.y * 0.5 + 1.0
 			break
 	if clearance or _time_left <= 0.0:
 		player.remove_collision_exception_with(_platform)
@@ -66,3 +69,17 @@ func reset(player: CharacterBody2D) -> void:
 		player.remove_collision_exception_with(_platform)
 	_platform = null
 	_time_left = 0.0
+
+
+# Derive the actual collider bounds so a teammate can resize the player
+# without silently breaking the one-way platform clearance calculation.
+func _player_half_height(player: CharacterBody2D) -> float:
+	var collider := player.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if collider != null and collider.shape is RectangleShape2D:
+		return (collider.shape as RectangleShape2D).size.y * absf(collider.global_scale.y) * 0.5
+	return 20.0
+
+
+func _player_shape_center_y(player: CharacterBody2D) -> float:
+	var collider := player.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	return collider.global_position.y if collider != null else player.global_position.y

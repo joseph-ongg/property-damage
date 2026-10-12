@@ -16,7 +16,7 @@ func check(ok: bool, label: String) -> void:
 		push_error("FAIL: " + label)
 
 func _run() -> void:
-	var scene: Node2D = (load("res://main.tscn") as PackedScene).instantiate()
+	var scene: Node2D = (load("res://gameplay/playtest_main.tscn") as PackedScene).instantiate()
 	root.add_child(scene)
 	await physics_frame
 	await physics_frame

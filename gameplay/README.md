@@ -6,7 +6,7 @@ Start with the [root README](../README.md) for the complete feature list, contro
 
 | Scene | Path | Purpose |
 | --- | --- | --- |
-| Default (F5) | `gameplay/msd/gameplay_msd.tscn` | Property Damage two-player living-room prototype with movement, collision, Spark, and optional interactions |
+| Gameplay playtest (F6) | `gameplay/playtest_main.tscn` | Independent Property Damage two-player living-room prototype with movement, collision, Spark, and optional interactions |
 | Optional (F6) | `gameplay/demo/gameplay_test.tscn` | Separate Moonlit Ruins fantasy prototype with Dash, collectibles, brazier mechanics, and experimental victory conditions |
 
 **Moonlit Ruins, collectibles, combos, and its win conditions are not Zander's confirmed MSD requirements.** Do not include that separate experiment in the team's core Gameplay PR without approval.
@@ -40,7 +40,7 @@ Player collision layer is 2 and the world collision layer is 1. Players collide 
 
 ## 4. Integrating with the team's scene
 
-1. Instantiate `gameplay/player.tscn` twice, using `player_index=1` and `2`, and configure distinct appearances.
+1. Instantiate `gameplay/prefabs/gameplay_player.tscn` twice, using `player_index=1` and `2`, and configure distinct appearances.
 2. Replace the standalone scene's `GameplayDemoMaterialGrid` script with the merged Simulation `MaterialGrid` and configure its real material map. Point `GameplayFireBridge.grid_path` to that grid; both players' `fire_bridge_path` references should resolve to the bridge.
 3. Use world collision layer 1 and player layer 2 (player mask 1). Configure one-way tabletops using `CollisionShape2D.one_way_collision`.
 4. Replace the temporary living room, material seeding, and test HUD with final team art and scenes. **Do not modify `onboarding/burn-box/burn_box.tscn`.**
@@ -68,6 +68,10 @@ Run an individual test from the repository root using Godot 4.7.2 Standard:
 | `gameplay_simulation_contract_test.gd` | Integration behavior against main's scaffold or the installed Ethan grid |
 | `gameplay_grid_scene_handoff_test.gd` | Active MSD scene wiring, material seeding, Spark, and grid replacement smoke test |
 | `gameplay_advanced_test.gd` | Double jumps, air momentum, book pickup, and appliances |
+| `gameplay_full_flow_test.gd` | Combined two-player movement, double jumps, Spark, drops, interactions, simultaneous magic, and long play |
+| `gameplay_keyboard_chords_test.gd` | Physical Shift+W, concurrent keyboard controls, and F/Enter Spark |
+| `gameplay_collider_handoff_test.gd` | One-way drops with 40px and 64px player collision shapes |
+| `gameplay_art_handoff_test.gd` | Replace mage art without changing player physics or controls |
 | `gameplay_fan_playtest.gd` | Floor-level P1/P2 fan interaction, physical wind push, and safe turn-off near books |
 | `gameplay_magic_test.gd` | Directional magic projectiles and prop effects |
 | `gameplay_props_test.gd` | Scorching, embers, and repeated-hit protection |
@@ -94,4 +98,8 @@ See [`ART_SOURCES.md`](ART_SOURCES.md) for pixel-art provenance and [`msd/DESIGN
 
 ## 7. Rendering layers
 
-The default living-room scene explicitly sets `z_index` values to keep the open fridge interior and wall-mounted AC behind the players: room backdrop **-5**, appliances **2**, players **10**, books **12**, projectiles **14**, interaction prompts **30**, and status overlays **31**. This changes drawing order, not collision. Run `gameplay_render_layers_test.gd` to prevent regressions.
+The independent living-room scene explicitly sets `z_index` values to keep the open fridge interior and wall-mounted AC behind the players: room backdrop **-5**, appliances **2**, players **10**, books **12**, projectiles **14**, interaction prompts **30**, and status overlays **31**. This changes drawing order, not collision. Run `gameplay_render_layers_test.gd` to prevent regressions.
+
+## 8. Working with other teams
+
+See [`TEAM_INTEGRATION.md`](TEAM_INTEGRATION.md) for collision shape compatibility with Angela, Ethan/Jackson Simulation handoff, Art sprite overrides, and the independent playtest entry point.

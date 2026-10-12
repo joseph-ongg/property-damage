@@ -18,7 +18,7 @@ func frames(n: int) -> void:
 	for _i in n: await physics_frame
 
 func _run() -> void:
-	var scene := (load("res://main.tscn") as PackedScene).instantiate()
+	var scene := (load("res://gameplay/playtest_main.tscn") as PackedScene).instantiate()
 	root.add_child(scene)
 	await frames(65)
 	var arena := scene.get_node("GameplayMSD")

@@ -22,7 +22,7 @@ func frames(n: int) -> void:
 
 
 func _run() -> void:
-	var main: PackedScene = load("res://main.tscn")
+	var main: PackedScene = load("res://gameplay/playtest_main.tscn")
 	check(main != null, "default main scene loads")
 	if main == null:
 		quit(1)

@@ -1,6 +1,6 @@
 [gd_scene load_steps=18 format=3]
 
-[ext_resource type="PackedScene" path="res://gameplay/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
 [ext_resource type="Script" path="res://gameplay/msd/room_visuals.gd" id="3_room"]
 [ext_resource type="Script" path="res://gameplay/integration/demo_material_grid.gd" id="4_fire"]

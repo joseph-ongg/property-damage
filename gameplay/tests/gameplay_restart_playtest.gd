@@ -39,7 +39,7 @@ func release_key(key: Key) -> void:
 
 
 func _run() -> void:
-	var scene: PackedScene = load("res://main.tscn")
+	var scene: PackedScene = load("res://gameplay/playtest_main.tscn")
 	check(scene != null, "default scene is available for restart playtest")
 	if scene == null:
 		quit(1)

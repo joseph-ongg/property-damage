@@ -12,6 +12,9 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 
 @export_range(1, 2) var player_index: int = 1
 @export var tint: Color = Color("51d8c5")
+# Art can replace either mage via the Inspector without editing Gameplay code.
+# Leaving this unset keeps the original local P1/P2 prototype sprites.
+@export var sprite_override: Texture2D
 @export_node_path("Node") var fire_bridge_path: NodePath
 @export var reset_height: float = 580.0
 @export var dash_enabled: bool = true  # Optional extra; off in the team MSD demo.
@@ -51,7 +54,7 @@ func _ready() -> void:
 	_bridge = get_node_or_null(fire_bridge_path) as GameplayFireBridge
 	if player_index == 2:
 		facing = -1
-	sprite.texture = MAGE1 if player_index == 1 else MAGE2
+	sprite.texture = sprite_override if sprite_override != null else (MAGE1 if player_index == 1 else MAGE2)
 	sprite.flip_h = facing < 0
 	$NameTag.text = "P%d" % player_index
 	$NameTag.add_theme_color_override("font_color", tint)

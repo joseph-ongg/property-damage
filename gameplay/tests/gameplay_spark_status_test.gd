@@ -18,7 +18,7 @@ func check(ok: bool, label: String) -> void:
 
 
 func _run() -> void:
-	var main: PackedScene = load("res://main.tscn")
+	var main: PackedScene = load("res://gameplay/playtest_main.tscn")
 	check(main != null, "default MSD main scene can be loaded")
 	if main == null:
 		quit(1)

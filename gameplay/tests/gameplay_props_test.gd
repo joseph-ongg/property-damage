@@ -22,7 +22,7 @@ func frames(n: int) -> void:
 
 
 func _run() -> void:
-	var root_scene := (load("res://main.tscn") as PackedScene).instantiate()
+	var root_scene := (load("res://gameplay/playtest_main.tscn") as PackedScene).instantiate()
 	root.add_child(root_scene)
 	await frames(65)
 	var room := root_scene.get_node("GameplayMSD")
