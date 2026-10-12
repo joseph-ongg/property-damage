@@ -5,6 +5,16 @@ extends Node2D
 
 signal hit(target_name: String, caster_index: int)
 
+# Hand-painted pixel texture frames replace the old soft circles/rectangles.
+const FIRE_FRAMES: Array[Texture2D] = [
+	preload("res://gameplay/msd/art/fireball_0.png"),
+	preload("res://gameplay/msd/art/fireball_1.png"),
+	preload("res://gameplay/msd/art/fireball_2.png"),
+	preload("res://gameplay/msd/art/fireball_3.png"),
+	preload("res://gameplay/msd/art/fireball_4.png"),
+	preload("res://gameplay/msd/art/fireball_5.png"),
+]
+
 @export var speed: float = 395.0
 @export var lifetime: float = 1.45
 
@@ -50,8 +60,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _draw() -> void:
-	var color := Color("78e5d9") if caster_index == 1 else Color("ffbb75")
-	draw_circle(Vector2.ZERO, 5.0, Color(color.r, color.g, color.b, 0.32))
-	draw_rect(Rect2(-4, -3, 8, 6), color)
-	draw_rect(Rect2(-direction * 14, -1, 7, 2), Color(color.r, color.g, color.b, 0.57))
-	draw_rect(Rect2(-2, -2, 4, 3), Color("ffedc1"))
+	var frame: Texture2D = FIRE_FRAMES[int(_age * 14.0) % FIRE_FRAMES.size()]
+	# Flip the comet trail when flying to the left. Pixel edges stay crisp.
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(float(direction), 1.0))
+	draw_texture(frame, Vector2(-12, -8))
+	draw_set_transform(Vector2.ZERO)

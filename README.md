@@ -38,7 +38,7 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 
 ### Optional visual and interaction prototypes
 
-- Original pixel-art living room with clear platform edges, redesigned mint/amber 32×60 mage textures, split P1/P2 control panels, landing and Spark feedback, and nearby interaction prompts.
+- Art-team-inspired pixel-art living room with clear platform edges, Art-team Character design blue/red 40×60 mage stills and movement frames, split P1/P2 control panels, landing and Spark feedback, and nearby interaction prompts.
 - Books can be picked up, carried, thrown, and visually scorched by Spark or magic.
 - A fridge with an opening door; a fan that pushes nearby players; an AC that slows nearby movement; and a computer with switch/shorted states.
 - When the AC is on, its **130-pixel** effect radius applies a **0.45** movement-speed multiplier. Inherited airborne momentum also slows toward the adjusted speed cap; `SLOW` and cool-colored particles indicate the effect. Movement returns to normal outside its range.
@@ -68,7 +68,7 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 | `gameplay/msd/appliance.gd` | Fridge, fan, AC, and computer |
 | `gameplay/msd/magic_bolt.gd` | Experimental ranged attack |
 | `gameplay/msd/interaction_hints.gd` / `gameplay/msd/player_conditions.gd` | Contextual prompts and `SLOW` / `WIND` indicators |
-| `gameplay/msd/art/generate_room.py` | Pillow script that generates the original pixel-art living room |
+| `gameplay/msd/art/generate_room.py` | Pillow script that redraws the room with Art Team source sprites aligned to Gameplay collision geometry |
 | `gameplay/demo/gameplay_test.tscn` | Separate fantasy mechanics experiment |
 
 See [`gameplay/README.md`](gameplay/README.md) for module integration details and a complete test list. For the cross-team handoff, see [`gameplay/TEAM_INTEGRATION.md`](gameplay/TEAM_INTEGRATION.md).
@@ -91,7 +91,7 @@ These are representative tests, not the entire suite. See the Gameplay README fo
 - **Austin:** Remaining-jump counting and the approach to dropping through one-way platforms, adapted for independent two-player controls.
 - **Ethan:** The `MaterialGrid` public API and storage implementation on his separate `ethan/burn-box-grid` branch. The Gameplay branch does not modify or ship his Simulation file, and his PR has not yet been merged into `main`.
 - **Jackson:** `cell_changed`-driven material and burning-state rendering approach, adapted into lightweight visual feedback.
-- **Local prototype artwork:** Generated with original Pillow drawing scripts (`gameplay/art/generate_art.py` and `gameplay/msd/art/generate_room.py`), rather than downloaded commercial-game assets.
+- **Gameplay art attribution:** P1 is derived from the Art Team's Character design PNG/GIF in the project MidSem deck; P2 recolors that sprite to red. The room uses Art Team furniture tiles, with local layout/redraw through `gameplay/msd/art/generate_room.py`. The fireball pixel frames are generated locally using `gameplay/msd/art/generate_fireball.py`. See [`gameplay/ART_SOURCES.md`](gameplay/ART_SOURCES.md) for exact provenance.
 
 For source commits and integration boundaries, see [`gameplay/UPSTREAM_INTEGRATION.md`](gameplay/UPSTREAM_INTEGRATION.md). For assets, see [`gameplay/ART_SOURCES.md`](gameplay/ART_SOURCES.md); for design scope, see [`gameplay/msd/DESIGN_NOTES.md`](gameplay/msd/DESIGN_NOTES.md).
 

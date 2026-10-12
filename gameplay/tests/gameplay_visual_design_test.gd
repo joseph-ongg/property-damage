@@ -33,7 +33,7 @@ func _run() -> void:
 		var sprite: Sprite2D = player.get_node("Sprite2D")
 		var texture: Texture2D = sprite.texture
 		var id := "P%d" % player.player_index
-		check(texture.get_size() == Vector2(32, 60), id + " displays the redesigned 32x60 mage texture")
+		check(texture.get_size() == Vector2(40, 60), id + " displays the PPT-derived 40x60 character sprite")
 		check((shape.shape as RectangleShape2D).size == Vector2(32, 64), id + " keeps Angela-compatible 32x64 collision")
 		check(shape.position == Vector2(0, -12) and is_equal_approx(sprite.position.y, -10.0), id + " has matching collider and visual anchor")
 		check((sprite.position.y + texture.get_height() * 0.5) == (shape.position.y + (shape.shape as RectangleShape2D).size.y * 0.5), id + " sprite feet align with physical feet")

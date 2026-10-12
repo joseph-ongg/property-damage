@@ -5,6 +5,16 @@ extends CharacterBody2D
 const GameplayInputs = preload("res://gameplay/input_actions.gd")
 const MAGE1: Texture2D = preload("res://gameplay/art/mage_1.png")
 const MAGE2: Texture2D = preload("res://gameplay/art/mage_2.png")
+# Run frames are pixel-resized from the *actual* Character design GIF in the
+# art team's MidSem deck; standing uses the matching static design image.
+const P1_RUN: Array[Texture2D] = [
+	preload("res://gameplay/art/mage_1_run_0.png"),
+	preload("res://gameplay/art/mage_1_run_1.png"),
+]
+const P2_RUN: Array[Texture2D] = [
+	preload("res://gameplay/art/mage_2_run_0.png"),
+	preload("res://gameplay/art/mage_2_run_1.png"),
+]
 
 signal sparked(player_index: int, target: Vector2, accepted: bool)
 signal interact_pressed(player_index: int, player: GameplayPlayer)
@@ -103,8 +113,20 @@ func _physics_process(delta: float) -> void:
 			$JumpCharges.text = charge_text
 	dash.tick(delta)
 	_animation_clock += delta
-	var moving := is_on_floor() and absf(velocity.x) > 18.0
-	sprite.position.y = -10.0 + (sin(_animation_clock * 17.0) * 1.0 if moving else 0.0)
+	var moving := absf(velocity.x) > 18.0
+	# An Inspector override always takes priority over the PPT-derived frames.
+	# When standing use the Character design static; when walking animate the
+	# two original GIF frames at the deck's 80ms cadence.
+	var target_texture: Texture2D = sprite_override
+	if target_texture == null:
+		if moving:
+			var run_frames: Array[Texture2D] = P1_RUN if player_index == 1 else P2_RUN
+			target_texture = run_frames[int(_animation_clock / 0.08) % run_frames.size()]
+		else:
+			target_texture = MAGE1 if player_index == 1 else MAGE2
+	if sprite.texture != target_texture:
+		sprite.texture = target_texture
+	sprite.position.y = -10.0
 	if dash.active() or _dash_was_active:
 		queue_redraw()
 	_dash_was_active = dash.active()

@@ -71,8 +71,9 @@ Run an individual test from the repository root using Godot 4.7.2 Standard:
 | `gameplay_full_flow_test.gd` | Combined two-player movement, double jumps, Spark, drops, interactions, simultaneous magic, and long play |
 | `gameplay_keyboard_chords_test.gd` | Physical Shift+W, concurrent keyboard controls, and F/Enter Spark |
 | `gameplay_input_layout_test.gd` | Down+Jump on solid floors, independent on-screen P1/P2 key guides |
-| `gameplay_visual_design_test.gd` | Redesigned sprite footprints, room artwork dimensions, measured HUD text fitting |
+| `gameplay_visual_design_test.gd` | PPT character sprite footprints, room artwork dimensions, measured HUD text fitting |
 | `gameplay_project_start_test.gd` | F5 startup loads the actual playable two-player scene, not the placeholder |
+| `gameplay_midsem_art_test.gd` | Character design static/run GIF frames, red P2, Art Team furniture sprites and 6-frame pixel fireball |
 | `gameplay_collider_handoff_test.gd` | One-way drops with Angela-compatible 32×64 geometry and legacy 22×40 shapes |
 | `gameplay_art_handoff_test.gd` | Replace mage art without changing player physics or controls |
 | `gameplay_fan_playtest.gd` | Floor-level P1/P2 fan interaction, physical wind push, and safe turn-off near books |
@@ -109,4 +110,4 @@ See [`TEAM_INTEGRATION.md`](TEAM_INTEGRATION.md) for collision shape compatibili
 
 ## 9. Local playtest presentation
 
-The MSD living-room scene uses a 960×540 pixel layout. P1 and P2 have separate always-visible control panels with their required core keys and optional interactions; a compact top banner shows pause/restart keys and real Simulation status. The pause overlay uses the same mint/amber player palette. `S+W` or `Down+Up` is a dedicated drop attempt: it will never trigger an accidental jump on a solid floor. Character textures are regenerated from `art/generate_art.py` (32×60) and match Angela-compatible 32×64 colliders while retaining the original feet height.
+The MSD living-room scene uses a 960×540 pixel layout. P1 and P2 have separate always-visible control panels with their required core keys and optional interactions; a compact top banner shows pause/restart keys and real Simulation status. The pause overlay uses the same blue/red player palette. `S+W` or `Down+Up` is a dedicated drop attempt: it will never trigger an accidental jump on a solid floor. Character idle/run art is imported from the Art Team Character design slide via `art/import_midsem_art.py` (40×60 still frames plus the original GIF's two movement frames), and matches Angela-compatible 32×64 colliders while retaining the original feet height. P2 is recolored red; the room imports Art Team furniture tiles, and projectiles use hand-painted pixel fireball frames.

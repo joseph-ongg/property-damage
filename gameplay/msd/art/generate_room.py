@@ -1,133 +1,114 @@
-"""Deterministic original low-resolution interior; Pillow needed only to rebuild."""
-from PIL import Image,ImageDraw
+"""Godot 960x540 MSD arena redraw based on the actual Art subteam PPT tiles.
+
+The original PPT furniture/window/clock tiles have already been extracted by
+`gameplay/art/import_midsem_art.py`. This only *composites local raster art*;
+no AI image generation or new gameplay collision layers are involved.
+"""
+from PIL import Image, ImageDraw
 from pathlib import Path
-import random,math
+import random
 D=Path(__file__).resolve().parent
 rng=random.Random(1906)
-im=Image.new('RGB',(480,270),'#293648')
+W,H=480,270
+im=Image.new('RGBA',(W,H),'#47515d')
 d=ImageDraw.Draw(im)
-def rect(box,c):d.rectangle(box,fill=c)
-def line(points,c,w=1):d.line(points,fill=c,width=w)
-# small scale: coordinates in half-pixels, upscale NEAREST on save
-for y in range(0,249):
- fade=y/250
- d.line((0,y,480,y),fill=(int(43+10*fade),int(52+7*fade),int(67+4*fade)))
-# wallpaper fibers, restrained values to avoid distracting from play
-for x in range(7,480,27):
- line((x,8,x,248),'#343d4d')
- for y in range(18,245,30):rect((x-1,y,x+1,y+4),'#3c4352')
-for y in [6,12,247]:rect((0,y,479,y+2),'#69606a')
-# wall art: clock, two small gold-framed pieces
-for x,y,w,h in [(58,69,63,43),(352,71,51,46)]:
- rect((x-3,y-3,x+w+3,y+h+3),'#7a5a51')
- rect((x,y,x+w,y+h),'#bb956d')
- rect((x+3,y+3,x+w-3,y+h-3),'#243c4a')
- d.polygon([(x+5,y+h-4),(x+23,y+12),(x+37,y+h-4)],fill='#526970')
- d.polygon([(x+22,y+h-4),(x+39,y+16),(x+w-5,y+h-4)],fill='#49576e')
-# hanging clock circular face
-cx,cy=319,86
-d.ellipse((cx-20,cy-20,cx+20,cy+20),fill='#765a4f')
-d.ellipse((cx-17,cy-17,cx+17,cy+17),fill='#d8c59a')
-d.ellipse((cx-12,cy-12,cx+12,cy+12),fill='#e7d8ba')
-line((cx,cy,cx,cy-9),'#5f4546',2);line((cx,cy,cx+7,cy+4),'#5f4546',2)
-# center window with lunar scene
-rect((184,36,296,117),'#7d605a')
-rect((190,41,290,111),'#16263b')
-for y in range(44,111):
- t=(y-44)/67
- line((191,y,289,y),(int(24+10*t),int(40+11*t),int(63+9*t)))
-d.ellipse((261,54,277,70),fill='#eee1b5')
-for x in range(198,290,12):
- h=13+(x*7)%19
- rect((x,112-h,x+12,111),'#2d4356')
- for j in range(x+3,x+12,5):rect((j,106,j+1,108),'#ab9871')
-rect((186,39,190,114),'#c7a47a');rect((290,39,294,114),'#c7a47a')
-rect((190,39,290,42),'#c7a47a');rect((190,112,290,115),'#c7a47a')
-rect((239,42,242,111),'#c7a47a');rect((191,77,289,80),'#c7a47a')
-rect((181,116,299,119),'#e4bd82')
-# sunlit domestic floor (characters draw in front)
-rect((0,249,480,270),'#76695e')
-for x in range(0,480,29):
- line((x,250,x,270),'#645b56')
- for y in (255,265):line((x,y,x+29,y),'#847466')
-rect((0,247,479,250),'#c3a880')
-# center rug, deliberately beneath feet
-rect((181,251,340,268),'#554554')
-rect((185,254,336,265),'#7d4b51')
-rect((190,257,332,262),'#966e5b')
-for x in range(193,334,18):
- d.polygon([(x,259),(x+6,255),(x+12,259),(x+6,263)],fill='#c39771')
-# Wall sconces: compact pixel silhouettes instead of large rings that
-# resemble gameplay targeting effects and compete with the two player sprites.
-for lx,ly in [(139,117),(344,117)]:
- rect((lx-10,ly+4,lx+10,ly+6),'#6f5850')
- rect((lx-8,ly-3,lx+8,ly+3),'#b28766')
- rect((lx-5,ly-8,lx+5,ly+1),'#e7bd7f')
- rect((lx-3,ly-11,lx+3,ly-5),'#fbe2a0')
- rect((lx-1,ly-12,lx+1,ly-9),'#fff2c6')
- rect((lx-13,ly-4,lx-12,ly+2),'#625558')
- rect((lx+12,ly-4,lx+13,ly+2),'#625558')
-# couch silhouette on left foreground; decorative, not a physical barrier
-rect((11,196,64,248),'#4d434f');rect((15,189,62,243),'#72616b')
-rect((17,200,61,231),'#8b6667');rect((13,222,65,247),'#9d7775')
-rect((13,244,64,249),'#4c3d49')
-rect((13,241,16,250),'#b89171');rect((62,241,65,250),'#b89171')
-rect((31,219,47,231),'#b4957c')
-# shelving aligned to physical bookshelf top y172 (world 344)
-rect((72,174,168,249),'#493744')
-rect((75,178,164,244),'#765449')
-for row,y in enumerate([180,199,220]):
- for i in range(12):
-  x=79+i*7
-  top=y+(i*3+row)%5
-  h=14-(top-y)
-  c=['#b79573','#7e9a91','#b16f65','#a3a4a0','#867996'][(i+row)%5]
-  rect((x,top,x+4,top+h),c)
-  line((x+1,top+2,x+1,top+h-2),'#e1b896')
- rect((76,y+16,164,y+19),'#c09a6c')
-rect((72,171,168,175),'#d2a576')
-rect((72,171,168,171),'#f1cf97')
-# table aligned to physical table collider y205.5 / world 411
-rect((186,205,300,213),'#a3775c')
-rect((193,213,200,248),'#76524d');rect((288,213,295,248),'#76524d')
-rect((187,206,298,208),'#e5ba84')
-rect((194,211,294,214),'#634a4b')
-# 中文：旧桌灯与独立的 ComputerDevice 显示器重叠，移除背景中的桌灯。
-# 桌面动态物件由各自节点绘制，背景只画桌子本身。
-# fridge top world 350/2 =175
-rect((358,175,425,249),'#8e9398')
-rect((361,178,423,245),'#b9b6b5')
-rect((357,175,425,179),'#e2d1b4')
-rect((360,208,423,211),'#777f8a')
-rect((369,187,371,199),'#5b6470');rect((369,219,371,232),'#5b6470')
-# Small magnets reinforce pixel material detail
-for x,y,c in [(391,183,'#a96765'),(408,190,'#6e9d9f'),(394,198,'#d3b476')]:rect((x,y,x+4,y+4),c)
-# Tiny landing-edge inlays help players recognize where one-way platform
-# surfaces begin; these track the existing collision heights exactly.
-for x0,x1,y in [(76,164,171),(189,296,205),(362,423,175)]:
- for x in range(x0+7,x1-4,15):
-  rect((x,y,x+4,y+1),'#f8dfac')
-# Subtle spawn-floor brackets match the two player's mint/amber palettes.
-# They are painted behind the feet, not as extra physics objects.
-for x,tint in [(40,'#5ab8ae'),(442,'#d69864')]:
- rect((x-17,247,x-10,248),tint)
- rect((x+10,247,x+17,248),tint)
- rect((x-17,245,x-16,247),tint)
- rect((x+16,245,x+17,247),tint)
-# Window curtain edges, in front of distant view
-rect((180,38,184,116),'#8e6770');rect((295,38,300,116),'#8e6770')
-for y in range(45,117,9):
- rect((180,y,181,y+4),'#ad7d78');rect((298,y,299,y+4),'#ad7d78')
-# outer world walls
-for x in (0,474):
- rect((x,0,x+6,249),'#65616a')
- rect((x+2,0,x+3,249),'#958078')
-# subtle pixel noise (enough texture without scene becoming busy)
-for _ in range(1100):
- x=rng.randint(11,468);y=rng.randint(15,244)
- px=im.getpixel((x,y))
- if 40 <= px[0] <= 55:
-  n=rng.choice([-4,-3,2,3]);im.putpixel((x,y),tuple(max(0,min(255,c+n)) for c in px))
-im=im.resize((960,540),Image.Resampling.NEAREST)
-im.save(D/'living_room_pixel.png',optimize=True)
-print('Created original living-room pixel artwork', im.size, (D/'living_room_pixel.png').stat().st_size)
+def box(rect,color):d.rectangle(rect,fill=color)
+def line(points,color,width=1):d.line(points,fill=color,width=width)
+
+# Art-team-style pale slate walls, timber rails and a readable plain floor.
+for y in range(249):
+    shade=int(67+16*y/250)
+    line((0,y,479,y),(shade,shade+5,shade+13,255))
+for x in range(8,480,32):
+    line((x,16,x,247),'#4a5661')
+for y in [6,14,246]:
+    box((0,y,479,y+2),'#2f343d')
+    line((3,y+1,475,y+1),'#a18e86')
+# A long background moonlit window, inspired by the Art group's window plant.
+box((185,35,298,120),'#182333')
+for y in range(40,115):
+    blue=int(45+28*y/120)
+    line((190,y,292,y),(28,50,blue+15,255))
+d.ellipse((268,52,281,65),fill='#ffedb4')
+d.ellipse((272,48,285,61),fill='#263d58')
+for i in range(40):
+    x=rng.randrange(192,291);y=rng.randrange(42,111)
+    if (x+y)%4==0:d.point((x,y),fill='#acc1cb')
+for x in range(192,293,14):
+    h=rng.randint(14,24)
+    box((x,115-h,x+12,115),'#293b4a')
+    for wy in range(115-h+5,114,7):
+        box((x+3,wy,x+4,wy+2),'#d9ac77')
+for rect in [(184,34,189,121),(293,34,299,121),(187,35,297,40),(187,115,297,120),(236,39,240,117)]:
+    box(rect,'#b08f72')
+line((187,80,297,80),'#b8a08b',3)
+# Curtain, picture frames, lamps; colorful but do not occlude player physics.
+for x in (181,300):
+    box((x,37,x+5,120),'#704f5a')
+    for y in range(46,116,13):box((x+2,y,x+3,y+6),'#a97672')
+for x,y in ((56,61),(356,66)):
+    box((x-3,y-3,x+36,y+28),'#2c3035')
+    box((x,y,x+33,y+25),'#af977d')
+    box((x+3,y+3,x+30,y+21),'#415f72')
+    d.polygon([(x+3,y+20),(x+14,y+8),(x+23,y+20)],fill='#7c8597')
+for x in (139,343):
+    box((x-5,109,x+5,113),'#c6a481')
+    box((x-3,106,x+3,109),'#ffe3a4')
+    box((x-1,103,x+1,107),'#fff4c6')
+# Main furniture silhouettes, with play surfaces matching real Godot bodies:
+# bookshelf at world y344, table y411, fridge top y350, floor y498.
+box((0,249,479,269),'#635d5c')
+for yy in [252,260,269]:line((0,yy,479,yy),'#8c7c6b')
+for x in range(0,480,29):line((x,250,x,270),'#514c51')
+box((174,252,325,267),'#714b50')
+box((182,254,320,264),'#9f7165')
+for x in range(189,319,22):
+    d.polygon([(x,259),(x+5,254),(x+10,259),(x+5,264)],fill='#c4a57c')
+# Left couch/reading corner - no invisible collision added.
+box((15,199,68,246),'#313541')
+box((19,195,66,227),'#945b5e')
+box((23,200,61,226),'#b87570')
+box((15,224,72,246),'#ae756b')
+box((17,242,69,250),'#443843')
+box((31,208,42,219),'#dca47f')
+# Table, world coordinates [372..598] x [411] remain unchanged.
+box((186,205,300,213),'#443b42')
+box((188,205,298,208),'#b48f70')
+box((192,212,200,248),'#655153')
+box((287,212,295,248),'#655153')
+for x in [194,208,286]:box((x,209,x+4,213),'#d5b78a')
+box((182,246,302,249),'#514953')
+# Fridge top is a *separate* one-way platform: no new physics here.
+box((357,174,425,178),'#332e36')
+box((358,175,424,176),'#ecc590')
+# Bookshelf platform at world 344; other shelves are inside art.
+box((72,170,168,174),'#42353a')
+box((72,171,168,171),'#f4d68e')
+# Small framed posters and shelf brackets.
+for x in (78,163): box((x,175,x+2,179),'#9d795d')
+for x in (189,295):box((x,211,x+3,217),'#ab815f')
+# Consistent pixel treatment around the collision walls.
+for x in (0,475):
+    box((x,0,x+5,249),'#343943')
+    box((x+2,0,x+2,248),'#a68b7d')
+
+# Use the team's actual flat-color furniture/window/clock designs from slide 12.
+# Render in 480x270 image coordinates before 2x nearest-neighbor upscale.
+def art(name,rect):
+    x,y,w,h=rect
+    sprite=Image.open(D/f'team_{name}.png').convert('RGBA')
+    sprite=sprite.resize((w,h),Image.Resampling.NEAREST)
+    im.alpha_composite(sprite,(x,y))
+art('shelf',(73,174,94,74))
+art('window',(41,31,81,69))
+art('clock',(397,51,40,40))
+# Add platform edge bright pixels above the furniture silhouettes.
+d=ImageDraw.Draw(im)
+for a,b,y in [(75,166,170),(188,298,205),(358,424,174)]:
+    for x in range(a,b,14): box((x,y,x+5,y+1),'#ffe7a9')
+# Local co-op spawn brackets; P1 blue, P2 red (match Character design).
+for x,c in ((40,'#4d9af2'),(442,'#f05e61')):
+    box((x-17,247,x-10,248),c);box((x+10,247,x+17,248),c)
+# Only now double to 960x540 with no anti-aliasing.
+im.resize((960,540),Image.Resampling.NEAREST).save(D/'living_room_pixel.png',optimize=True)
+print('Repainted Godot room using PPT Art subteam assets', (960,540))

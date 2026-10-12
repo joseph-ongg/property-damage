@@ -5,6 +5,12 @@ extends Node2D
 enum Device { FRIDGE, FAN, AC, COMPUTER }
 signal state_changed(device: int, state: bool, player_index: int)
 
+# These pixel sprites were cropped from the Art subteam's furniture sheet in
+# the shared MidSem deck, not generated. Physics and interaction stay as-is.
+const TEAM_FRIDGE: Texture2D = preload("res://gameplay/msd/art/team_fridge.png")
+const TEAM_AC: Texture2D = preload("res://gameplay/msd/art/team_ac.png")
+const TEAM_MONITOR: Texture2D = preload("res://gameplay/msd/art/team_monitor.png")
+
 @export var device: Device = Device.FRIDGE
 @export var interaction_radius: float = 78.0
 @export var effect_radius: float = 130.0
@@ -70,7 +76,8 @@ func _draw() -> void:
 	var gold := Color("e8ba79") if switched_on else Color("8f8985")
 	match device:
 		Device.FRIDGE:
-			# The base fridge lives in the pixel room art. Toggle only the door.
+			# Art-team fridge sprite fits the same world footprint as the old one.
+			draw_texture_rect(TEAM_FRIDGE, Rect2(-55, -118, 110, 117), false)
 			if switched_on:
 				draw_rect(Rect2(-55, -108, 92, 92), Color("26333e"))
 				draw_rect(Rect2(-54, -107, 90, 6), Color("909ca2"))
@@ -102,13 +109,7 @@ func _draw() -> void:
 			# Wall-mount the AC while keeping its control accessible to floor-level players.
 			# 用独立大轮廓避免误看成桌旁插座。
 			# Use a distinct silhouette so it does not resemble a wall socket.
-			var housing := Rect2(-45, -147, 90, 35)
-			draw_rect(Rect2(-49, -151, 98, 42), Color("414e5b"))
-			draw_rect(housing, Color("b5c0bd"))
-			draw_rect(Rect2(-42, -144, 84, 8), Color("d1d1bc"))
-			draw_rect(Rect2(-41, -131, 82, 13), Color("60737e"))
-			for i in 9:
-				draw_rect(Rect2(-37 + i * 9, -126, 5, 3), Color("324a59"))
+			draw_texture_rect(TEAM_AC, Rect2(-49, -151, 98, 42), false)
 			draw_rect(Rect2(33, -142, 5, 5), Color("6be4db") if switched_on else Color("c28e67"))
 			# 墙壁开关与作用范围独立标记，玩家走近时才显示互动键。
 			# Keep the switch and area indicator separate; show interaction keys only nearby.
@@ -129,10 +130,11 @@ func _draw() -> void:
 					if absf(offset) <= effect_radius:
 						draw_rect(Rect2(offset - 5.0, 21.0, 10.0, 2.0), Color(0.50, 0.87, 1.0, 0.29))
 		Device.COMPUTER:
-			draw_rect(Rect2(-22, -35, 44, 30), Color("4e525b"))
-			draw_rect(Rect2(-19, -32, 38, 24), Color("2e343b") if charred else Color("2a5673") if switched_on else Color("57707c"))
-			draw_rect(Rect2(-3, -4, 6, 8), Color("7f8180"))
-			draw_rect(Rect2(-15, 3, 30, 4), Color("b2a69b"))
+			draw_texture_rect(TEAM_MONITOR, Rect2(-23, -37, 46, 43), false)
+			if charred:
+				draw_rect(Rect2(-20, -31, 39, 25), Color("302d32", 0.92))
+			elif switched_on:
+				draw_rect(Rect2(-18, -30, 36, 22), Color("3b778e", 0.45))
 			if charred:
 				for i in range(4):
 					draw_rect(Rect2(-16+i*9, -24-(i%2)*5, 3, 3), Color("463c43"))

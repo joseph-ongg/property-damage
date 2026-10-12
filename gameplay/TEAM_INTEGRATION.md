@@ -2,7 +2,7 @@
 
 **Scope:** Independent two-player gameplay prototype for the Oct 15 MSD.
 This branch does not own the repository's `main.tscn`, Simulation storage,
-Angela's collision prototype, or the Art team's final mage textures.
+Angela's collision prototype, or the Art team's final animation delivery. The current Gameplay placeholder sprites are extracted from the Art team's MidSem presentation (blue P1, red-tinted P2), with the original two-frame run loop.
 Experimental books, appliances, magic, and fantasy quests are not approved
 requirements and should be reviewed separately from core MSD gameplay.
 
@@ -28,7 +28,7 @@ For the separate fantasy experiment, open
 | Angela: `angela/CollisionShape2D` | Her `gameplay/player.tscn` is a 32×64 `CharacterBody2D` with world mask 1, player layer 2 | Gameplay's full prefab is now `gameplay/prefabs/gameplay_player.tscn` so the two files do not collide; decide whether to keep hers as the simple test character or replace it with the full prefab in the real arena |
 | Ethan: `ethan/burn-box-grid` | `GameplayFireBridge.grid_path` uses the public `MaterialGrid` API; production must supply real storage | Never merge temporary demo storage into the production Simulation. Swap the `MaterialGrid` scene script from Gameplay's `demo_material_grid.gd` to Ethan's `material_grid.gd` once merged; configure the final material map |
 | Jackson: `sim/jackson/burn-box-render` | Renderers use `MaterialGrid.cell_changed(x,y)` and `is_burning()` | His production grid renderer and Gameplay's decorative fire visuals serve different purposes; use the production renderer with the real map and disable duplicate whole-grid debug previews |
-| Art | `GameplayPlayer.sprite_override`, `Sprite2D`, and `CollisionShape2D` | Set `sprite_override` per player in the inspector; leave it null to use temporary mage sprites. Adjust the collider and sprite offset for final art; one-way platform drop reads the actual collider height |
+| Art | `GameplayPlayer.sprite_override`, `Sprite2D`, and `CollisionShape2D` | Set `sprite_override` per player in the inspector; leave it null to use the imported Art-team idle and run frames (blue P1 / recolored red P2). Adjust the collider and sprite offset for final art; one-way platform drop reads the actual collider height |
 | Gameplay | `GameplayPlayer`, `GameplayMotor`, `GameplayPlatformDrop`, `GameplaySparkEmitter`, `GameplayFireBridge` | Instantiate the complete prefab twice and point each `fire_bridge_path` at the bridge and the bridge `grid_path` at the actual Simulation node |
 
 ## Required gameplay inputs and physics
@@ -44,8 +44,8 @@ For the separate fantasy experiment, open
   `CollisionShape2D.one_way_collision`.
 - Both the Gameplay prefab and Angela's basic player scene now use a
   **32×64** rectangle, with collision layer 2 / mask 1. The Gameplay collider
-  has a local **(0, -12)** offset to preserve the temporary 28×44 mage art's
-  existing feet alignment and Spark/interaction positions. Angela's sample
+  has a local **(0, -12)** offset to preserve the current 40×60 Art-team-derived mage art's
+  feet alignment and Spark/interaction positions. Angela's sample
   shape is centered at (0, 0); adjust that local offset alongside the final
   mage art rather than shifting the entire room. The platform-drop component
   calculates the real shape bounds and also handles a centered 32×64 or older
