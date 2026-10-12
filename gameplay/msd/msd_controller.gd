@@ -11,6 +11,9 @@ var _last_status_age: float = 0.0
 @export var experimental_appliances_enabled: bool = true
 
 var held_books: Dictionary = {}  # per-player carry state, independent of any Simulation storage
+# Prevent simultaneous local co-op inputs from toggling one appliance twice
+# during the same physics frame. Players may still act on subsequent presses.
+var _device_last_used_frame: Dictionary = {}
 
 
 func _ready() -> void:
@@ -108,7 +111,14 @@ func _on_interact(player_index: int, player: GameplayPlayer) -> void:
 				_show_status("P%d PICKED UP BOOK (PROTOTYPE)" % player_index)
 		"device":
 			var appliance := target as GameplayAppliance
+			var device_id: int = appliance.get_instance_id()
+			var current_frame: int = Engine.get_physics_frames()
+			if _device_last_used_frame.get(device_id, -1) == current_frame:
+				# Both actions may arrive on the same frame. Suppress only the
+				# second toggle; the next deliberate press remains available.
+				return
 			if appliance.interact(player):
+				_device_last_used_frame[device_id] = current_frame
 				# An opened fridge isn't a powered-on appliance. Match the prompt's
 				# OPEN/CLOSE language; other devices retain ON/OFF semantics.
 				var state := ("OPEN" if appliance.switched_on else "CLOSED") if appliance.device == GameplayAppliance.Device.FRIDGE else ("ON" if appliance.switched_on else "OFF")

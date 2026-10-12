@@ -212,3 +212,23 @@ reach the same object. Device prompt and event text share physical state:
 refrigerators now report `OPEN`/`CLOSED` rather than power `ON`/`OFF`, while
 fan/air-conditioner/computer retain their existing power semantics. See
 `gameplay_interaction_polish_test.gd` for scene-based acceptance checks.
+
+## 14. Simultaneous co-op device input
+
+Two characters can press their use buttons during the same physics frame.
+Previously, a shared refrigerator or air-conditioner received **two**
+sequential toggle requests, leaving it in the original state with confusing
+feedback. `msd/msd_controller.gd` now remembers the physics frame of a
+**successful** device interaction for each device instance and ignores only
+additional toggles of that same device in that frame. A new deliberate press
+on any later frame still works, and two separate appliances can be controlled
+independently. This logic lives in the Gameplay controller and does not alter
+Simulation storage, Art textures, world collisions, or upstream furniture
+scenes.
+
+`tests/gameplay_simultaneous_use_test.gd` exercises actual dual-player
+inputs on the real Gameplay scene: shared fridge, shared AC (including both
+players being slowed), subsequent deliberate close, and simultaneous use of
+different appliances. The regression was reproduced before the fix and passes
+with the fix. The editor-run `.uid` files for the new test and the existing
+cross-team arena check are included to avoid regenerating them on each import.
