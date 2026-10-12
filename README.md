@@ -38,7 +38,7 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 
 ### Optional visual and interaction prototypes
 
-- Art-team-inspired pixel-art living room with clear platform edges, Art-team Character design blue/red 40×60 mage stills and movement frames, split P1/P2 control panels, landing and Spark feedback, and nearby interaction prompts.
+- Art-team-inspired pixel-art living room with clear platform edges, original uncropped Art-team Character design 736×736 blue/red mage stills and moving frames, scaled in Godot, split P1/P2 control panels, landing and Spark feedback, and nearby interaction prompts.
 - Books can be picked up, carried, thrown, and visually scorched by Spark or magic.
 - A fridge with an opening door; a fan that pushes nearby players; an AC that slows nearby movement; and a computer with switch/shorted states.
 - When the AC is on, its **130-pixel** effect radius applies a **0.45** movement-speed multiplier. Inherited airborne momentum also slows toward the adjusted speed cap; `SLOW` and cool-colored particles indicate the effect. Movement returns to normal outside its range.

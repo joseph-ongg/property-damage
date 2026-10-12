@@ -22,7 +22,8 @@ position = Vector2(0, -12)
 shape = SubResource("RectangleShape2D_player")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(0, -10)
+position = Vector2(4, -10)
+scale = Vector2(0.08152174, 0.08152174)
 texture_filter = 1
 
 [node name="Dash" type="Node" parent="."]

@@ -31,11 +31,15 @@ func _run() -> void:
 	var blue_run_1 := preload("res://gameplay/art/mage_1_run_1.png")
 	var red_run_0 := preload("res://gameplay/art/mage_2_run_0.png")
 	var red_run_1 := preload("res://gameplay/art/mage_2_run_1.png")
-	check(blue.get_size() == Vector2(40, 60) and red.get_size() == Vector2(40, 60), "both PPT characters fit 40x60 sprite slots")
+	check(blue.get_size() == Vector2(736, 736) and red.get_size() == Vector2(736, 736), "both players use original full-resolution 736x736 Character design geometry")
 	check(p1.sprite.texture == blue and p2.sprite.texture == red, "standing players show Character design still PNG frames")
 	check(p1.tint.b > p1.tint.r and p2.tint.r > p2.tint.b, "P1 accent is blue and P2 is red")
+	var expected_scale := 60.0 / 736.0
+	check(is_equal_approx(p1.sprite.scale.x, expected_scale) and is_equal_approx(p2.sprite.scale.x, expected_scale), "Godot scales the original full-size PNG only during rendering")
+	check(p1.sprite.scale.is_equal_approx(p2.sprite.scale), "blue/red display use identical source scale")
+	check(blue.get_image().get_pixel(0,0) == red.get_image().get_pixel(0,0), "transparent original pixels remain identical after recoloring")
 	for tex: Texture2D in [blue_run_0, blue_run_1, red_run_0, red_run_1]:
-		check(tex.get_size() == Vector2(40, 60), "PPT GIF animation frame uses same dimensions as the still sprite")
+		check(tex.get_size() == Vector2(736, 736), "PPT GIF animation frame retains original full-resolution dimensions")
 	check(blue_run_0.get_image().get_data() != blue_run_1.get_image().get_data(), "P1 walking frames are visibly distinct")
 	check(red_run_0.get_image().get_data() != red_run_1.get_image().get_data(), "P2 red walking frames are visibly distinct")
 

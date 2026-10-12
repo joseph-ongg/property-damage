@@ -44,7 +44,7 @@ For the separate fantasy experiment, open
   `CollisionShape2D.one_way_collision`.
 - Both the Gameplay prefab and Angela's basic player scene now use a
   **32×64** rectangle, with collision layer 2 / mask 1. The Gameplay collider
-  has a local **(0, -12)** offset to preserve the current 40×60 Art-team-derived mage art's
+  has a local **(0, -12)** offset to preserve the current full-resolution 736×736 Art-team mage image (shown 60px tall in Godot)'s
   feet alignment and Spark/interaction positions. Angela's sample
   shape is centered at (0, 0); adjust that local offset alongside the final
   mage art rather than shifting the entire room. The platform-drop component

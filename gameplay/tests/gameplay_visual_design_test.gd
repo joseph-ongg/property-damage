@@ -33,10 +33,11 @@ func _run() -> void:
 		var sprite: Sprite2D = player.get_node("Sprite2D")
 		var texture: Texture2D = sprite.texture
 		var id := "P%d" % player.player_index
-		check(texture.get_size() == Vector2(40, 60), id + " displays the PPT-derived 40x60 character sprite")
+		check(texture.get_size() == Vector2(736, 736), id + " uses original uncropped 736x736 Art Team sprite texture")
+		check(is_equal_approx(sprite.scale.x,60.0/736.0) and is_equal_approx(sprite.scale.y,60.0/736.0), id + " scales the original art in Godot rather than downsampling it")
 		check((shape.shape as RectangleShape2D).size == Vector2(32, 64), id + " keeps Angela-compatible 32x64 collision")
 		check(shape.position == Vector2(0, -12) and is_equal_approx(sprite.position.y, -10.0), id + " has matching collider and visual anchor")
-		check((sprite.position.y + texture.get_height() * 0.5) == (shape.position.y + (shape.shape as RectangleShape2D).size.y * 0.5), id + " sprite feet align with physical feet")
+		check(is_equal_approx(sprite.position.y + texture.get_height() * sprite.scale.y * 0.5, shape.position.y + (shape.shape as RectangleShape2D).size.y * 0.5), id + " original texture feet align with physical feet")
 		check(player.get_node("NameTag").offset_bottom < -41.0, id + " name is positioned above the hat")
 		check(player.get_node("JumpCharges").offset_bottom < player.get_node("NameTag").offset_top, id + " double-jump markers are not over the name")
 

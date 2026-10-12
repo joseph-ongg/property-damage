@@ -5,8 +5,8 @@ extends CharacterBody2D
 const GameplayInputs = preload("res://gameplay/input_actions.gd")
 const MAGE1: Texture2D = preload("res://gameplay/art/mage_1.png")
 const MAGE2: Texture2D = preload("res://gameplay/art/mage_2.png")
-# Run frames are pixel-resized from the *actual* Character design GIF in the
-# art team's MidSem deck; standing uses the matching static design image.
+# Both the standing original and movement frames keep their native 736x736
+# texture resolution from the Art Team MidSem Character design PNG/GIF.
 const P1_RUN: Array[Texture2D] = [
 	preload("res://gameplay/art/mage_1_run_0.png"),
 	preload("res://gameplay/art/mage_1_run_1.png"),
@@ -66,6 +66,7 @@ func _ready() -> void:
 		facing = -1
 	sprite.texture = sprite_override if sprite_override != null else (MAGE1 if player_index == 1 else MAGE2)
 	sprite.flip_h = facing < 0
+	_apply_art_size()
 	$NameTag.text = "P%d" % player_index
 	$NameTag.add_theme_color_override("font_color", tint)
 	$JumpCharges.visible = enhanced_jumping
@@ -126,6 +127,10 @@ func _physics_process(delta: float) -> void:
 			target_texture = MAGE1 if player_index == 1 else MAGE2
 	if sprite.texture != target_texture:
 		sprite.texture = target_texture
+		_apply_art_size()
+	# The Art Team's original PNG has asymmetric transparent margins. Center
+	# the visible robe while facing either direction; do not crop source art.
+	sprite.position.x = float(facing) * 4.0 if sprite_override == null else 0.0
 	sprite.position.y = -10.0
 	if dash.active() or _dash_was_active:
 		queue_redraw()
@@ -146,6 +151,16 @@ func _physics_process(delta: float) -> void:
 		motor.reset()
 		dash.reset()
 		platform_drop.reset(self)
+
+
+func _apply_art_size() -> void:
+	# Resize only the rendered Sprite2D, never the Art Team source texture.
+	# Original 736x736 design renders as a 60px-tall mage and keeps the same
+	# (unchanged) foot position and 32x64 collision shape. Inspector overrides
+	# get the same visual height, regardless of the incoming PNG resolution.
+	if sprite.texture != null:
+		var factor := 60.0 / float(sprite.texture.get_height())
+		sprite.scale = Vector2(factor, factor)
 
 
 func _draw() -> void:
