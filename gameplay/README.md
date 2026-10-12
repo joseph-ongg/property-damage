@@ -232,3 +232,24 @@ players being slowed), subsequent deliberate close, and simultaneous use of
 different appliances. The regression was reproduced before the fix and passes
 with the fix. The editor-run `.uid` files for the new test and the existing
 cross-team arena check are included to avoid regenerating them on each import.
+
+## 15. Magic bolt occlusion and book throw inspection
+
+The optional projectile previously raycasted to the next frame's endpoint
+but still performed proximity-based book/computer hits at the wall impact
+point. This could scorch books just behind the collider. The computer's
+wider 49px interaction radius also triggered *before* the bolt reached
+certain thin barriers. `msd/magic_bolt.gd` now stops when the swept
+projectile ray hits world layer 1, and verifies an unobstructed world-layer
+ray toward each nearby candidate **before** applying any visual effect.
+Player bodies remain on layer 2 and cannot block another player's shot.
+This only changes local optional prop feedback; it does not modify
+Simulation ignition, mana, scores or damage systems.
+
+`gameplay_magic_occlusion_test.gd` includes before/after regression cases
+for a book immediately beyond a world obstacle, a computer triggering from
+its larger radius, and unobstructed positive controls for both prop types.
+The original behavior was reproduced with a failing test before this fix.
+Book pickup/throw were also operated in the Godot runtime and photographed
+for visual inspection; the existing throw physics and material layout were
+not changed.
