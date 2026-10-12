@@ -6,7 +6,7 @@ Start with the [root README](../README.md) for the complete feature list, contro
 
 | Scene | Path | Purpose |
 | --- | --- | --- |
-| Gameplay playtest (F6) | `gameplay/playtest_main.tscn` | Independent Property Damage two-player living-room prototype with movement, collision, Spark, and optional interactions |
+| Gameplay playtest (F5 or F6) | `gameplay/playtest_main.tscn` | Default startup in this branch; independent Property Damage two-player living-room prototype with movement, collision, Spark, and optional interactions |
 | Optional (F6) | `gameplay/demo/gameplay_test.tscn` | Separate Moonlit Ruins fantasy prototype with Dash, collectibles, brazier mechanics, and experimental victory conditions |
 
 **Moonlit Ruins, collectibles, combos, and its win conditions are not Zander's confirmed MSD requirements.** Do not include that separate experiment in the team's core Gameplay PR without approval.
@@ -72,6 +72,7 @@ Run an individual test from the repository root using Godot 4.7.2 Standard:
 | `gameplay_keyboard_chords_test.gd` | Physical Shift+W, concurrent keyboard controls, and F/Enter Spark |
 | `gameplay_input_layout_test.gd` | Down+Jump on solid floors, independent on-screen P1/P2 key guides |
 | `gameplay_visual_design_test.gd` | Redesigned sprite footprints, room artwork dimensions, measured HUD text fitting |
+| `gameplay_project_start_test.gd` | F5 startup loads the actual playable two-player scene, not the placeholder |
 | `gameplay_collider_handoff_test.gd` | One-way drops with Angela-compatible 32×64 geometry and legacy 22×40 shapes |
 | `gameplay_art_handoff_test.gd` | Replace mage art without changing player physics or controls |
 | `gameplay_fan_playtest.gd` | Floor-level P1/P2 fan interaction, physical wind push, and safe turn-off near books |

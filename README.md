@@ -8,7 +8,7 @@
 
 1. Install **Godot 4.7.2 Standard** (GDScript; the .NET edition is not required).
 2. Import the repository root containing `project.godot` into Godot.
-3. Open `gameplay/playtest_main.tscn` and press **F6** to run the independent two-player living-room prototype. The repository-owned `main.tscn` is intentionally unchanged for team integration.
+3. Press **F5** to run the independent two-player living-room prototype, now configured as the branch's default project startup scene. You can also open `gameplay/playtest_main.tscn` and press **F6**. The repository-owned `main.tscn` file remains unchanged.
 4. To try the unrelated fantasy prototype, open `gameplay/demo/gameplay_test.tscn` and press **F6**. Its Moonlit Ruins theme, collectibles, brazier objectives, and victory conditions are *not* confirmed team requirements.
 
 ## Controls

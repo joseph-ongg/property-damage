@@ -8,11 +8,15 @@ requirements and should be reviewed separately from core MSD gameplay.
 
 ## Run without changing the team's main scene
 
-Open **`res://gameplay/playtest_main.tscn`**, press **F6** in Godot 4.7.2,
-and use the controls in the root README. This scene creates two players,
-world collision, a temporary material grid, UI, and optional prop prototypes.
-`main.tscn` is kept identical to the repository's `main` branch so it can
-remain under the project's integration owner's control.
+Press **F5** in Godot 4.7.2, or open
+**`res://gameplay/playtest_main.tscn`** and press **F6**. This scene creates two
+players, world collision, a temporary material grid, UI, and optional prop
+prototypes. **For convenient branch playtesting, `project.godot` now sets only
+`run/main_scene` to that Gameplay scene.** The root `main.tscn` file stays
+identical to the repository's `main` branch; project integrators may restore
+`run/main_scene="res://main.tscn"` (or point to the new production arena)
+when deciding the eventual default startup scene. Do not merge unrelated local
+Godot MCP autoloads or editor plugins.
 
 For the separate fantasy experiment, open
 `res://gameplay/demo/gameplay_test.tscn` and press F6.
