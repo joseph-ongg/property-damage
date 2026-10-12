@@ -1,9 +1,9 @@
-[gd_scene load_steps=18 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
 [ext_resource type="Script" path="res://gameplay/msd/room_visuals.gd" id="3_room"]
-[ext_resource type="Script" path="res://gameplay/integration/demo_material_grid.gd" id="4_fire"]
+[ext_resource type="Script" path="res://gameplay/integration/ethan_material_grid.gd" id="4_fire"]
 [ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="5_bridge"]
 [ext_resource type="Script" path="res://gameplay/demo/pause_overlay.gd" id="6_pause"]
 [ext_resource type="Script" path="res://gameplay/msd/burnable_prop.gd" id="7_books"]
@@ -12,6 +12,8 @@
 [ext_resource type="Script" path="res://gameplay/integration/material_setup.gd" id="10_material_setup"]
 [ext_resource type="Script" path="res://gameplay/msd/interaction_hints.gd" id="11_hints"]
 [ext_resource type="Script" path="res://gameplay/msd/player_conditions.gd" id="12_conditions"]
+
+[ext_resource type="Script" path="res://gameplay/integration/team_material_renderer.gd" id="13_grid_render"]
 
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
@@ -41,9 +43,15 @@ script = ExtResource("4_fire")
 width = 60
 height = 34
 
+[node name="TeamMaterialRenderer" type="Node2D" parent="."]
+z_index = -4
+texture_filter = 1
+script = ExtResource("13_grid_render")
+grid_path = NodePath("../MaterialGrid")
+
 [node name="TickTimer" type="Timer" parent="MaterialGrid"]
 
-[node name="DemoMaterials" type="Node" parent="MaterialGrid"]
+[node name="DesignMaterialSeed" type="Node" parent="MaterialGrid"]
 script = ExtResource("10_material_setup")
 
 [node name="FireVisuals" type="Node2D" parent="."]

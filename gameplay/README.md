@@ -34,7 +34,9 @@ Player collision layer is 2 and the world collision layer is 1. Players collide 
 - `msd/interaction_hints.gd`: Nearby interaction instructions that share target selection with the controller's `get_interaction_offer()`.
 - `msd/player_conditions.gd`: `SLOW` and `WIND` visual states; physics remains owned by the motor and MSD controller.
 - `msd/room_visuals.gd`, `msd/art/generate_room.py`: Pixel-art room visuals, independent of collisions.
-- `integration/demo_material_grid.gd`: Gameplay-owned temporary `MaterialGrid` subclass for standalone prototype fire state; replace with Simulation's implementation after it merges.
+- `integration/ethan_material_grid.gd`: Gameplay-scoped copy of **Ethan's real storage methods** from commit `46c3df2`, active in the default MSD arena. It inherits the existing `MaterialGrid` scaffold and adds no new fire algorithm. Replace it with the production Simulation path after upstream merges.
+- `integration/team_material_renderer.gd`: Jackson-derived material palette and signal-driven updates, displayed as translucent pixel stripes instead of an opaque full-grid overlay.
+- `integration/demo_material_grid.gd`: Legacy temporary storage for the separate Moonlit Ruins experiment only.
 - `integration/material_setup.gd`: Paints test materials only; it does not store burning state.
 - `demo/fire_visuals.gd`: Listens to `MaterialGrid.cell_changed` and draws subtle fire effects without implementing ignition or storage.
 
@@ -46,7 +48,7 @@ Player collision layer is 2 and the world collision layer is 1. Players collide 
 4. Replace the temporary living room, material seeding, and test HUD with final team art and scenes. **Do not modify `onboarding/burn-box/burn_box.tscn`.**
 5. Confirm final materials, mage sprites, propagation API, interactions, and game objectives with the Simulation, Art, and Design teams before including optional mechanics in the main build.
 
-Austin's jump counter and platform-drop approach were adapted for this prototype. Ethan's `MaterialGrid` was used as an API reference, but the Simulation-owned file is now identical to `main`, and temporary storage is isolated inside Gameplay. See [`UPSTREAM_INTEGRATION.md`](UPSTREAM_INTEGRATION.md) for original commit SHAs and merge boundaries. Local integration does not mean a team PR has been approved.
+Austin's jump counter and platform-drop approach were adapted for this prototype. Ethan's `MaterialGrid` real implementation is now used as a Gameplay-scoped method snapshot for the default MSD arena, without touching Simulation-owned files. The separate fantasy demo still uses the older test implementation. See [`UPSTREAM_INTEGRATION.md`](UPSTREAM_INTEGRATION.md) for original commit SHAs and merge boundaries. Local integration does not mean a team PR has been approved.
 
 ## 5. Regression tests
 
@@ -131,3 +133,35 @@ material grid and the fire overlay continue to use the **same** MaterialGrid
 node, so no duplicate material state is introduced. The hit effects and fire
 visuals use hard-edge pixel rectangles rather than blurred anti-aliased glows.
 The production material grid remains Simulation-owned.
+
+## 11. Design map, official Simulation snapshot, and second Art pose
+
+- **Design slide 12 (Crime Scene):** The large moonlit/city window was removed
+  because it was not in the Design Team's central desk/upper-wall AC layout.
+  The room keeps the source Art Team's smaller left window, left bookcases,
+  center desk and computer, clock, and right refrigerator; all original tested
+  one-way physics platform positions remain unchanged.
+- **Materials:** Seed WOOD across the real floor collision (rows 29–31),
+  bookshelf standing row 19, and central desk rows 23–25. Fridge columns 45–52
+  are STONE through row 31 and the wall-mounted AC is STONE in rows 20–21.
+  Spark still targets material via `GameplayFireBridge` alone.
+- **Ethan's working grid:** The normal MSD scene's `MaterialGrid` now uses
+  `gameplay/integration/ethan_material_grid.gd`: the actual storage/burn state,
+  burn timers, signals, and extinction methods copied from `ethan/burn-box-grid`
+  commit `46c3df2`. This is *not* a production merge; the source-owned grid
+  under `onboarding/` remains unchanged, and Ethan's branch is not in main.
+  There is still **no spread, oil movement, collapse, or physics damage** in
+  this upstream commit; those were only proposed future features on the slides.
+- **Jackson's rendering:** `TeamMaterialRenderer` listens to the same grid's
+  `cell_changed` and uses Jackson's material/fire colors (source commit
+  `c897a2e`). Air is hidden; non-air material receives transparent pixel
+  markers instead of covering the entire original room with opaque quads.
+- **Art Team slide 15:** The second original 736×736 static pose is displayed
+  briefly for P1/P2 on Spark, interactions and magic. P2 is an exact pose copy
+  with blue robe hues recolored red. Static idle and GIF movement frames
+  remain unchanged. `art/import_midsem_art.py` locates slides by their actual
+  titles, so reordering slides in the presentation does not break extraction.
+
+`gameplay/tests/gameplay_team_integration_test.gd` guards official storage,
+renderer signals and alpha, Design's seeded material geometry, and both Art
+interaction poses. The separate fantasy demo still uses its prior grid.

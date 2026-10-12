@@ -5,6 +5,10 @@ extends CharacterBody2D
 const GameplayInputs = preload("res://gameplay/input_actions.gd")
 const MAGE1: Texture2D = preload("res://gameplay/art/mage_1.png")
 const MAGE2: Texture2D = preload("res://gameplay/art/mage_2.png")
+# Second full-resolution Art Team still (slide 15) used during interactions,
+# Spark and optional magic. P2 is the same image recolored red.
+const MAGE1_ACTION: Texture2D = preload("res://gameplay/art/mage_1_action.png")
+const MAGE2_ACTION: Texture2D = preload("res://gameplay/art/mage_2_action.png")
 # Both the standing original and movement frames keep their native 736x736
 # texture resolution from the Art Team MidSem Character design PNG/GIF.
 const P1_RUN: Array[Texture2D] = [
@@ -43,6 +47,7 @@ var facing: int = 1
 var _spawn: Vector2
 var _bridge: GameplayFireBridge
 var _animation_clock: float = 0.0
+var _action_pose_remaining: float = 0.0
 var _dash_was_active: bool = false
 var _magic_cooldown: float = 0.0
 
@@ -114,13 +119,16 @@ func _physics_process(delta: float) -> void:
 			$JumpCharges.text = charge_text
 	dash.tick(delta)
 	_animation_clock += delta
+	_action_pose_remaining = maxf(0.0, _action_pose_remaining - delta)
 	var moving := absf(velocity.x) > 18.0
 	# An Inspector override always takes priority over the PPT-derived frames.
 	# When standing use the Character design static; when walking animate the
 	# two original GIF frames at the deck's 80ms cadence.
 	var target_texture: Texture2D = sprite_override
 	if target_texture == null:
-		if moving:
+		if _action_pose_remaining > 0.0:
+			target_texture = MAGE1_ACTION if player_index == 1 else MAGE2_ACTION
+		elif moving:
 			var run_frames: Array[Texture2D] = P1_RUN if player_index == 1 else P2_RUN
 			target_texture = run_frames[int(_animation_clock / 0.08) % run_frames.size()]
 		else:
@@ -137,11 +145,14 @@ func _physics_process(delta: float) -> void:
 	_dash_was_active = dash.active()
 	_magic_cooldown = maxf(0.0, _magic_cooldown - delta)
 	if Input.is_action_just_pressed(prefix + "attack") and _magic_cooldown <= 0.0:
+		_action_pose_remaining = 0.26
 		_magic_cooldown = 0.32
 		magic_attacked.emit(player_index, self)
 	if Input.is_action_just_pressed(prefix + "interact"):
+		_action_pose_remaining = 0.26
 		interact_pressed.emit(player_index, self)
 	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
+		_action_pose_remaining = 0.26
 		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
 		sparked.emit(player_index, global_position + Vector2(facing * spark.reach, 0), accepted)
 	hazard.tick(delta, _bridge, self)

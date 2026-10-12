@@ -35,7 +35,7 @@ func _run() -> void:
 	var p2: GameplayPlayer = arena.get_node("Player2")
 	var grid: Node2D = arena.get_node("MaterialGrid")
 	var bridge: GameplayFireBridge = arena.get_node("FireBridge")
-	check(grid is GameplayDemoMaterialGrid and grid.get_script().resource_path == "res://gameplay/integration/demo_material_grid.gd", "default demo uses isolated Gameplay storage without replacing Simulation files")
+	check(grid is GameplayEthanMaterialGrid and grid.get_script().resource_path == "res://gameplay/integration/ethan_material_grid.gd", "default arena runs the Ethan storage algorithm with Gameplay-scoped integration")
 	check(arena.has_node("FireVisuals") and not arena.has_node("DemoFireGrid"), "visual overlay no longer owns a duplicate burning store")
 	check(arena.get_node("HUD/Title").text == "PROPERTY DAMAGE", "official title replaces invented quest name")
 	check(arena.get_node("HUD/Subtitle").text.contains("PROTOTYPE"), "demo explicitly labeled prototype")

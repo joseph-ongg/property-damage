@@ -10,8 +10,8 @@ requirements and should be reviewed separately from core MSD gameplay.
 
 Press **F5** in Godot 4.7.2, or open
 **`res://gameplay/playtest_main.tscn`** and press **F6**. This scene creates two
-players, world collision, a temporary material grid, UI, and optional prop
-prototypes. **For convenient branch playtesting, `project.godot` now sets only
+players, world collision, Ethan's real method snapshot in a Gameplay-local
+grid class, Jackson-style translucent material pixels, UI and optional props. **For convenient branch playtesting, `project.godot` now sets only
 `run/main_scene` to that Gameplay scene.** The root `main.tscn` file stays
 identical to the repository's `main` branch; project integrators may restore
 `run/main_scene="res://main.tscn"` (or point to the new production arena)
@@ -26,8 +26,8 @@ For the separate fantasy experiment, open
 | Team / work | Current integration point | Required coordination |
 | --- | --- | --- |
 | Angela: `angela/CollisionShape2D` | Her `gameplay/player.tscn` is a 32×64 `CharacterBody2D` with world mask 1, player layer 2 | Gameplay's full prefab is now `gameplay/prefabs/gameplay_player.tscn` so the two files do not collide; decide whether to keep hers as the simple test character or replace it with the full prefab in the real arena |
-| Ethan: `ethan/burn-box-grid` | `GameplayFireBridge.grid_path` uses the public `MaterialGrid` API; production must supply real storage | Never merge temporary demo storage into the production Simulation. Swap the `MaterialGrid` scene script from Gameplay's `demo_material_grid.gd` to Ethan's `material_grid.gd` once merged; configure the final material map |
-| Jackson: `sim/jackson/burn-box-render` | Renderers use `MaterialGrid.cell_changed(x,y)` and `is_burning()` | His production grid renderer and Gameplay's decorative fire visuals serve different purposes; use the production renderer with the real map and disable duplicate whole-grid debug previews |
+| Ethan: `ethan/burn-box-grid` | Default MSD now runs his full commit `46c3df2` storage/ignition methods, copied into Gameplay's `ethan_material_grid.gd` as a subclass of the still-unmerged public base scaffold | No `onboarding/` files have changed. When Ethan's branch lands in main, change the scene's grid script to the **production** `material_grid.gd` and remove the temporary Gameplay snapshot |
+| Jackson: `sim/jackson/burn-box-render` | Translucent gameplay renderer imports his real material/fire colors and `cell_changed(x,y)` invalidation logic | Opaque whole-grid renderer obscures the Art stage; review/replace `TeamMaterialRenderer` with his eventual production renderer after the official merge |
 | Art | `GameplayPlayer.sprite_override`, `Sprite2D`, and `CollisionShape2D` | Set `sprite_override` per player in the inspector; leave it null to use the imported Art-team idle and run frames (blue P1 / recolored red P2). Adjust the collider and sprite offset for final art; one-way platform drop reads the actual collider height |
 | Gameplay | `GameplayPlayer`, `GameplayMotor`, `GameplayPlatformDrop`, `GameplaySparkEmitter`, `GameplayFireBridge` | Instantiate the complete prefab twice and point each `fire_bridge_path` at the bridge and the bridge `grid_path` at the actual Simulation node |
 
@@ -96,3 +96,16 @@ smoke test does not change or merge anyone's upstream branch.
   configured separately by the Simulation owners.
 - `gameplay_art_scene_alignment_test.gd` checks texture sizes, physical
   overlap, nearest-neighbor rendering, and the Spark/Simulation boundary.
+
+## Additional MidSem deck handoff (Design, Simulation, Art)
+
+The Design team's slide 12 "Crime Scene" shows a left bookcase/window,
+central computer desk, upper AC, wall clock and right refrigerator. The MSD
+room artwork now follows those zones without moving the agreed physics
+platforms. `DesignMaterialSeed` is a temporary material **map**, not a fire
+storage system; it should be replaced when the production arena provides its
+own material layout. The normal Gameplay room uses Ethan's real `46c3df2`
+method bodies in `ethan_material_grid.gd` and Jackson's color/signal renderer
+in `team_material_renderer.gd`, but both are explicitly scoped to Gameplay
+until upstream Simulation is merged. Do not ship duplicate implementations of
+Ethan/Jackson's code after the final integration.
