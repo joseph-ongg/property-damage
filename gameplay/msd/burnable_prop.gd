@@ -53,24 +53,87 @@ func _physics_process(delta: float) -> void:
 	if carried_by != null:
 		global_position = carried_by.global_position + Vector2(carried_by.facing * 22, -22)
 	elif flying:
-		var next_position := global_position + flight_velocity * delta
-		flight_velocity.y += drop_gravity * delta
-		# Real StaticBody2D geometry supports floor, table and one-way shelf landings.
-		var query := PhysicsRayQueryParameters2D.create(global_position + Vector2(0, 13), next_position + Vector2(0, 13), 1)
-		var hit := get_world_2d().direct_space_state.intersect_ray(query)
-		if not hit.is_empty() and flight_velocity.y >= 0.0 and hit.position.y >= global_position.y:
-			global_position = Vector2(next_position.x, hit.position.y - 13)
+		_step_flight(delta)
+
+
+func _step_flight(delta: float) -> void:
+	# The prop is painted, not a CharacterBody2D. Resolve swept horizontal
+	# world collisions separately from downward-only platform landing.
+	# A sideways wall hit must never be interpreted as landing in mid-air.
+	var start: Vector2 = global_position
+	var step_x: float = flight_velocity.x * delta
+	var step_y: float = flight_velocity.y * delta
+	flight_velocity.y += drop_gravity * delta
+	var proposed := start + Vector2(step_x, step_y)
+	var half_width: float = minf(width * 0.45, 14.0)
+	if absf(step_x) > 0.01:
+		var horizontal_direction: float = signf(step_x)
+		var leading_x: float = horizontal_direction * half_width
+		var found_side: Dictionary = {}
+		# Test at three heights to catch thin solid walls without being tricked
+		# by a one-way shelf's side collider (which players pass through).
+		for vertical_offset in [-8.0, 0.0, 10.0]:
+			var origin := start + Vector2(leading_x, vertical_offset)
+			var finish := origin + Vector2(step_x, 0.0)
+			var hit := _world_ray(origin, finish, true)
+			if not hit.is_empty() and hit.normal.x * horizontal_direction < -0.5:
+				if found_side.is_empty() or absf(hit.position.x - origin.x) < absf(found_side.position.x - origin.x):
+					found_side = hit
+		if not found_side.is_empty():
+			proposed.x = found_side.position.x - leading_x - horizontal_direction * 0.5
+			flight_velocity.x = -flight_velocity.x * 0.25
+			if absf(flight_velocity.x) < 50.0:
+				flight_velocity.x = 0.0
+	# One-way platforms must be crossed upward; only downward movement and
+	# an upward-facing collision normal can create a stable landing.
+	if step_y >= 0.0:
+		var best_floor: Dictionary = {}
+		for offset in [-half_width * 0.55, 0.0, half_width * 0.55]:
+			var from := Vector2(proposed.x + offset, start.y + 13.0)
+			var to := Vector2(proposed.x + offset, proposed.y + 13.0)
+			var hit := _world_ray(from, to, false)
+			if not hit.is_empty() and hit.normal.y < -0.5 and hit.position.y >= from.y - 0.5:
+				if best_floor.is_empty() or hit.position.y < best_floor.position.y:
+					best_floor = hit
+		if not best_floor.is_empty():
+			proposed.y = best_floor.position.y - 13.0
 			flight_velocity = Vector2.ZERO
 			flying = false
-		else:
-			global_position = next_position
-		if global_position.y >= 485.0:
-			global_position.y = 485.0
-			flight_velocity = Vector2.ZERO
-			flying = false
-		global_position.x = clampf(global_position.x, 24.0, 936.0)
-		if global_position.x <= 24.0 or global_position.x >= 936.0:
-			flight_velocity.x = -flight_velocity.x * 0.4
+	# Gameplay demo room floor top is 498, so painted books rest at y485.
+	# Retain this fallback for detached books if a collision frame is missed.
+	if proposed.y >= 485.0:
+		proposed.y = 485.0
+		flight_velocity = Vector2.ZERO
+		flying = false
+	if proposed.x < 24.0:
+		proposed.x = 24.0
+		if flight_velocity.x < 0.0:
+			flight_velocity.x *= -0.25
+	elif proposed.x > 936.0:
+		proposed.x = 936.0
+		if flight_velocity.x > 0.0:
+			flight_velocity.x *= -0.25
+	global_position = proposed
+
+
+func _world_ray(origin: Vector2, finish: Vector2, ignore_one_way: bool) -> Dictionary:
+	var space := get_world_2d().direct_space_state
+	var excluded: Array[RID] = []
+	for _pass in 5:
+		var query := PhysicsRayQueryParameters2D.create(origin, finish, 1, excluded)
+		var result: Dictionary = space.intersect_ray(query)
+		if result.is_empty() or not ignore_one_way:
+			return result
+		var collider := result.collider as CollisionObject2D
+		if collider == null:
+			return result
+		var owner_id: int = collider.shape_find_owner(int(result.shape))
+		var owner: Object = collider.shape_owner_get_owner(owner_id)
+		if owner is CollisionShape2D and (owner as CollisionShape2D).one_way_collision:
+			excluded.append(collider.get_rid())
+			continue
+		return result
+	return {}
 
 
 func try_scorch(target: Vector2, player_index: int) -> bool:

@@ -253,3 +253,25 @@ The original behavior was reproduced with a failing test before this fix.
 Book pickup/throw were also operated in the Godot runtime and photographed
 for visual inspection; the existing throw physics and material layout were
 not changed.
+
+## 16. Book throw collision sweep
+
+The optional book prop previously cast a single diagonal ray from its lower
+edge. A high-speed sideways throw into a layer-1 wall could pass through it
+or incorrectly count the wall as a floor, leaving the book suspended in air.
+`msd/burnable_prop.gd` now separates **horizontal sweeps** from **downward
+support checks**. It tests the book's leading edge at three heights against
+solid world geometry, excludes the sides of one-way platforms, applies a
+small horizontal rebound at a real side impact, and tests three bottom-edge
+sample points for downward landings. Books still pass upward through the
+same one-way shelf and table platforms that the players use. The playtest
+room's bottom safety clamp is retained; it is not a new upstream Simulation
+or production arena physics system.
+
+`tests/gameplay_book_collision_test.gd` guards against tunneling, false
+mid-air landings, shelf underside obstruction, bookshelf top landing,
+falling outside platform bounds, partly overlapping the table edge, and
+P2 recovering and re-throwing a settled book. The original two wall bugs
+were reproduced with failing assertions before this change. A real Godot
+runtime shelf-landing capture is kept under
+`presentation_media/screenshots/book_shelf_landing_live.png` locally.
