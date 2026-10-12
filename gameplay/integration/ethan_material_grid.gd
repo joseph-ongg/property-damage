@@ -1,127 +1,141 @@
-## Exact method/storage bodies from Ethan's origin/ethan/burn-box-grid @ 46c3df2.
-## Adaptation only: extends main's MaterialGrid scaffold instead of redeclaring
-## its class_name, exported dimensions/tuning, enum and signal. The code below
-## is copied from the team's official storage implementation. Not an invented
-## Gameplay simulation and not a modification of onboarding/.
-## Until Ethan's branch is merged into main, this temporary Gameplay namespace
-## adapter lets F5 use the *real upstream algorithm*. Replace the script path
-## with res://onboarding/burn-box/material_grid.gd when his changes land.
+## Gameplay-only Ethan grid adapter (upstream: ethan/burn-box-grid @ 46c3df2).
+## The original storage/ignition algorithm is preserved below for main's
+## unimplemented base scaffold. Crucially, our fallback arrays have private
+## names, so when Ethan's original material_grid.gd is merged into main, this
+## script still parses and delegates to the *real parent's* state/methods.
+## Never modify onboarding/ from Gameplay or create two active fire stores.
 class_name GameplayEthanMaterialGrid
 extends MaterialGrid
 
-# Cell data is indexed as [x][y]: column first, then row.
-# Material and fire state are separate, so burning Wood is still Wood.
-# Other systems should use the public API instead of modifying these arrays.
-var materials: Array[Array] = []
-var burning: Array[Array] = []
+var _fallback_materials: Array[Array] = []
+var _fallback_burning: Array[Array] = []
+var _fallback_burn_timers: Array[Array] = []
+var _checked_upstream: bool = false
+var _has_upstream_storage: bool = false
 
-# Elapsed burn time in seconds. Stored now for the future fire simulation.
-# No spreading or burn-time updates are implemented yet.
-var burn_timers: Array[Array] = []
+
+func using_upstream_storage() -> bool:
+	if not _checked_upstream:
+		_checked_upstream = true
+		var found: Dictionary = {}
+		for property: Dictionary in get_property_list():
+			if property.name in ["materials", "burning", "burn_timers"]:
+				found[property.name] = true
+		_has_upstream_storage = found.size() == 3
+	return _has_upstream_storage
 
 
 func _ready() -> void:
-	# Ensure storage exists without clearing cells set before this node was ready.
-	_initialize_cells_if_needed()
-	# TODO: fill the default map after storage is initialized.
+	if using_upstream_storage():
+		# Main now contains Ethan's actual implementation. No fallback state is
+		# created: all methods below forward to his storage and signals.
+		super._ready()
+		return
+	_initialize_fallback_if_needed()
 	$TickTimer.wait_time = tick_rate
 	$TickTimer.timeout.connect(_on_tick)
 	$TickTimer.start()
 
 
 func _on_tick() -> void:
-	pass  # TODO: one simulation step.
+	if using_upstream_storage():
+		super._on_tick()
+	# Ethan 46c3df2 does not implement fire spread yet.
 
 
 func set_cell_material(x: int, y: int, material_id: Materials) -> void:
+	if using_upstream_storage():
+		super.set_cell_material(x, y, material_id)
+		return
 	if not in_bounds(x, y):
 		return
-	_initialize_cells_if_needed()
-
-	# Painting a material always clears fire and resets its burn timer.
-	var material_changed : bool = materials[x][y] != material_id
-	var burning_changed : bool = burning[x][y]
-	materials[x][y] = material_id
-	burning[x][y] = false
-	burn_timers[x][y] = 0.0
-
-	# Notify listeners only when the visible material or burning state changes.
-	# Listeners can query the updated state through the public API.
+	_initialize_fallback_if_needed()
+	var material_changed: bool = _fallback_materials[x][y] != material_id
+	var burning_changed: bool = _fallback_burning[x][y]
+	_fallback_materials[x][y] = material_id
+	_fallback_burning[x][y] = false
+	_fallback_burn_timers[x][y] = 0.0
 	if material_changed or burning_changed:
 		cell_changed.emit(x, y)
 
-## Returns a cell's material, or AIR if out of bounds.
+
 func get_cell_material(x: int, y: int) -> Materials:
+	if using_upstream_storage():
+		return super.get_cell_material(x, y)
 	if not in_bounds(x, y):
 		return Materials.AIR
-	_initialize_cells_if_needed()
-	return materials[x][y]
+	_initialize_fallback_if_needed()
+	return _fallback_materials[x][y]
 
-## Ignites a flammable cell; ignores out-of-bounds or already burning cells.
+
 func ignite(x: int, y: int) -> void:
+	if using_upstream_storage():
+		super.ignite(x, y)
+		return
 	if not in_bounds(x, y):
 		return
-	_initialize_cells_if_needed()
-
-	if burning[x][y]:
+	_initialize_fallback_if_needed()
+	if _fallback_burning[x][y]:
 		return
-
-	# Only Wood and Oil are currently flammable.
-	# Ignition changes fire state without replacing the original material.
 	var cell_material: Materials = get_cell_material(x, y)
 	if cell_material != Materials.WOOD and cell_material != Materials.OIL:
 		return
-
-	burning[x][y] = true
-	burn_timers[x][y] = 0.0
+	_fallback_burning[x][y] = true
+	_fallback_burn_timers[x][y] = 0.0
 	cell_changed.emit(x, y)
 
 
-## Returns whether a cell is burning; returns false if out of bounds.
 func is_burning(x: int, y: int) -> bool:
+	if using_upstream_storage():
+		return super.is_burning(x, y)
 	if not in_bounds(x, y):
 		return false
-	_initialize_cells_if_needed()
-	return burning[x][y]
+	_initialize_fallback_if_needed()
+	return _fallback_burning[x][y]
 
 
-## Extinguishes a cell without changing its material; ignores out-of-bounds cells.
 func extinguish(x: int, y: int) -> void:
+	if using_upstream_storage():
+		super.extinguish(x, y)
+		return
 	if not in_bounds(x, y):
 		return
-	_initialize_cells_if_needed()
-
-	if not burning[x][y]:
+	_initialize_fallback_if_needed()
+	if not _fallback_burning[x][y]:
 		return
-
-	# Extinguishing preserves the material and resets the burn timer.
-	burning[x][y] = false
-	burn_timers[x][y] = 0.0
+	_fallback_burning[x][y] = false
+	_fallback_burn_timers[x][y] = 0.0
 	cell_changed.emit(x, y)
 
 
-# Public API calls may happen before _ready(), so initialize on first use.
-# This checks column counts only; keep width and height fixed during play.
-func _initialize_cells_if_needed() -> void:
-	if materials.size() == width and burning.size() == width and burn_timers.size() == width:
+func _initialize_fallback_if_needed() -> void:
+	if _fallback_materials.size() == width and _fallback_burning.size() == width and _fallback_burn_timers.size() == width:
 		return
-	_initialize_cells()
+	_create_fallback_cells()
 
 
-# Build a fresh grid with Air, no fire, and zero elapsed burn time.
-# Create a separate array for each column so cells do not share column data.
-func _initialize_cells() -> void:
-	materials.clear()
-	burning.clear()
-	burn_timers.clear()
+func _create_fallback_cells() -> void:
+	_fallback_materials.clear()
+	_fallback_burning.clear()
+	_fallback_burn_timers.clear()
 	for x in width:
-		var material_column: Array = []
-		var burning_column: Array = []
+		var column: Array = []
+		var burn_column: Array = []
 		var timer_column: Array = []
 		for y in height:
-			material_column.append(Materials.AIR)
-			burning_column.append(false)
+			column.append(Materials.AIR)
+			burn_column.append(false)
 			timer_column.append(0.0)
-		materials.append(material_column)
-		burning.append(burning_column)
-		burn_timers.append(timer_column)
+		_fallback_materials.append(column)
+		_fallback_burning.append(burn_column)
+		_fallback_burn_timers.append(timer_column)
+
+
+## Test-only introspection; direct gameplay callers must use the public API.
+func cell_burn_timer(x: int, y: int) -> float:
+	if not in_bounds(x, y):
+		return 0.0
+	if using_upstream_storage():
+		return float(get("burn_timers")[x][y])
+	_initialize_fallback_if_needed()
+	return float(_fallback_burn_timers[x][y])

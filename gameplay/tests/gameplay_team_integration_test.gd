@@ -23,7 +23,11 @@ func _run() -> void:
 	var p1: GameplayPlayer = room.get_node("Player1")
 	var p2: GameplayPlayer = room.get_node("Player2")
 	check(grid != null and grid.get_script().resource_path == "res://gameplay/integration/ethan_material_grid.gd", "default room uses Ethan's real storage methods rather than demo subclass")
-	check(grid.materials.size() == grid.width and grid.burning.size() == grid.width and grid.burn_timers.size() == grid.width, "Ethan storage has independent material, fire and elapsed-time arrays")
+	if grid.using_upstream_storage():
+		check(grid.get("materials").size() == grid.width and grid.get("burning").size() == grid.width and grid.get("burn_timers").size() == grid.width, "merged Ethan parent provides official material, fire, and timer arrays")
+		check(grid._fallback_materials.is_empty() and grid._fallback_burning.is_empty(), "no redundant fallback storage when official Ethan arrays exist")
+	else:
+		check(grid._fallback_materials.size() == grid.width and grid._fallback_burning.size() == grid.width and grid._fallback_burn_timers.size() == grid.width, "pre-merge Ethan adapter stores materials, fire and timer arrays")
 	check(material_render._grid == grid and room.get_node("FireVisuals")._grid == grid and bridge.grid() == grid, "gameplay, renderer, FX and bridge all use one grid instance")
 	check(material_render.z_index < p1.z_index and material_render.z_index > room.get_node("RoomVisuals").z_index, "Jackson's pixel overlay is above art backdrop and below characters")
 	check(material_render.COLORS[MaterialGrid.Materials.WOOD].is_equal_approx(Color(0.395, 0.167, 0.086, 1.0)), "wood tint comes from Jackson's real material palette")
@@ -32,11 +36,11 @@ func _run() -> void:
 	var changed: int = material_render.refresh_count
 	grid.set_cell_material(12, 13, MaterialGrid.Materials.OIL)
 	check(material_render.refresh_count > changed, "Jackson's material layer redraws on upstream material-change signal")
-	check(grid.materials[12][13] == MaterialGrid.Materials.OIL, "Ethan stores OIL in his official material array")
+	check(grid.get_cell_material(12, 13) == MaterialGrid.Materials.OIL, "Ethan-compatible storage returns OIL through the official API")
 	check(bridge.ignite_world(Vector2(200, 216)), "Ethan's real OIL storage ignites via Gameplay bridge")
 	check(grid.is_burning(12, 13) and material_render.refresh_count >= changed+2, "ignition is stored by Ethan and signaled to the renderer")
 	grid.extinguish(12,13)
-	check(not grid.is_burning(12, 13) and is_zero_approx(grid.burn_timers[12][13]), "Ethan extinguish resets the official burn timer")
+	check(not grid.is_burning(12, 13) and is_zero_approx(grid.cell_burn_timer(12, 13)), "Ethan extinguish resets the active burn timer")
 	grid.set_cell_material(12,13,MaterialGrid.Materials.WATER)
 	check(not bridge.ignite_world(Vector2(200,216)), "Ethan's real WATER cell cannot ignite")
 	# Restore the non-gameplay test cell to AIR to avoid affecting later interactions.

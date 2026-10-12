@@ -18,11 +18,12 @@ implementation. The exact `MaterialGrid` file in this branch was restored to
 
 ## Why the standalone demo still ignites cells
 
-The default MSD room now uses a Gameplay-local snapshot of **Ethan's actual
-`46c3df2` code** (`ethan_material_grid.gd`). Its `materials`, `burning`, and
-`burn_timers` arrays and all ignition/extinguish methods come from his
-upstream file. This snapshot extends the main branch's still-empty
-`MaterialGrid` scaffold and does not override any Simulation-owned source.
+The default MSD room now uses a Gameplay-local compatibility adaptation of **Ethan's
+`46c3df2` storage and ignition methods** (`ethan_material_grid.gd`). Its private fallback arrays implement Ethan's material, burning, and
+burn-timer semantics until his implementation merges upstream. It extends the main branch's still-empty
+`MaterialGrid` scaffold, and automatically delegates to the real inherited
+methods if upstream later adds the original `materials`, `burning`, and
+`burn_timers` members. It does not override any Simulation-owned source file.
 The separate fantasy experiment retains `demo_material_grid.gd` for legacy
 tests. Gameplay's `FireBridge` and renderers never own fire state.
 
@@ -55,3 +56,16 @@ never do this by editing the production branch's Simulation file.
 - [Austin: `a529274`](https://github.com/joseph-ongg/property-damage/commit/a5292743351c673dcd095efabcba34f6f996219b)
 - [Ethan: `46c3df2`](https://github.com/joseph-ongg/property-damage/commit/46c3df2d01275ce1ebbaee87bb3f7ba19e4dabb4)
 - [Jackson: `c897a2e`](https://github.com/joseph-ongg/property-damage/commit/c897a2e735c4c65f4173cb4b4a542e94f512323b)
+
+### Critical upstream-merge compatibility
+
+The old Gameplay grid snapshot declared public fields `materials`, `burning`,
+and `burn_timers`. Those identifiers collide with the inherited fields once
+Ethan's original `MaterialGrid` is merged, causing a Godot parse failure.
+The new adapter uses `_fallback_*` storage **only while those parent fields
+are absent**. With his true upstream file installed, it forwards all API calls
+via `super` and allocates no duplicate state. The exact upstream configuration
+and the current main scaffold are both verified using
+`gameplay_integration_merge_safety_test.gd` in separate project copies.
+Once the teams have agreed on the production material map, remove the fallback
+adapter by pointing the production scene directly to the upstream grid file.

@@ -121,6 +121,34 @@ func _physics_process(delta: float) -> void:
 	_animation_clock += delta
 	_action_pose_remaining = maxf(0.0, _action_pose_remaining - delta)
 	var moving := absf(velocity.x) > 18.0
+	if dash.active() or _dash_was_active:
+		queue_redraw()
+	_dash_was_active = dash.active()
+	_magic_cooldown = maxf(0.0, _magic_cooldown - delta)
+	if Input.is_action_just_pressed(prefix + "attack") and _magic_cooldown <= 0.0:
+		_action_pose_remaining = 0.26
+		_magic_cooldown = 0.32
+		magic_attacked.emit(player_index, self)
+	if Input.is_action_just_pressed(prefix + "interact"):
+		_action_pose_remaining = 0.26
+		interact_pressed.emit(player_index, self)
+	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
+		_action_pose_remaining = 0.26
+		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
+		sparked.emit(player_index, global_position + Vector2(facing * spark.reach, 0), accepted)
+	# Process the input events first so the alternate Art Team action pose is
+	# visible on the exact same physics tick as the Spark/interaction/magic.
+	_update_character_sprite(moving)
+	hazard.tick(delta, _bridge, self)
+	if global_position.y > reset_height:
+		global_position = _spawn
+		velocity = Vector2.ZERO
+		motor.reset()
+		dash.reset()
+		platform_drop.reset(self)
+
+
+func _update_character_sprite(moving: bool) -> void:
 	# An Inspector override always takes priority over the PPT-derived frames.
 	# When standing use the Character design static; when walking animate the
 	# two original GIF frames at the deck's 80ms cadence.
@@ -140,28 +168,6 @@ func _physics_process(delta: float) -> void:
 	# the visible robe while facing either direction; do not crop source art.
 	sprite.position.x = float(facing) * 4.0 if sprite_override == null else 0.0
 	sprite.position.y = -10.0
-	if dash.active() or _dash_was_active:
-		queue_redraw()
-	_dash_was_active = dash.active()
-	_magic_cooldown = maxf(0.0, _magic_cooldown - delta)
-	if Input.is_action_just_pressed(prefix + "attack") and _magic_cooldown <= 0.0:
-		_action_pose_remaining = 0.26
-		_magic_cooldown = 0.32
-		magic_attacked.emit(player_index, self)
-	if Input.is_action_just_pressed(prefix + "interact"):
-		_action_pose_remaining = 0.26
-		interact_pressed.emit(player_index, self)
-	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
-		_action_pose_remaining = 0.26
-		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
-		sparked.emit(player_index, global_position + Vector2(facing * spark.reach, 0), accepted)
-	hazard.tick(delta, _bridge, self)
-	if global_position.y > reset_height:
-		global_position = _spawn
-		velocity = Vector2.ZERO
-		motor.reset()
-		dash.reset()
-		platform_drop.reset(self)
 
 
 func _apply_art_size() -> void:

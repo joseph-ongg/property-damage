@@ -34,7 +34,7 @@ Player collision layer is 2 and the world collision layer is 1. Players collide 
 - `msd/interaction_hints.gd`: Nearby interaction instructions that share target selection with the controller's `get_interaction_offer()`.
 - `msd/player_conditions.gd`: `SLOW` and `WIND` visual states; physics remains owned by the motor and MSD controller.
 - `msd/room_visuals.gd`, `msd/art/generate_room.py`: Pixel-art room visuals, independent of collisions.
-- `integration/ethan_material_grid.gd`: Gameplay-scoped copy of **Ethan's real storage methods** from commit `46c3df2`, active in the default MSD arena. It inherits the existing `MaterialGrid` scaffold and adds no new fire algorithm. Replace it with the production Simulation path after upstream merges.
+- `integration/ethan_material_grid.gd`: Gameplay-scoped compatibility adapter using **Ethan's storage and ignition rules** from commit `46c3df2`, active in the default MSD arena. It inherits the existing `MaterialGrid` scaffold and adds no new fire algorithm. Replace it with the production Simulation path after upstream merges.
 - `integration/team_material_renderer.gd`: Jackson-derived material palette and signal-driven updates, displayed as translucent pixel stripes instead of an opaque full-grid overlay.
 - `integration/demo_material_grid.gd`: Legacy temporary storage for the separate Moonlit Ruins experiment only.
 - `integration/material_setup.gd`: Paints test materials only; it does not store burning state.
@@ -146,10 +146,13 @@ The production material grid remains Simulation-owned.
   are STONE through row 31 and the wall-mounted AC is STONE in rows 20–21.
   Spark still targets material via `GameplayFireBridge` alone.
 - **Ethan's working grid:** The normal MSD scene's `MaterialGrid` now uses
-  `gameplay/integration/ethan_material_grid.gd`: the actual storage/burn state,
-  burn timers, signals, and extinction methods copied from `ethan/burn-box-grid`
+  `gameplay/integration/ethan_material_grid.gd`: Ethan-compatible storage/burn state,
+  burn timers, signals, and extinction methods adapted from `ethan/burn-box-grid`
   commit `46c3df2`. This is *not* a production merge; the source-owned grid
-  under `onboarding/` remains unchanged, and Ethan's branch is not in main.
+  under `onboarding/` remains unchanged. After the upstream merges, the adapter
+  automatically delegates to Ethan's parent methods instead of allocating
+  duplicate arrays. We also test the merged-state configuration in a separate
+  temporary project.
   There is still **no spread, oil movement, collapse, or physics damage** in
   this upstream commit; those were only proposed future features on the slides.
 - **Jackson's rendering:** `TeamMaterialRenderer` listens to the same grid's
@@ -162,6 +165,20 @@ The production material grid remains Simulation-owned.
   remain unchanged. `art/import_midsem_art.py` locates slides by their actual
   titles, so reordering slides in the presentation does not break extraction.
 
-`gameplay/tests/gameplay_team_integration_test.gd` guards official storage,
+`gameplay/tests/gameplay_team_integration_test.gd` guards the active storage,
 renderer signals and alpha, Design's seeded material geometry, and both Art
 interaction poses. The separate fantasy demo still uses its prior grid.
+
+## 12. Merge-safe Simulation adapter and immediate Art action poses
+
+The adapter used to redeclare `materials`, `burning`, `burn_timers` as inherited
+members. When Ethan's upstream file is merged into the parent
+`MaterialGrid`, that code fails Godot parsing because those names already
+exist in the parent. The fallback fields now use private names, and the
+adapter delegates directly to the parent's methods once their three storage
+properties exist. No second set of fire cells is created in that state.
+`gameplay_integration_merge_safety_test.gd` is exercised against both current
+main's API scaffold **and an isolated copy where the exact original Ethan
+`material_grid.gd` is installed**. The Art Team's alternate 736×736 casting
+pose is now selected *after* processing the relevant input event, removing
+the previous one-physics-frame latency for Spark/interact/magic.

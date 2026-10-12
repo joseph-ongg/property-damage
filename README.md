@@ -34,7 +34,7 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 - Fixed-height jumps, horizontal momentum retained when releasing direction in midair, aerial steering, coyote time, and jump buffering.
 - Solid floors and walls; one-way furniture platforms that can be jumped through from below or deliberately dropped through.
 - Players on collision layer 2 interact with world layer 1 but pass through each other.
-- Directional Spark via `GameplayFireBridge`, using the **`MaterialGrid` public API**. The default MSD scene now uses Ethan's actual storage/ignition method bodies, vendored in a Gameplay-scoped adapter until his branch is officially merged; the separate fantasy experiment still uses a lightweight demo subclass. Production must switch to the Simulation-owned grid after merge. No extra burning-state store exists in the bridge or effects renderer.
+- Directional Spark via `GameplayFireBridge`, using the **`MaterialGrid` public API**. The default MSD scene now uses Ethan-compatible storage/ignition rules, implemented in an upstream-aware Gameplay adapter until his branch is officially merged; the separate fantasy experiment still uses a lightweight demo subclass. Production must switch to the Simulation-owned grid after merge. No extra burning-state store exists in the bridge or effects renderer.
 
 ### Optional visual and interaction prototypes
 
@@ -62,7 +62,7 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 | `gameplay/components/platform_drop.gd` | Safe drop-through on one-way platforms |
 | `gameplay/components/spark_emitter.gd` / `gameplay/components/fire_bridge.gd` | Spark direction, cooldown, Simulation integration |
 | `onboarding/burn-box/material_grid.gd` | Simulation-owned public interface, left identical to `main` |
-| `gameplay/integration/ethan_material_grid.gd` | Ethan's exact storage/ignition methods from `ethan/burn-box-grid@46c3df2`, adapted to extend the existing API scaffold; active in the MSD arena |
+| `gameplay/integration/ethan_material_grid.gd` | Ethan-compatible storage/ignition logic adapted from `ethan/burn-box-grid@46c3df2`, with delegation to official upstream state once merged; active in the MSD arena |
 | `gameplay/integration/team_material_renderer.gd` | Jackson's material palette and signal-driven renderer adapted as a translucent pixel layer so the Art team scene remains visible |
 | `gameplay/integration/demo_material_grid.gd` | Legacy lightweight grid, retained only for the separate fantasy experiment |
 | `gameplay/msd/msd_controller.gd` | Living-room controller for players, Spark, props, and appliances |

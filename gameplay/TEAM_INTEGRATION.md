@@ -26,7 +26,7 @@ For the separate fantasy experiment, open
 | Team / work | Current integration point | Required coordination |
 | --- | --- | --- |
 | Angela: `angela/CollisionShape2D` | Her `gameplay/player.tscn` is a 32×64 `CharacterBody2D` with world mask 1, player layer 2 | Gameplay's full prefab is now `gameplay/prefabs/gameplay_player.tscn` so the two files do not collide; decide whether to keep hers as the simple test character or replace it with the full prefab in the real arena |
-| Ethan: `ethan/burn-box-grid` | Default MSD now runs his full commit `46c3df2` storage/ignition methods, copied into Gameplay's `ethan_material_grid.gd` as a subclass of the still-unmerged public base scaffold | No `onboarding/` files have changed. When Ethan's branch lands in main, change the scene's grid script to the **production** `material_grid.gd` and remove the temporary Gameplay snapshot |
+| Ethan: `ethan/burn-box-grid` | Default MSD now runs his full commit `46c3df2` storage/ignition methods, copied into Gameplay's `ethan_material_grid.gd` as an upstream-aware subclass of the public base scaffold | No `onboarding/` files have changed. When Ethan's branch lands in main, change the scene's grid script to the **production** `material_grid.gd` and remove the temporary Gameplay snapshot |
 | Jackson: `sim/jackson/burn-box-render` | Translucent gameplay renderer imports his real material/fire colors and `cell_changed(x,y)` invalidation logic | Opaque whole-grid renderer obscures the Art stage; review/replace `TeamMaterialRenderer` with his eventual production renderer after the official merge |
 | Art | `GameplayPlayer.sprite_override`, `Sprite2D`, and `CollisionShape2D` | Set `sprite_override` per player in the inspector; leave it null to use the imported Art-team idle and run frames (blue P1 / recolored red P2). Adjust the collider and sprite offset for final art; one-way platform drop reads the actual collider height |
 | Gameplay | `GameplayPlayer`, `GameplayMotor`, `GameplayPlatformDrop`, `GameplaySparkEmitter`, `GameplayFireBridge` | Instantiate the complete prefab twice and point each `fire_bridge_path` at the bridge and the bridge `grid_path` at the actual Simulation node |
@@ -109,3 +109,14 @@ method bodies in `ethan_material_grid.gd` and Jackson's color/signal renderer
 in `team_material_renderer.gd`, but both are explicitly scoped to Gameplay
 until upstream Simulation is merged. Do not ship duplicate implementations of
 Ethan/Jackson's code after the final integration.
+
+## Automatic Ethan parent integration
+
+Ethan's original `material_grid.gd` declares `materials`, `burning`, and
+`burn_timers`. The Gameplay adapter must not repeat those inherited names:
+when upstream merges, the adapter detects them at runtime and delegates to
+`super`, leaving Ethan as the single storage owner. In the meantime it uses
+private `_fallback_*` arrays with identical ignition rules. A dedicated
+cross-branch test covers both configurations. Direct production-grid use
+still remains the intended final state; this compatibility prevents an
+intermediate team merge from breaking the editor.
