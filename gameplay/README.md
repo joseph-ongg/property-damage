@@ -73,6 +73,7 @@ Run an individual test from the repository root using Godot 4.7.2 Standard:
 | `gameplay_props_test.gd` | Scorching, embers, and repeated-hit protection |
 | `gameplay_layout_feedback_test.gd` | Context prompts, AC slowdown, and range exit |
 | `gameplay_render_layers_test.gd` | Fridge/AC art behind players; prompts and status overlays above |
+| `gameplay_restart_playtest.gd` | Actual pause, resume, and R-restart input flows without freed-viewport errors |
 | `gameplay_quest_test.gd` | Optional fantasy-level quest logic |
 | `gameplay_ui_test.gd`, `gameplay_guidance_test.gd` | Optional-level HUD, help, and pause controls |
 

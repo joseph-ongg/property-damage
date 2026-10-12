@@ -170,4 +170,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	var key: Key = event.physical_keycode if event.physical_keycode != 0 else event.keycode
 	if key == KEY_R and not get_tree().paused:
+		# Consume R before reload invalidates this scene's nodes.
+		get_viewport().set_input_as_handled()
 		get_tree().reload_current_scene()

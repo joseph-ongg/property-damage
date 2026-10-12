@@ -22,9 +22,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		set_paused(not is_paused)
 		get_viewport().set_input_as_handled()
 	elif is_paused and key == KEY_R:
+		# Reload frees this overlay immediately; mark the event handled first.
+		get_viewport().set_input_as_handled()
 		set_paused(false)
 		get_tree().reload_current_scene()
-		get_viewport().set_input_as_handled()
 
 
 func set_paused(paused: bool) -> void:
