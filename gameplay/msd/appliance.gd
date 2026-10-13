@@ -37,7 +37,7 @@ func interaction_point() -> Vector2:
 
 
 func can_interact(player: GameplayPlayer) -> bool:
-	return not charred and interaction_point().distance_to(player.global_position) <= interaction_radius
+	return not charred and is_instance_valid(player) and interaction_point().distance_to(player.global_position) <= interaction_radius and GameplayInteractionLOS.has_path(player, interaction_point())
 
 
 func interact(player: GameplayPlayer) -> bool:

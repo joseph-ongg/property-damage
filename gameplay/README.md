@@ -302,3 +302,29 @@ The optional Gameplay bookshelf/table/floor are still prototype geometry;
 this change does not imply the final shared arena has dynamic platforms.
 Local Godot runtime evidence is recorded in
 `presentation_media/screenshots/book_platform_support_before_after.png`.
+
+## 18. Interaction reachability across world obstacles
+
+Proximity alone previously allowed players to **pick up books or operate
+appliances through solid walls** if the target was within the 56px/78px
+interaction radius. This contradicted the optional Gameplay prop collision
+rules. The new shared `msd/interaction_los.gd` tests a ray from the player
+to the selected book or appliance control against solid world layer 1.
+It ignores **one-way furniture platforms**, preserving their original
+pass-through behavior from below and the existing two-player separation
+on player collision layer 2. All existing distance limits remain enforced.
+The controller and its hint UI already share `can_pick_up()` and
+`can_interact()`, so they now correctly exclude unreachable objects without
+maintaining a second target-selection implementation.
+
+`gameplay_interaction_occlusion_test.gd` reproduces blocked and unblocked
+book pickup using P1's actual E input, verifies throwing a retrieved book,
+blocks fridge interactions through a thin wall, validates removal of that
+wall, and checks reachable books under one-way platforms for both P1 and P2.
+It first reproduced the original problem with failing assertions, then
+passed after the shared reachability guard was installed. The optional
+`CAPTURE_INTERACTION_LOS` environment variable saves actual Godot runtime
+images of a temporary wall in an isolated test scene. The before/after
+comparison is at `presentation_media/screenshots/interaction_wall_before_after.png`
+in local project files. No Simulation source or other teammates' scenes
+were edited, and this remains an experimental gameplay interaction rule.

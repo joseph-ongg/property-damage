@@ -30,7 +30,7 @@ var _time: float = 0.0
 
 
 func can_pick_up(player: GameplayPlayer) -> bool:
-	return carried_by == null and not flying and global_position.distance_to(player.global_position) <= pickup_radius
+	return carried_by == null and not flying and is_instance_valid(player) and global_position.distance_to(player.global_position) <= pickup_radius and GameplayInteractionLOS.has_path(player, global_position)
 
 
 func pick_up(player: GameplayPlayer) -> bool:
