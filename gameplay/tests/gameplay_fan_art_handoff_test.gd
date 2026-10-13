@@ -46,6 +46,11 @@ func _run() -> void:
     check(fan.applies_to(p1) and p1.motor.environment_acceleration_x < -300.0, "left-facing runtime wind still affects an actual nearby character")
     fan.fan_facing_left = false
     await frames(3)
+    check(not fan.applies_to(p1) and is_zero_approx(p1.motor.environment_acceleration_x), "reverse direction removes wind from previously downwind player")
+    p1.global_position = Vector2(440, 478)
+    p1.velocity = Vector2.ZERO
+    p1.motor.reset()
+    await frames(3)
     check(fan.get_fan_force_x() > 400.0 and p1.motor.environment_acceleration_x > 300.0, "Level Design can reverse wind direction without changing player code")
     fan.fan_facing_left = true
     var custom := SpriteFrames.new()

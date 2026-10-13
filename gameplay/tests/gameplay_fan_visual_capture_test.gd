@@ -40,17 +40,30 @@ func _run() -> void:
     await frames(25)
     assert(fan.switched_on)
     await capture("on")
-    # Wind has blown P1 out of reach. Walk back before pressing the off key;
-    # the reach restriction is intended gameplay, not an interaction bug.
-    p1.global_position=Vector2(413,478)
+    # Capture both players on opposite sides of the SAME live fan while on.
+    # Wind and status must affect the left player only, despite P2 being
+    # closer to the rear motor casing on the right.
+    p1.global_position=Vector2(363,478)
+    p2.global_position=Vector2(445,478)
     p1.velocity=Vector2.ZERO
+    p2.velocity=Vector2.ZERO
     p1.motor.reset()
+    p2.motor.reset()
+    await frames(4)
+    assert(fan.applies_to(p1) and not fan.applies_to(p2))
+    assert(p1.motor.environment_acceleration_x < -100.0)
+    assert(is_zero_approx(p2.motor.environment_acceleration_x))
+    await capture("left_only")
+    # P2 stands behind the fan: no force, but its control is still usable.
+    assert(fan.can_interact(p2))
+    Input.action_press("p2_interact")
     await frames(3)
-    Input.action_press("p1_interact")
-    await frames(2)
-    Input.action_release("p1_interact")
-    await frames(6)
+    Input.action_release("p2_interact")
+    await frames(5)
     assert(not fan.switched_on)
+    assert(is_zero_approx(p1.motor.environment_acceleration_x))
+    assert(is_zero_approx(p2.motor.environment_acceleration_x))
+    await capture("off_by_p2")
     print("FAN_VISUAL_CAPTURE_SUMMARY success")
     game.queue_free()
     quit()

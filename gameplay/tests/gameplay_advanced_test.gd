@@ -130,7 +130,7 @@ func _run() -> void:
 	check(not fridge.switched_on, "P2 can close the fridge again")
 
 	var fan: GameplayAppliance = room.get_node("Appliances/FanDevice")
-	_reset_player(p1, Vector2(420, 381))
+	_reset_player(p1, Vector2(405, 381))
 	await frames(3)
 	check(fan.interact(p1), "fan can be switched on within range")
 	await frames(2)

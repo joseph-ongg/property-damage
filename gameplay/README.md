@@ -433,3 +433,27 @@ Simulation adapter can identify an instance using `simulation_id`, call
 direction in the prefab without rewriting player movement code. The complete
 boundaries, visual atlas, asset provenance and tests are documented under
 `gameplay/props/fan/README.md`.
+
+
+## 22. Fan visual revision and one-sided wind geometry
+
+The directional fan's original circular `applies_to()` area could accelerate
+players standing **behind the fan**, even though its drawn air stream pointed
+left. The fan now checks local coordinates using `fan_wind_contains()` against
+an explicit left-only (or mirrored right-only) rectangle anchored at the fan
+origin: x is between `-effect_radius` and 0 when left-facing, while y is
+between `-fan_wind_height_above` and `fan_wind_height_below`. The default
+65px above / 112px below includes the existing floor-level interaction and
+excludes remote floors or ceilings. The nearby P2 standing behind the fan
+remains outside wind physics and has no WIND status; the existing E/Shift
+interaction radius is **unchanged**. The AC retains its circular chill zone.
+Both facing states and the exact +/-1px origin boundaries are regression
+tested in `gameplay_fan_direction_test.gd`.
+
+The procedural fan was redrawn in three captured iterations: narrower side
+motor, warmer grounded brass/wood base, diagonally leaning cage and rotor
+with visibly separated rear, blades and near grille. No image-generation tool
+or internet art was used. Art can still override the textures and animation
+at the same 48x56 registration via the Inspector, without changing Gameplay
+physics, Simulation or other teams' assets. See
+`gameplay/props/fan/README.md` for the current interface contract.

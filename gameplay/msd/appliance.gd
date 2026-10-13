@@ -36,6 +36,11 @@ const MONITOR_RENDER_RECT := Rect2(-25, -32, 50, 39)
 @export var interaction_radius: float = 78.0
 @export var effect_radius: float = 130.0
 @export var wind_acceleration: float = -420.0
+# The fan's air stream is a one-sided LOCAL rectangle anchored at its pivot.
+# Its x range is [-effect_radius, 0] when left-facing; the area behind the
+# fan NEVER applies suction. These limits include floor-level players.
+@export_range(1.0, 200.0, 1.0) var fan_wind_height_above: float = 65.0
+@export_range(1.0, 200.0, 1.0) var fan_wind_height_below: float = 112.0
 # Team handoff: scene placement/Art assets are Inspector overrides; the
 # Simulation team may use the stable id and explicit power setter below.
 # No Simulation storage or fire/damage rules are implemented here.
@@ -92,7 +97,8 @@ func set_fan_power(powered: bool, source_player_index: int = -1) -> void:
 func fan_runtime_state() -> Dictionary:
 	return {"id": simulation_id, "powered": switched_on,
 		"operational": not charred, "facing_left": fan_facing_left,
-		"effect_radius": effect_radius, "force_x": get_fan_force_x()}
+		"effect_radius": effect_radius, "force_x": get_fan_force_x(),
+		"wind_local_rect": fan_wind_local_rect()}
 
 
 func get_fan_force_x() -> float:
@@ -109,8 +115,30 @@ func receive_spark(target: Vector2, player_index: int) -> bool:
 	return true
 
 
+# Expose the spatial contract to Level Design and a future Simulation adapter.
+# The rectangle is in FAN LOCAL coordinates and flips only along x.
+func fan_wind_local_rect() -> Rect2:
+	var min_x := -effect_radius if fan_facing_left else 0.0
+	return Rect2(min_x, -fan_wind_height_above, effect_radius,
+		fan_wind_height_above + fan_wind_height_below)
+
+
+func fan_wind_contains(world_point: Vector2) -> bool:
+	var p := to_local(world_point)
+	if p.y < -fan_wind_height_above or p.y > fan_wind_height_below:
+		return false
+	if fan_facing_left:
+		return p.x <= 0.0 and p.x >= -effect_radius
+	return p.x >= 0.0 and p.x <= effect_radius
+
+
 func applies_to(player: GameplayPlayer) -> bool:
-	return switched_on and not charred and global_position.distance_to(player.global_position) <= effect_radius
+	if not switched_on or charred or not is_instance_valid(player):
+		return false
+	if device == Device.FAN:
+		return fan_wind_contains(player.global_position)
+	# The air conditioner keeps its original radial chill zone.
+	return global_position.distance_to(player.global_position) <= effect_radius
 
 
 func device_name() -> String:
