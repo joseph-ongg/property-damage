@@ -367,3 +367,44 @@ use an appropriate Godot dynamic-platform body/motion contract (e.g.
 Optional actual Godot screenshot evidence (temporary collision markers only)
 is kept locally in `presentation_media/screenshots/crush_speed_actual_review.png`.
 No Art Team sprites, Simulation storage, or other teams' scenes are modified.
+
+## 20. Simulated AnimatableBody2D platform integration
+
+`tests/gameplay_animatable_platform_test.gd` is a **simulated integration
+handoff**, not the final Property Damage arena. It instantiates the actual
+Gameplay main scene, existing GameplayPlayer and GameplayBurnableProp, then
+adds temporary layer-1 `AnimatableBody2D` and solid wall/ceiling collision
+bodies at runtime. The dynamic lift is physically translated each frame.
+Godot runs the real CharacterBody2D `move_and_slide()` and the book's current
+runtime collision queries; no mocked collision results are used.
+
+The scenario covers stationary boarding, horizontal carriage of player and
+book, a rising lift, wall pressure, ceiling pressure, and lost support.
+A previous static-platform test had missed an **actual bug:** the book could
+be carried through a ceiling by a rising platform because a successful roof
+hit was followed by another snap to the supporting platform. The book now
+**drops that support immediately at roof impact**, resumes gravity, and
+never crosses the roof in the test's per-physics-frame checks. The player
+rides the moving lift and is stopped by solid world geometry; in the tested
+roof squeeze, it safely loses the lift and settles below. It is **not** a
+full dynamic elevator/crush gameplay system and does not implement damage.
+
+To retest in Godot from the project root (adapt the Godot binary path):
+
+```sh
+../Godot.app/Contents/MacOS/Godot --headless --path . \
+  --script res://gameplay/tests/gameplay_animatable_platform_test.gd
+```
+
+To capture the *actual runtime* viewport for all four phases, run Godot
+without `--headless` and set `CAPTURE_ANIM_PLATFORM` to an absolute output
+file prefix. Temporary colored platform/wall/roof markers are inserted only
+by the test script when capturing screenshots. Screenshots generated in the
+local working copy are combined at
+`presentation_media/screenshots/animated_platform_simulated_review.png`.
+
+The team's eventual arena path, body types, moving-platform collision layers,
+velocity and animation methods have not been established by this isolated
+simulation. Re-run an equivalent test in that exact final arena once it is
+merged. This change leaves upstream scene files, material grids, Art sources,
+real level furniture and `project.godot` untouched.

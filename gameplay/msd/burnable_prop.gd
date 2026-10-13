@@ -121,9 +121,14 @@ func _step_resting(delta: float) -> void:
 		if moved.y < 0.0:
 			var roof := _vertical_hit(global_position, moved.y, false)
 			if not roof.is_empty():
-				# Ceiling wins over upward-moving support; if the platform keeps
-				# going, the book loses its support and falls next physics step.
+				# The ceiling takes priority over a rising lift. Stop following
+				# the support immediately: snapping back to its top after this
+				# would drag the book *through* the roof next physics frame.
 				global_position.y = roof.position.y + 13.5
+				flight_velocity = Vector2.ZERO
+				_reset_resting()
+				flying = true
+				return
 			else:
 				global_position.y += moved.y
 		else:
