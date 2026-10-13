@@ -412,3 +412,24 @@ real level furniture and `project.godot` untouched.
 ## Clock and room depth regression
 
 The `gameplay_room_depth_test.gd` suite validates the repaired clock tile and 960x540 composition, nearest-neighbor render ordering, independent alpha plates and state-responsive lighting for computer and AC. Regenerate with `python3 gameplay/msd/art/generate_room.py`; the Art Team's source crops remain unchanged.
+
+## 21. Angled 3/4-view pixel desk fan
+
+The existing `Appliances/FanDevice` now instantiates the independent
+`gameplay/props/fan/fan_device.tscn` prefab with **layered, left-facing 48x56
+pixel art**, six animated rotor frames, and a separate near grille. Source
+PNG generation (`generate_fan.py`) uses only local Pillow and produces no
+AI artwork. The visuals preserve the fan's world position, tabletop collision,
+player input bindings, interaction point and leftward environmental force.
+The AC is still the slowdown device; the fan still pushes nearby players.
+
+The prefab exposes Art-Team-replaceable `fan_rear_override`,
+`fan_front_override`, `fan_blade_override` (`SpriteFrames` animation `spin`),
+`fan_sprite_offset` and `fan_animation_fps` via the Inspector. The optional
+Simulation adapter can identify an instance using `simulation_id`, call
+`set_fan_power()` idempotently, observe `fan_runtime_state()` and listen to
+`state_changed`; **no** upstream Simulation/MaterialGrid files are modified.
+`fan_facing_left` and `get_fan_force_x()` allow Level Design to change wind
+direction in the prefab without rewriting player movement code. The complete
+boundaries, visual atlas, asset provenance and tests are documented under
+`gameplay/props/fan/README.md`.

@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://gameplay/integration/team_material_renderer.gd" id="13_grid_render"]
 [ext_resource type="Script" path="res://gameplay/msd/room_depth_layer.gd" id="14_depth_layer"]
 [ext_resource type="Script" path="res://gameplay/msd/room_lighting_fx.gd" id="15_fx"]
+[ext_resource type="PackedScene" path="res://gameplay/props/fan/fan_device.tscn" id="16_fan"]
 
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
@@ -181,10 +182,8 @@ position = Vector2(780, 472)
 script = ExtResource("8_appliance")
 device = 0
 
-[node name="FanDevice" type="Node2D" parent="Appliances"]
+[node name="FanDevice" parent="Appliances" instance=ExtResource("16_fan")]
 position = Vector2(413, 389)
-script = ExtResource("8_appliance")
-device = 1
 
 [node name="ACDevice" type="Node2D" parent="Appliances"]
 position = Vector2(648, 469)

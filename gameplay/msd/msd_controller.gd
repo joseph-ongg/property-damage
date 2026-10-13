@@ -37,7 +37,7 @@ func _physics_process(_delta: float) -> void:
 			continue
 		var fan: GameplayAppliance = $Appliances/FanDevice
 		if fan.applies_to(player):
-			player.motor.environment_acceleration_x += fan.wind_acceleration
+			player.motor.environment_acceleration_x += fan.get_fan_force_x()
 		var ac: GameplayAppliance = $Appliances/ACDevice
 		if ac.applies_to(player):
 			player.motor.speed_scale = ac.cold_speed_scale

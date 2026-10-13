@@ -83,3 +83,7 @@ visibility and unchanged Simulation/physics contracts.
 ## Complete wall clock and room depth (October 13)
 
 The Art Team source `team_clock.png` is a crop whose bezel meets the right image boundary. That credited source is unchanged. `generate_room.py` composites a separate transparent `clock_complete.png` with a full bezel, 12 ticks, hands, glass glint and cast shadow at the original position. The procedural 2D room also gains hand-pixelled contact shadows, lighting and foreground plates. Optional computer/AC glow PNGs are triggered by the actual appliance state through `room_lighting_fx.gd`. All are independent of collision and Ethan's material grid. The visual language is HD-2D-inspired, not imported artwork from any commercial game.
+
+## Gameplay left-facing desk fan (October 13, 2026)
+
+The angled desk fan in `gameplay/props/fan/sprites/` is **new original procedural pixel art** drawn by `gameplay/props/fan/generate_fan.py` with Pillow on the local Mac. No AI image generator, remote download, or reused copyrighted game art was used. Layered rear housing/stand, six rotor frames and front perspective grille are native 48x56 RGBA textures. They are distinct from the Art Team's PPT originals and can be overridden separately by that team. See `gameplay/props/fan/README.md` for exact replacement and state API contracts.
