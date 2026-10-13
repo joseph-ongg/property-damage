@@ -328,3 +328,42 @@ images of a temporary wall in an isolated test scene. The before/after
 comparison is at `presentation_media/screenshots/interaction_wall_before_after.png`
 in local project files. No Simulation source or other teammates' scenes
 were edited, and this remains an experimental gameplay interaction rule.
+
+## 19. Moving-platform crush and extreme thrown-book collision
+
+The optional book prop previously followed a moving support by directly
+adding the support body's displacement to its global position. A horizontal
+platform motion could therefore **embed the book inside a layer-1 wall**.
+Similarly, the old single-step book path could tunnel diagonally through
+thin walls or vertically through a solid ceiling at artificially high debug
+velocities. `msd/burnable_prop.gd` now sweeps its leading edge against solid
+geometry while being carried, including upward motion under a ceiling. The
+free-flying book resolves its displacement in bounded 4px substeps with
+horizontal world-wall contact, downward-only landings on one-way platforms,
+and upward collision against fully solid ceilings. A hit consumes the
+remaining movement in the corresponding axis for that frame, so further
+substeps do not re-enter the obstacle. Normal throw impulses and UI behavior
+are unchanged; this is local prototype collision code, not a new Simulation
+mechanic.
+
+`tests/gameplay_crush_speed_test.gd` uses *real* runtime layer-1 collision
+shapes. It reproduces wall embedding by translating the book's supported
+platform, tests a player near a wall on a moving one-way platform, and
+checks temporary roof obstruction. It also tests debug throws at 12,000px/s
+(diagonal), 16,000px/s (upward into a roof), 24,000px/s (thin wall),
+13,000px/s (downward landing) and 9,000px/s (upward pass-through). The old
+wall, diagonal and roof bugs were demonstrated by failing tests before the
+fix. For tests which teleport colliders directly, allow physics-server
+synchronization before probing; immediate queries may see the old transform.
+
+**Remaining integration boundary:** a `CharacterBody2D` loses support and
+falls safely to the arena floor in the tested scenario where a manually
+translated *one-way StaticBody2D* rises into insufficient ceiling space.
+This is not a finished passenger-carrying elevator or a general-purpose
+crush-resolution system. Moving platforms in the final team scene should
+use an appropriate Godot dynamic-platform body/motion contract (e.g.
+`AnimatableBody2D`) and be separately tested after integration.
+
+Optional actual Godot screenshot evidence (temporary collision markers only)
+is kept locally in `presentation_media/screenshots/crush_speed_actual_review.png`.
+No Art Team sprites, Simulation storage, or other teams' scenes are modified.

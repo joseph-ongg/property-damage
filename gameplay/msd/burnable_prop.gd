@@ -99,97 +99,131 @@ func _bottom_support() -> Dictionary:
 
 
 func _step_resting(delta: float) -> void:
-	# A moving StaticBody2D does not wake a Node2D on its own. Follow the
-	# tracked body transform, then ask real collision whether support remains.
+	# Carried by a moving StaticBody2D, but NEVER blindly teleport through
+	# another solid collider. This also handles an elevator reaching a roof.
+	var moved := Vector2.ZERO
 	if is_instance_valid(_support):
-		global_position += _support.global_position - _support_last_position
+		moved = _support.global_position - _support_last_position
 		_support_last_position = _support.global_position
 	else:
 		_support = null
 	if absf(_rest_slide_speed) > 0.01:
-		var dx: float = _rest_slide_speed * delta
-		var side: float = signf(dx) * minf(width * 0.45, 14.0)
-		var collision := _world_ray(global_position + Vector2(side, 0), global_position + Vector2(side + dx, 0), true)
-		if not collision.is_empty() and collision.normal.x * signf(dx) < -0.5:
-			global_position.x = collision.position.x - side - signf(dx) * 0.5
-			_rest_slide_speed = 0.0
-		else:
-			global_position.x = clampf(global_position.x + dx, 24.0, 936.0)
+		moved.x += _rest_slide_speed * delta
 		_rest_slide_speed = move_toward(_rest_slide_speed, 0.0, 420.0 * delta)
+	if absf(moved.x) > 0.001:
+		var hit := _side_hit(global_position, moved.x, 0.0)
+		if hit.is_empty():
+			global_position.x = clampf(global_position.x + moved.x, 24.0, 936.0)
+		else:
+			global_position.x = hit.position.x - signf(moved.x) * (minf(width * 0.45, 14.0) + 0.5)
+			_rest_slide_speed = 0.0
+	if absf(moved.y) > 0.001:
+		if moved.y < 0.0:
+			var roof := _vertical_hit(global_position, moved.y, false)
+			if not roof.is_empty():
+				# Ceiling wins over upward-moving support; if the platform keeps
+				# going, the book loses its support and falls next physics step.
+				global_position.y = roof.position.y + 13.5
+			else:
+				global_position.y += moved.y
+		else:
+			global_position.y += moved.y
 	var contact: Dictionary = _bottom_support()
 	if not contact.is_empty():
 		_support = contact.collider as CollisionObject2D
 		_support_last_position = _support.global_position if is_instance_valid(_support) else Vector2.ZERO
-		# Stay positioned against the collision surface, even if its vertical
-		# motion differs by a tiny subpixel rounding amount.
 		global_position.y = contact.position.y - 13.0
 		return
-	# The physical body was removed/disabled or the book reached the ledge.
-	# Resume gravity instead of remaining suspended in its previous position.
+	# Stop following a vanished support and re-enable gravity. No arbitrary
+	# impulse from a teleporting platform, which could cause another tunnel.
 	flight_velocity = Vector2(_rest_slide_speed, 0.0)
-	_support = null
-	_watch_resting = false
-	_rest_slide_speed = 0.0
+	_reset_resting()
 	flying = true
 
 
+func _side_hit(at: Vector2, displacement: float, y_shift: float) -> Dictionary:
+	if absf(displacement) < 0.0001:
+		return {}
+	var direction := signf(displacement)
+	var edge: float = direction * minf(width * 0.45, 14.0)
+	var closest: Dictionary = {}
+	for dy in [-8.0, 0.0, 10.0]:
+		# Check current and destination-height envelopes, to catch diagonal
+		# impacts where a ray at the starting height would pass above a wall.
+		for vertical_shift in [0.0, y_shift]:
+			var origin := at + Vector2(edge, dy + vertical_shift)
+			var hit := _world_ray(origin, origin + Vector2(displacement, 0.0), true)
+			if not hit.is_empty() and hit.normal.x * direction < -0.5:
+				if closest.is_empty() or absf(hit.position.x - origin.x) < absf(closest.position.x - origin.x):
+					closest = hit
+	return closest
+
+
+func _vertical_hit(at: Vector2, displacement: float, downward: bool) -> Dictionary:
+	if absf(displacement) < 0.0001:
+		return {}
+	var half_width := minf(width * 0.45, 14.0)
+	var edge_y := 13.0 if downward else -13.0
+	var closest: Dictionary = {}
+	for dx in [-half_width * 0.55, 0.0, half_width * 0.55]:
+		var origin := at + Vector2(dx, edge_y)
+		var hit := _world_ray(origin, origin + Vector2(0.0, displacement), not downward)
+		if hit.is_empty():
+			continue
+		if (downward and hit.normal.y < -0.5) or (not downward and hit.normal.y > 0.5):
+			if closest.is_empty() or absf(hit.position.y-origin.y) < absf(closest.position.y-origin.y):
+				closest = hit
+	return closest
+
+
 func _step_flight(delta: float) -> void:
-	# The prop is painted, not a CharacterBody2D. Resolve swept horizontal
-	# world collisions separately from downward-only platform landing.
-	# A sideways wall hit must never be interpreted as landing in mid-air.
-	var start: Vector2 = global_position
-	var step_x: float = flight_velocity.x * delta
-	var step_y: float = flight_velocity.y * delta
+	# A single horizontal ray misses a wall when a fast diagonal book starts
+	# above it, and a book shot at a roof used to pass straight through.
+	# Sub-step the *original* displacement, sampling swept leading edges.
+	# Ordinary 340px/s throws cost only 1-2 steps; large debug velocities
+	# still get bounded continuous coverage rather than tunnelling.
+	var motion := flight_velocity * delta
 	flight_velocity.y += drop_gravity * delta
-	var proposed := start + Vector2(step_x, step_y)
-	var half_width: float = minf(width * 0.45, 14.0)
-	if absf(step_x) > 0.01:
-		var horizontal_direction: float = signf(step_x)
-		var leading_x: float = horizontal_direction * half_width
-		var found_side: Dictionary = {}
-		# Test at three heights to catch thin solid walls without being tricked
-		# by a one-way shelf's side collider (which players pass through).
-		for vertical_offset in [-8.0, 0.0, 10.0]:
-			var origin := start + Vector2(leading_x, vertical_offset)
-			var finish := origin + Vector2(step_x, 0.0)
-			var hit := _world_ray(origin, finish, true)
-			if not hit.is_empty() and hit.normal.x * horizontal_direction < -0.5:
-				if found_side.is_empty() or absf(hit.position.x - origin.x) < absf(found_side.position.x - origin.x):
-					found_side = hit
-		if not found_side.is_empty():
-			proposed.x = found_side.position.x - leading_x - horizontal_direction * 0.5
+	var steps := clampi(int(ceilf(maxf(absf(motion.x), absf(motion.y)) / 4.0)), 1, 256)
+	var part := motion / float(steps)
+	for _step in steps:
+		var at := global_position
+		var candidate := at + part
+		var lateral := _side_hit(at, part.x, part.y)
+		if not lateral.is_empty():
+			candidate.x = lateral.position.x - signf(part.x) * (minf(width * 0.45, 14.0) + 0.5)
 			flight_velocity.x = -flight_velocity.x * 0.25
 			if absf(flight_velocity.x) < 50.0:
 				flight_velocity.x = 0.0
-	# One-way platforms must be crossed upward; only downward movement and
-	# an upward-facing collision normal can create a stable landing.
-	if step_y >= 0.0:
-		var best_floor: Dictionary = {}
-		for offset in [-half_width * 0.55, 0.0, half_width * 0.55]:
-			var from := Vector2(proposed.x + offset, start.y + 13.0)
-			var to := Vector2(proposed.x + offset, proposed.y + 13.0)
-			var hit := _world_ray(from, to, false)
-			if not hit.is_empty() and hit.normal.y < -0.5 and hit.position.y >= from.y - 0.5:
-				if best_floor.is_empty() or hit.position.y < best_floor.position.y:
-					best_floor = hit
-		if not best_floor.is_empty():
-			proposed.y = best_floor.position.y - 13.0
-			_settle(best_floor.collider as CollisionObject2D, flight_velocity.x)
-	# Gameplay demo room floor top is 498, so painted books rest at y485.
-	# Retain this fallback for detached books if a collision frame is missed.
-	if proposed.y >= 485.0:
-		proposed.y = 485.0
-		if flying:
+			# A single impact consumes the remaining sideways distance from
+			# this frame. Otherwise later substeps reuse the old positive dx,
+			# start on the wall surface, and can tunnel through it.
+			part.x = 0.0
+		var vertical := _vertical_hit(Vector2(candidate.x, at.y), part.y, part.y >= 0.0)
+		if not vertical.is_empty():
+			if part.y >= 0.0:
+				candidate.y = vertical.position.y - 13.0
+				global_position = candidate
+				_settle(vertical.collider as CollisionObject2D, flight_velocity.x)
+				break
+			candidate.y = vertical.position.y + 13.5
+			flight_velocity.y = 0.0
+			part.y = 0.0
+		global_position = candidate
+		# Retain the demo-specific safe bottom bound. Other team's final arena
+		# may replace this clamp with its own actual floor collider.
+		if global_position.y >= 485.0:
+			global_position.y = 485.0
 			_settle(null, flight_velocity.x)
-	if proposed.x < 24.0:
-		proposed.x = 24.0
-		if flight_velocity.x < 0.0:
-			flight_velocity.x *= -0.25
-	elif proposed.x > 936.0:
-		proposed.x = 936.0
-		if flight_velocity.x > 0.0:
-			flight_velocity.x *= -0.25
-	global_position = proposed
+			break
+		if global_position.x < 24.0:
+			global_position.x = 24.0
+			if flight_velocity.x < 0.0:
+				flight_velocity.x *= -0.25
+		elif global_position.x > 936.0:
+			global_position.x = 936.0
+			if flight_velocity.x > 0.0:
+				flight_velocity.x *= -0.25
 
 
 func _world_ray(origin: Vector2, finish: Vector2, ignore_one_way: bool) -> Dictionary:
