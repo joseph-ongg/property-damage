@@ -130,33 +130,44 @@ for base_x in (75,120):
     art('shelf',(base_x,173,45,60))
 # Keep the plant window below the persistent top HUD, preserve 134:103 ratio.
 art('window',(41,40,81,62))
-# The PPT collage clips off the right side of its clock (team_clock.png has
-# opaque pixels right through its last column). NEVER edit the Art Team file.
-# Reconstruct a complete hand-pixelled clock at the same on-wall position.
-def whole_clock(cx=417, cy=70, radius=20):
-    # A small cast shadow makes the object project from the wall.
-    d.ellipse((cx-radius+2,cy-radius+4,cx+radius+3,cy+radius+5),fill='#252e38')
-    d.ellipse((cx-radius-1,cy-radius-1,cx+radius+1,cy+radius+1),fill='#282b32')
-    d.ellipse((cx-radius+1,cy-radius+1,cx+radius-1,cy+radius-1),fill='#8a6856')
-    d.ellipse((cx-radius+3,cy-radius+2,cx+radius-3,cy+radius-3),fill='#d7c6ad')
-    d.ellipse((cx-radius+5,cy-radius+4,cx+radius-5,cy+radius-5),fill='#f2e8d6')
-    d.arc((cx-radius+2,cy-radius+2,cx+radius-2,cy+radius-2),200,320,fill='#f9dfb7',width=2)
-    for hour in range(12):
-        theta=math.radians(hour*30-90)
-        r1=radius-8 if hour%3==0 else radius-7
-        r2=radius-5
-        x1=cx+round(math.cos(theta)*r1)
-        y1=cy+round(math.sin(theta)*r1)
-        x2=cx+round(math.cos(theta)*r2)
-        y2=cy+round(math.sin(theta)*r2)
-        d.line((x1,y1,x2,y2),fill='#49404a',width=2 if hour%3==0 else 1)
-    # Two independent hands, centered hub, and short highlight. No motion
-    # dependency: the clock remains a faithful pixel prop on a static map.
-    d.line((cx,cy,cx+10,cy-9),fill='#413843',width=2)
-    d.line((cx,cy,cx-2,cy+12),fill='#413843',width=3)
-    d.rectangle((cx-2,cy-2,cx+1,cy+1),fill='#b97c50')
-    d.point((cx,cy),fill='#ffe0a4')
-whole_clock()
+# The Art Team PPT collage crops its wall clock through the outer rim.
+# Keep team_clock.png as an untouched source, but paint a COMPLETE, reusable
+# transparent clock tile with matched radius, a dark side extrusion, a
+# two-tone brass bevel, 12 ticks, hand shadows and restrained glass sheen.
+# Separating it from the wall prevents a future collage import from
+# silently cropping the right edge again.
+clock=Image.new('RGBA',(64,64),(0,0,0,0))
+cd=ImageDraw.Draw(clock)
+cx,cy,radius=32,32,20
+cd.ellipse((cx-radius+3,cy-radius+4,cx+radius+4,cy+radius+5),fill='#24303b')
+cd.ellipse((cx-radius-2,cy-radius-2,cx+radius+2,cy+radius+2),fill='#292d36')
+cd.ellipse((cx-radius,cy-radius,cx+radius,cy+radius),fill='#9d795e')
+cd.ellipse((cx-radius+2,cy-radius+2,cx+radius-2,cy+radius-2),fill='#cfb38b')
+cd.ellipse((cx-radius+4,cy-radius+4,cx+radius-4,cy+radius-4),fill='#f4e5c9')
+# One-pixel highlight on the upper bezel and lower-right bevel shadow.
+cd.arc((cx-radius,cy-radius,cx+radius,cy+radius),185,318,fill='#f7dba8',width=2)
+cd.arc((cx-radius+1,cy-radius+1,cx+radius-1,cy+radius-1),-50,115,fill='#604b4b',width=2)
+for hour in range(12):
+    theta=math.radians(hour*30-90)
+    inner=radius-9 if hour%3==0 else radius-8
+    outer=radius-5
+    xy=(cx+round(math.cos(theta)*inner),cy+round(math.sin(theta)*inner),
+        cx+round(math.cos(theta)*outer),cy+round(math.sin(theta)*outer))
+    cd.line(xy,fill='#49404a',width=2 if hour%3==0 else 1)
+# Slight offset beneath the hands acts as an unblurred contact shadow.
+cd.line((cx+1,cy+1,cx+11,cy-8),fill='#9d8d75',width=3)
+cd.line((cx+1,cy+1,cx-1,cy+13),fill='#9d8d75',width=4)
+cd.line((cx,cy,cx+10,cy-9),fill='#3e3b43',width=2)
+cd.line((cx,cy,cx-2,cy+12),fill='#3e3b43',width=3)
+cd.rectangle((cx-2,cy-2,cx+1,cy+1),fill='#ae7354')
+cd.point((cx,cy),fill='#ffe4ac')
+# Glint rests on the glass without hiding the clock hands.
+cd.line((cx-10,cy-12,cx-4,cy-16),fill='#ffffff',width=1)
+cd.line((cx-12,cy-9,cx-10,cy-11),fill='#f7eedc',width=1)
+clock_bounds=clock.getchannel('A').getbbox()
+assert clock_bounds is not None and clock_bounds[0]>0 and clock_bounds[2]<64, clock_bounds
+# Previous clock center: world (834,140); both sides remain fully on wall.
+im.alpha_composite(clock,(417-32,70-32))
 # Add platform edge bright pixels above the furniture silhouettes.
 d=ImageDraw.Draw(im)
 for a,b,y in [(75,166,169),(188,298,202),(366,414,172)]:
@@ -170,11 +181,30 @@ for a,b in [(15,74),(76,165),(183,302),(361,419)]:
 # Local co-op spawn brackets; P1 blue, P2 red (match Character design).
 for x,c in ((40,'#4d9af2'),(442,'#f05e61')):
     box((x-17,247,x-10,248),c);box((x+10,247,x+17,248),c)
+# Richer hand-pixelled floor/prop grounding. A narrow dark foot line under
+# each anchored item and 1-pixel warm bounce on the floor adds depth without
+# changing the actual world collision (y=498).
+for left,right in ((18,71),(75,166),(185,301),(363,416)):
+    line((left+4,249,right-2,249),'#33333c')
+    line((left+9,252,right-5,252),'#aa8a70')
+# The lower wall is recessed into the baseboard; keep the 1px highlight
+# inside the trim instead of stretching pixel art.
+line((9,243,471,243),'#3b434d')
+line((9,244,471,244),'#9c8570')
+
 # Build separate transparent *depth layers* rather than baking all light
 # into the same opaque room. This leaves collision, players and interface
 # untouched and permits tuning the "HD-2D inspired" atmosphere independently.
 lighting=Image.new('RGBA',(W,H),(0,0,0,0))
 ld=ImageDraw.Draw(lighting)
+# Cast-shadows from furniture, behind the sprites because this plate
+# sits below appliance/player z-layers. Each is stair-stepped at half-res.
+for x1,x2,top,bottom in ((17,72,228,247),(75,165,229,249),
+                         (185,301,215,250),(365,415,221,249)):
+    ld.polygon([(x1+1,top),(x2+3,top+3),(x2+12,bottom),
+                (x1+12,bottom)],fill=(18,20,33,44))
+    ld.line((x1+7,bottom,x2+8,bottom),fill=(14,17,26,60),width=2)
+
 # Stepped lamp pools and stained-glass moonlight; no blur or filtering.
 for cx,cy,rx,ry,r,g,b in [(79,104,73,120,116,165,218),
                           (247,87,88,67,239,186,116),
@@ -212,10 +242,29 @@ for root_x,sgn in ((7,1),(473,-1)):
 fd.rectangle((182,247,301,249),fill=(40,31,43,150))
 fd.line((185,247,300,247),fill=(169,119,90,125),width=1)
 
+# Appliance lighting is a second pair of transparent environment plates.
+# The Godot script switches them on only when the actual AC / computer state
+# changes; pixel artists can later replace either plate independently.
+def device_light(cx,cy,rx,ry,ink):
+    plate=Image.new('RGBA',(W,H),(0,0,0,0))
+    glow=ImageDraw.Draw(plate)
+    for level in range(6,0,-1):
+        t=level/6
+        opacity=5 if level>4 else (11 if level>2 else 20)
+        glow.ellipse((int(cx-rx*t),int(cy-ry*t),
+                      int(cx+rx*t),int(cy+ry*t)),fill=(*ink,opacity))
+    return plate
+computer_glow=device_light(276,188,64,54,(83,202,222))
+ac_glow=device_light(324,170,78,70,(117,196,235))
+
 for filename,source in [
+    ('clock_complete.png',clock),
+    ('living_room_computer_glow.png',computer_glow),
+    ('living_room_ac_glow.png',ac_glow),
     ('living_room_pixel.png',im),
     ('living_room_lighting.png',lighting),
     ('living_room_foreground.png',front),
 ]:
-    source.resize((960,540),Image.Resampling.NEAREST).save(D/filename,optimize=True)
+    output_size=(128,128) if filename == "clock_complete.png" else (960,540)
+    source.resize(output_size,Image.Resampling.NEAREST).save(D/filename,optimize=True)
 print('Art Team room + repaired clock + background/light/foreground depth layers', (960,540))

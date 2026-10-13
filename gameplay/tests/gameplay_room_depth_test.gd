@@ -1,59 +1,59 @@
-## Art-team clock repair and Octopath-inspired 2D depth are visual only.
-## Test color symmetry, transparent passes and unchanged real gameplay layers.
+## Visual regression for the repaired wall clock and independent HD-2D layers.
+## No image generation service or edits to the Art Team originals.
 extends SceneTree
 
 var failures: Array[String] = []
-func _initialize() -> void: call_deferred("_run")
-func check(ok: bool, detail: String) -> void:
-	if ok: print("PASS: ", detail)
+func _initialize() -> void:
+	call_deferred("_run")
+
+func check(condition: bool, what: String) -> void:
+	if condition:
+		print("PASS: ", what)
 	else:
-		failures.append(detail)
-		push_error("FAIL: " + detail)
+		failures.append(what)
+		push_error("FAIL: " + what)
 
 func _run() -> void:
+	var clock: Texture2D = load("res://gameplay/msd/art/clock_complete.png")
+	var clock_image: Image = clock.get_image()
+	check(clock_image.get_size() == Vector2i(128, 128), "complete pixel clock has its own 128x128 RGBA tile")
+	var bbox: Rect2i = clock_image.get_used_rect()
+	check(bbox.position.x > 0 and bbox.position.y > 0 and bbox.end.x < 128 and bbox.end.y < 128, "full round clock has clear margins on all four sides")
+	check(clock_image.get_pixel(24, 64).a > 0.5 and clock_image.get_pixel(104, 64).a > 0.5, "left and right brass outer rim both exist")
+	check(clock_image.get_pixel(64, 23).a > 0.5 and clock_image.get_pixel(64, 104).a > 0.5, "top and bottom rim remain intact")
+	var room_image: Image = (load("res://gameplay/msd/art/living_room_pixel.png") as Texture2D).get_image()
+	check(room_image.get_size() == Vector2i(960, 540), "background retains 960x540 physical world dimensions")
+	var clock_offset := Vector2i(770, 76)
+	check(room_image.get_pixel(clock_offset.x + 24, clock_offset.y + 64).a > 0.5 and room_image.get_pixel(clock_offset.x + 104, clock_offset.y + 64).a > 0.5, "unclipped clock is composited at the original wall position")
+	for path in ["living_room_lighting.png","living_room_foreground.png","living_room_ac_glow.png","living_room_computer_glow.png"]:
+		var art: Texture2D = load("res://gameplay/msd/art/" + path)
+		check(art.get_size() == Vector2(960,540), path + " is scene-aligned")
+		check(art.get_image().get_pixel(480, 50).a < 0.5, path + " keeps clear areas transparent")
 	var game: Node2D = (load("res://gameplay/playtest_main.tscn") as PackedScene).instantiate()
 	root.add_child(game)
-	for _i in 6: await physics_frame
-	var arena: Node2D = game.get_node("GameplayMSD")
-	var background: Node2D = arena.get_node("RoomVisuals")
-	var lighting: Node2D = arena.get_node("RoomLighting")
-	var front: Node2D = arena.get_node("RoomForeground")
-	var p1: GameplayPlayer = arena.get_node("Player1")
-	var material: Node2D = arena.get_node("TeamMaterialRenderer")
-	var room_img := preload("res://gameplay/msd/art/living_room_pixel.png").get_image()
-	var light_img := preload("res://gameplay/msd/art/living_room_lighting.png").get_image()
-	var front_img := preload("res://gameplay/msd/art/living_room_foreground.png").get_image()
-	check(room_img.get_size() == Vector2i(960,540), "base 960x540 room stays on original viewport")
-	check(light_img.get_size() == Vector2i(960,540) and front_img.get_size() == Vector2i(960,540), "two new pixel depth plates retain viewport dimensions")
-	check(background.z_index < material.z_index and material.z_index < lighting.z_index and lighting.z_index < p1.z_index and p1.z_index < front.z_index,
-		"wall, material, atmosphere, actor and corner foreground sort in depth order")
-	check(lighting.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST and front.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST,
-		"depth textures use nearest-neighbor pixel filtering")
-	check(not (lighting as Node2D).get("foreground") and (front as Node2D).get("foreground"), "back light and front occluder draw separate texture sources")
-	check(light_img.get_pixel(160,180).a > 0.0 and light_img.get_pixel(160,180).a < 0.8, "window atmosphere is translucent, not a solid 2D sheet")
-	var has_corner_leaf := false
-	for x in range(4, 65, 4):
-		for y in range(385, 497, 8):
-			if front_img.get_pixel(x,y).a > 0.1:
-				has_corner_leaf = true
-	check(has_corner_leaf and front_img.get_pixel(480,350).a < 0.01, "corner plants add depth without hiding central interactions")
-	# Clock is procedurally repaired in room generator; both sides must show
-	# the same ivory face. Original PPT crop cuts off the rightmost side.
-	var cx := 417 * 2
-	var cy := 70 * 2
-	var ivory_l: Color = room_img.get_pixel(cx - 9*2,cy)
-	var ivory_r: Color = room_img.get_pixel(cx + 9*2,cy)
-	check(ivory_l.r > .75 and ivory_l.g > .65 and ivory_r.r > .75 and ivory_r.g > .65,
-		"complete pale clock face extends left and right of its center")
-	var border_l: Color = room_img.get_pixel(cx - 20*2,cy)
-	var border_r: Color = room_img.get_pixel(cx + 20*2,cy)
-	check(border_l.r < .65 and border_r.r < .65, "clock has complete bezel on left and right")
-	check(absf(border_l.r-border_r.r) < .22, "full clock rim has consistent shading")
-	check(room_img.get_pixel(cx,cy).r > .50, "clock's central spindle and hands are visible")
-	check(arena.get_node("BookshelfTop").position == Vector2(238,344) and arena.get_node("FridgeTop").position == Vector2(782,350),
-		"room depth improvement does not change real one-way platform coordinates")
-	check(arena.get_node("MaterialGrid") is MaterialGrid and arena.get_node("FireBridge").grid() == arena.get_node("MaterialGrid"),
-		"lighting and foreground do not interfere with Simulation grid state")
+	for _i in 20:
+		await physics_frame
+	var scene: Node2D = game.get_node("GameplayMSD")
+	var backdrop: CanvasItem = scene.get_node("RoomVisuals")
+	var lighting: CanvasItem = scene.get_node("RoomLighting")
+	var appliance: CanvasItem = scene.get_node("Appliances")
+	var fx: Node2D = scene.get_node("RoomLightingFX")
+	var foreground: CanvasItem = scene.get_node("RoomForeground")
+	var player: CanvasItem = scene.get_node("Player1")
+	check(backdrop.z_index < lighting.z_index and lighting.z_index < fx.z_index and fx.z_index < appliance.z_index and appliance.z_index < player.z_index and player.z_index < foreground.z_index, "depth plates obey backdrop > lighting > effects > furniture > players > foreground ordering")
+	check(fx.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "dynamic appliance light masks remain pixel-sharp")
+	var comp: GameplayAppliance = scene.get_node("Appliances/ComputerDevice")
+	var ac: GameplayAppliance = scene.get_node("Appliances/ACDevice")
+	check(is_zero_approx(fx.computer_intensity) and is_zero_approx(fx.ac_intensity), "lights start off when devices are off")
+	comp.switched_on = true
+	ac.switched_on = true
+	fx._process(0.45)
+	check(fx.computer_intensity > 0.9 and fx.ac_intensity > 0.9, "real appliance on states illuminate independent plates")
+	comp.charred = true
+	ac.switched_on = false
+	fx._process(0.45)
+	check(is_zero_approx(fx.computer_intensity) and is_zero_approx(fx.ac_intensity), "charred computer and turned-off AC stop glowing")
+	check(scene.get_node("FridgeTop").position == Vector2(782,350) and scene.get_node("TableTop").position == Vector2(485,411), "lighting updates leave world collision platforms untouched")
 	game.queue_free()
-	print("ROOM_DEPTH_SUMMARY failures=", failures.size())
+	print("ROOM_DEPTH_SUMMARY failures=",failures.size())
 	quit(0 if failures.is_empty() else 1)

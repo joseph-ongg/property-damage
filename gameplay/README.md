@@ -408,3 +408,7 @@ velocity and animation methods have not been established by this isolated
 simulation. Re-run an equivalent test in that exact final arena once it is
 merged. This change leaves upstream scene files, material grids, Art sources,
 real level furniture and `project.godot` untouched.
+
+## Clock and room depth regression
+
+The `gameplay_room_depth_test.gd` suite validates the repaired clock tile and 960x540 composition, nearest-neighbor render ordering, independent alpha plates and state-responsive lighting for computer and AC. Regenerate with `python3 gameplay/msd/art/generate_room.py`; the Art Team's source crops remain unchanged.
