@@ -1,0 +1,69 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://gameplay/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://gameplay/components/player_motor.gd" id="2_motor"]
+[ext_resource type="Script" path="res://gameplay/components/spark_emitter.gd" id="3_spark"]
+[ext_resource type="Script" path="res://gameplay/components/fire_hazard.gd" id="4_hazard"]
+[ext_resource type="Script" path="res://gameplay/components/player_dash.gd" id="5_dash"]
+[ext_resource type="Script" path="res://gameplay/components/spark_aim.gd" id="6_aim"]
+[ext_resource type="Script" path="res://gameplay/components/landing_fx.gd" id="7_landing"]
+[ext_resource type="Script" path="res://gameplay/components/platform_drop.gd" id="8_platform_drop"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(32, 64)
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 1
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_player")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(4, -10)
+scale = Vector2(0.08152174, 0.08152174)
+texture_filter = 1
+
+[node name="Dash" type="Node" parent="."]
+script = ExtResource("5_dash")
+
+[node name="Motor" type="Node" parent="."]
+script = ExtResource("2_motor")
+
+[node name="PlatformDrop" type="Node" parent="."]
+script = ExtResource("8_platform_drop")
+
+[node name="SparkEmitter" type="Node2D" parent="."]
+script = ExtResource("3_spark")
+
+[node name="SparkAim" type="Node2D" parent="."]
+script = ExtResource("6_aim")
+
+[node name="LandingFX" type="Node2D" parent="."]
+position = Vector2(0, 18)
+script = ExtResource("7_landing")
+
+[node name="FireHazard" type="Node" parent="."]
+script = ExtResource("4_hazard")
+
+[node name="NameTag" type="Label" parent="."]
+offset_left = -12.0
+offset_top = -61.0
+offset_right = 23.0
+offset_bottom = -44.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+text = "P1"
+
+[node name="JumpCharges" type="Label" parent="."]
+visible = false
+offset_left = -19.0
+offset_top = -81.0
+offset_right = 19.0
+offset_bottom = -64.0
+horizontal_alignment = 1
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+text = "◆ ◆"

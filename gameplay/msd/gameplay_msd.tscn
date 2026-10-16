@@ -1,0 +1,456 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="1_player"]
+[ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
+[ext_resource type="Script" path="res://gameplay/msd/room_visuals.gd" id="3_room"]
+[ext_resource type="Script" path="res://gameplay/integration/ethan_material_grid.gd" id="4_fire"]
+[ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="5_bridge"]
+[ext_resource type="Script" path="res://gameplay/demo/pause_overlay.gd" id="6_pause"]
+[ext_resource type="Script" path="res://gameplay/msd/burnable_prop.gd" id="7_books"]
+[ext_resource type="Script" path="res://gameplay/msd/appliance.gd" id="8_appliance"]
+[ext_resource type="Script" path="res://gameplay/demo/fire_visuals.gd" id="9_fire_vfx"]
+[ext_resource type="Script" path="res://gameplay/integration/material_setup.gd" id="10_material_setup"]
+[ext_resource type="Script" path="res://gameplay/msd/interaction_hints.gd" id="11_hints"]
+[ext_resource type="Script" path="res://gameplay/msd/player_conditions.gd" id="12_conditions"]
+
+[ext_resource type="Script" path="res://gameplay/integration/team_material_renderer.gd" id="13_grid_render"]
+[ext_resource type="Script" path="res://gameplay/msd/room_depth_layer.gd" id="14_depth_layer"]
+[ext_resource type="Script" path="res://gameplay/msd/room_lighting_fx.gd" id="15_fx"]
+[ext_resource type="PackedScene" path="res://gameplay/props/fan/fan_device.tscn" id="16_fan"]
+
+[sub_resource type="RectangleShape2D" id="shape_floor"]
+size = Vector2(960, 40)
+
+[sub_resource type="RectangleShape2D" id="shape_wall"]
+size = Vector2(32, 600)
+
+[sub_resource type="RectangleShape2D" id="shape_shelf"]
+size = Vector2(187, 12)
+
+[sub_resource type="RectangleShape2D" id="shape_table"]
+size = Vector2(218, 12)
+
+[sub_resource type="RectangleShape2D" id="shape_fridge"]
+size = Vector2(96, 12)
+
+[node name="GameplayMSD" type="Node2D"]
+script = ExtResource("2_game")
+
+[node name="RoomVisuals" type="Node2D" parent="."]
+z_index = -5
+texture_filter = 1
+script = ExtResource("3_room")
+
+[node name="MaterialGrid" type="Node2D" parent="."]
+script = ExtResource("4_fire")
+width = 60
+height = 34
+
+[node name="TeamMaterialRenderer" type="Node2D" parent="."]
+z_index = -4
+texture_filter = 1
+script = ExtResource("13_grid_render")
+grid_path = NodePath("../MaterialGrid")
+
+[node name="RoomLighting" type="Node2D" parent="."]
+z_index = -3
+texture_filter = 1
+script = ExtResource("14_depth_layer")
+
+[node name="RoomLightingFX" type="Node2D" parent="."]
+z_index = 1
+texture_filter = 1
+script = ExtResource("15_fx")
+
+[node name="RoomForeground" type="Node2D" parent="."]
+z_index = 11
+texture_filter = 1
+script = ExtResource("14_depth_layer")
+foreground = true
+
+[node name="TickTimer" type="Timer" parent="MaterialGrid"]
+
+[node name="DesignMaterialSeed" type="Node" parent="MaterialGrid"]
+script = ExtResource("10_material_setup")
+
+[node name="FireVisuals" type="Node2D" parent="."]
+z_index = 4
+texture_filter = 1
+script = ExtResource("9_fire_vfx")
+grid_path = NodePath("../MaterialGrid")
+
+[node name="FireBridge" type="Node" parent="."]
+script = ExtResource("5_bridge")
+grid_path = NodePath("../MaterialGrid")
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(480, 518)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("shape_floor")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(-16, 270)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("shape_wall")
+
+[node name="RightWall" type="StaticBody2D" parent="."]
+position = Vector2(976, 270)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall"]
+shape = SubResource("shape_wall")
+
+[node name="BookshelfTop" type="StaticBody2D" parent="."]
+position = Vector2(238, 344)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BookshelfTop"]
+shape = SubResource("shape_shelf")
+one_way_collision = true
+
+[node name="TableTop" type="StaticBody2D" parent="."]
+position = Vector2(485, 411)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="TableTop"]
+shape = SubResource("shape_table")
+one_way_collision = true
+
+[node name="FridgeTop" type="StaticBody2D" parent="."]
+position = Vector2(782, 350)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FridgeTop"]
+shape = SubResource("shape_fridge")
+one_way_collision = true
+
+[node name="Player1" parent="." instance=ExtResource("1_player")]
+z_index = 10
+position = Vector2(80, 459)
+player_index = 1
+tint = Color(0.35, 0.72, 1, 1)
+fire_bridge_path = NodePath("../FireBridge")
+dash_enabled = false
+enhanced_jumping = true
+platform_drop_enabled = true
+
+[node name="Player2" parent="." instance=ExtResource("1_player")]
+z_index = 10
+position = Vector2(884, 459)
+player_index = 2
+tint = Color(0.99, 0.33, 0.36, 1)
+fire_bridge_path = NodePath("../FireBridge")
+dash_enabled = false
+enhanced_jumping = true
+platform_drop_enabled = true
+
+[node name="Books" type="Node2D" parent="."]
+z_index = 12
+
+[node name="FloorBooks" type="Node2D" parent="Books"]
+position = Vector2(343, 485)
+script = ExtResource("7_books")
+
+[node name="TableBooks" type="Node2D" parent="Books"]
+position = Vector2(473, 400)
+script = ExtResource("7_books")
+
+[node name="ShelfBooks" type="Node2D" parent="Books"]
+position = Vector2(237, 332)
+script = ExtResource("7_books")
+
+[node name="Projectiles" type="Node2D" parent="."]
+z_index = 14
+texture_filter = 1
+
+[node name="Appliances" type="Node2D" parent="."]
+z_index = 2
+texture_filter = 1
+
+[node name="FridgeDevice" type="Node2D" parent="Appliances"]
+position = Vector2(780, 472)
+script = ExtResource("8_appliance")
+device = 0
+
+[node name="FanDevice" parent="Appliances" instance=ExtResource("16_fan")]
+position = Vector2(413, 389)
+
+[node name="ACDevice" type="Node2D" parent="Appliances"]
+position = Vector2(648, 469)
+script = ExtResource("8_appliance")
+device = 2
+
+[node name="ComputerDevice" type="Node2D" parent="Appliances"]
+position = Vector2(552, 404)
+script = ExtResource("8_appliance")
+device = 3
+
+[node name="InteractionHints" type="Node2D" parent="."]
+z_index = 30
+script = ExtResource("11_hints")
+
+[node name="PlayerConditions" type="Node2D" parent="."]
+z_index = 31
+script = ExtResource("12_conditions")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="TopBar" type="ColorRect" parent="HUD"]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 277.0
+offset_bottom = 63.0
+mouse_filter = 2
+color = Color(0.052, 0.073, 0.105, 0.93)
+
+[node name="TopBarAccent" type="ColorRect" parent="HUD"]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 277.0
+offset_bottom = 15.0
+mouse_filter = 2
+color = Color(0.42, 0.84, 0.78, 0.9)
+
+[node name="Title" type="Label" parent="HUD"]
+offset_left = 22.0
+offset_top = 18.0
+offset_right = 269.0
+offset_bottom = 41.0
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(0.97, 0.91, 0.76, 1)
+text = "PROPERTY DAMAGE"
+
+[node name="Subtitle" type="Label" parent="HUD"]
+offset_left = 23.0
+offset_top = 43.0
+offset_right = 269.0
+offset_bottom = 58.0
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.72, 0.84, 0.87, 1)
+text = "LOCAL CO-OP  /  PROTOTYPE"
+
+[node name="SystemHint" type="Label" parent="HUD"]
+offset_left = 304.0
+offset_top = 28.0
+offset_right = 531.0
+offset_bottom = 45.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.86, 0.85, 0.76, 0.94)
+text = "P / ESC  PAUSE     R  RESTART"
+
+[node name="StatusBack" type="ColorRect" parent="HUD"]
+offset_left = 558.0
+offset_top = 12.0
+offset_right = 948.0
+offset_bottom = 63.0
+mouse_filter = 2
+color = Color(0.052, 0.073, 0.105, 0.91)
+
+[node name="StatusAccent" type="ColorRect" parent="HUD"]
+offset_left = 558.0
+offset_top = 12.0
+offset_right = 948.0
+offset_bottom = 15.0
+mouse_filter = 2
+color = Color(0.95, 0.69, 0.41, 0.94)
+
+[node name="StatusHeading" type="Label" parent="HUD"]
+offset_left = 570.0
+offset_top = 18.0
+offset_right = 941.0
+offset_bottom = 33.0
+theme_override_font_sizes/font_size = 10
+theme_override_colors/font_color = Color(0.9, 0.77, 0.59, 1)
+text = "GAMEPLAY EVENTS"
+
+[node name="SparkStatus" type="Label" parent="HUD"]
+offset_left = 570.0
+offset_top = 36.0
+offset_right = 941.0
+offset_bottom = 55.0
+theme_override_font_sizes/font_size = 12
+theme_override_colors/font_color = Color(0.99, 0.88, 0.73, 1)
+text = "P1 F   /   P2 ENTER   •   SPARK READY"
+
+[node name="BottomStrip" type="ColorRect" parent="HUD"]
+offset_top = 501.0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.035, 0.053, 0.076, 0.97)
+
+[node name="BottomTopLine" type="ColorRect" parent="HUD"]
+offset_top = 500.0
+offset_right = 960.0
+offset_bottom = 502.0
+mouse_filter = 2
+color = Color(0.64, 0.62, 0.58, 0.77)
+
+[node name="PlayerDivider" type="ColorRect" parent="HUD"]
+offset_left = 479.0
+offset_top = 503.0
+offset_right = 481.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.29, 0.37, 0.45, 0.96)
+
+[node name="P1Accent" type="ColorRect" parent="HUD"]
+offset_top = 502.0
+offset_right = 5.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.35, 0.72, 1, 1)
+
+[node name="P1Chip" type="ColorRect" parent="HUD"]
+offset_left = 15.0
+offset_top = 508.0
+offset_right = 53.0
+offset_bottom = 535.0
+mouse_filter = 2
+color = Color(0.14, 0.29, 0.45, 0.94)
+
+[node name="P1Tag" type="Label" parent="HUD"]
+offset_left = 22.0
+offset_top = 511.0
+offset_right = 51.0
+offset_bottom = 530.0
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.78, 0.91, 1, 1)
+text = "P1"
+
+[node name="Controls" type="Label" parent="HUD"]
+offset_left = 66.0
+offset_top = 505.0
+offset_right = 463.0
+offset_bottom = 520.0
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.91, 0.93, 0.91, 1)
+text = "A/D MOVE     W x2 JUMP     S+W DROP"
+
+[node name="ControlsExtraP1" type="Label" parent="HUD"]
+offset_left = 66.0
+offset_top = 523.0
+offset_right = 463.0
+offset_bottom = 539.0
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.52, 0.87, 0.8, 1)
+text = "F SPARK      E INTERACT      G MAGIC"
+
+[node name="P2Accent" type="ColorRect" parent="HUD"]
+offset_left = 481.0
+offset_top = 502.0
+offset_right = 486.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.95, 0.35, 0.39, 1)
+
+[node name="P2Chip" type="ColorRect" parent="HUD"]
+offset_left = 493.0
+offset_top = 508.0
+offset_right = 533.0
+offset_bottom = 535.0
+mouse_filter = 2
+color = Color(0.37, 0.19, 0.25, 0.96)
+
+[node name="P2Tag" type="Label" parent="HUD"]
+offset_left = 500.0
+offset_top = 511.0
+offset_right = 531.0
+offset_bottom = 530.0
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(1, 0.72, 0.72, 1)
+text = "P2"
+
+[node name="ControlsP2" type="Label" parent="HUD"]
+offset_left = 545.0
+offset_top = 505.0
+offset_right = 948.0
+offset_bottom = 520.0
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.94, 0.9, 0.87, 1)
+text = "ARROWS MOVE     UP x2 JUMP     DOWN+UP DROP"
+
+[node name="ControlsExtraP2" type="Label" parent="HUD"]
+offset_left = 545.0
+offset_top = 523.0
+offset_right = 948.0
+offset_bottom = 539.0
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(1, 0.66, 0.67, 1)
+text = "ENTER SPARK     SHIFT INTERACT     . MAGIC"
+
+[node name="PauseOverlay" type="CanvasLayer" parent="."]
+layer = 12
+script = ExtResource("6_pause")
+
+[node name="Backdrop" type="ColorRect" parent="PauseOverlay"]
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+color = Color(0.026, 0.038, 0.071, 0.83)
+
+[node name="Panel" type="ColorRect" parent="PauseOverlay/Backdrop"]
+offset_left = 256.0
+offset_top = 175.0
+offset_right = 704.0
+offset_bottom = 365.0
+mouse_filter = 2
+color = Color(0.047, 0.071, 0.11, 0.97)
+
+[node name="PanelMint" type="ColorRect" parent="PauseOverlay/Backdrop"]
+offset_left = 256.0
+offset_top = 175.0
+offset_right = 480.0
+offset_bottom = 180.0
+mouse_filter = 2
+color = Color(0.35, 0.87, 0.76, 1)
+
+[node name="PanelAmber" type="ColorRect" parent="PauseOverlay/Backdrop"]
+offset_left = 480.0
+offset_top = 175.0
+offset_right = 704.0
+offset_bottom = 180.0
+mouse_filter = 2
+color = Color(1, 0.69, 0.44, 1)
+
+[node name="Title" type="Label" parent="PauseOverlay/Backdrop"]
+offset_left = 271.0
+offset_top = 201.0
+offset_right = 689.0
+offset_bottom = 258.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 35
+theme_override_colors/font_color = Color(0.97, 0.91, 0.76, 1)
+text = "GAME PAUSED"
+
+[node name="Instructions" type="Label" parent="PauseOverlay/Backdrop"]
+offset_left = 274.0
+offset_top = 270.0
+offset_right = 686.0
+offset_bottom = 326.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 17
+theme_override_colors/font_color = Color(0.84, 0.9, 0.91, 1)
+text = "P / ESC   RESUME
+R   RESTART"
+
+[node name="Footer" type="Label" parent="PauseOverlay/Backdrop"]
+offset_left = 283.0
+offset_top = 341.0
+offset_right = 679.0
+offset_bottom = 357.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+theme_override_colors/font_color = Color(0.7, 0.78, 0.83, 1)
+text = "LOCAL CO-OP  /  GAMEPLAY PLAYTEST"
