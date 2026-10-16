@@ -16,7 +16,19 @@ extends Node2D
 		tick_rate = value
 		if is_node_ready():
 			$TickTimer.wait_time = value
-# TODO: add your own knobs here (spread chances, burn times, ...) so Design can tune them.
+
+
+## Chance per tick, per burning neighbor, for Wood to catch fire.
+@export_range(0.0, 1.0) var wood_spread_chance: float = 0.15
+
+## Chance per tick, per burning neighbor, for Oil to catch fire.
+@export_range(0.0, 1.0) var oil_spread_chance: float = 0.35
+
+## Seconds before burning Wood becomes Ash.
+@export_range(0.1, 30.0) var wood_burn_time: float = 5.0
+
+## Seconds before burning Oil becomes Ash.
+@export_range(0.1, 30.0) var oil_burn_time: float = 2.0
 
 # Cell data is indexed as [x][y]: column first, then row.
 # Material and fire state are separate, so burning Wood is still Wood.
@@ -38,8 +50,104 @@ func _ready() -> void:
 	$TickTimer.start()
 
 
+## Runs one simulation step: extinguish near Water, update burn time, then spread.
+## Fires extinguished or burned out this tick do not spread.
 func _on_tick() -> void:
-	pass  # TODO: one simulation step.
+	_extinguish_near_water()
+	_update_burn_timers()
+	_spread_fire()
+
+
+## Extinguishes burning cells with Water in any of their four neighbors.
+## Preserves both materials; diagonal Water has no effect.
+func _extinguish_near_water() -> void:
+	for x in width:
+		for y in height:
+			if not is_burning(x, y):
+				continue
+
+			# Water extinguishes fire in the four adjacent cells.
+			for neighbor in neighbors(x, y):
+				if get_cell_material(neighbor.x, neighbor.y) == Materials.WATER:
+					extinguish(x, y)
+					break
+
+
+## Advances elapsed burn time by tick_rate for each burning cell.
+## Wood and Oil use their own burn durations, then become Ash.
+## Material changes go through set_cell_material to reset fire and emit signals.
+func _update_burn_timers() -> void:
+	for x in width:
+		for y in height:
+			if not burning[x][y]:
+				continue
+
+			# Track elapsed burning time in seconds.
+			burn_timers[x][y] += tick_rate
+
+			var cell_material: Materials = get_cell_material(x, y)
+			var burn_duration: float
+
+			if cell_material == Materials.WOOD:
+				burn_duration = wood_burn_time
+			elif cell_material == Materials.OIL:
+				burn_duration = oil_burn_time
+			else:
+				continue
+
+			# Setting the material also clears fire and resets the timer.
+			if burn_timers[x][y] >= burn_duration:
+				set_cell_material(x, y, Materials.ASH)
+
+
+## Attempts to ignite flammable neighbors using the target material's spread chance.
+## Each burning neighbor provides one attempt; targets next to Water are skipped.
+## Applies new ignitions after scanning so fire spreads at most one cell per tick.
+func _spread_fire() -> void:
+	# Collect targets first so new fires cannot spread in the same tick.
+	var cells_to_ignite: Array[Vector2i] = []
+
+	for x in width:
+		for y in height:
+			if not is_burning(x, y):
+				continue
+
+			for target in neighbors(x, y):
+				if is_burning(target.x, target.y):
+					continue
+
+				var target_material: Materials = get_cell_material(
+					target.x, target.y
+				)
+				var chance: float
+
+				# Spread probability depends on the target material.
+				if target_material == Materials.WOOD:
+					chance = wood_spread_chance
+				elif target_material == Materials.OIL:
+					chance = oil_spread_chance
+				else:
+					continue
+
+				# Do not spread into cells protected by adjacent Water.
+				var near_water: bool = false
+				for neighbor in neighbors(target.x, target.y):
+					if get_cell_material(
+						neighbor.x, neighbor.y
+					) == Materials.WATER:
+						near_water = true
+						break
+
+				if near_water:
+					continue
+
+				if randf() < chance:
+					if not cells_to_ignite.has(target):
+						cells_to_ignite.append(target)
+
+	# Apply ignition only after every existing fire has been checked.
+	for cell in cells_to_ignite:
+		ignite(cell.x, cell.y)
 
 
 # ---------- Public API: other teams call these ----------
