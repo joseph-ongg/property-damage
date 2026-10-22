@@ -457,3 +457,13 @@ or internet art was used. Art can still override the textures and animation
 at the same 48x56 registration via the Inspector, without changing Gameplay
 physics, Simulation or other teams' assets. See
 `gameplay/props/fan/README.md` for the current interface contract.
+
+## 22. New one-way platforms (Suwen / Gameplay Subteam)
+
+Four optional platforms now create viable lower and upper navigation paths in
+`gameplay/msd/gameplay_msd.tscn`. Each uses the standalone prefab
+`gameplay/platforms/one_way_ledge.tscn` with 16px-aligned **width and position**, physical
+world-layer collision, and the existing one-way platform drop controls.
+Neither Ethan's MaterialGrid nor Austin's grid rendering is modified.
+See `gameplay/platforms/README.md` for exact per-platform placements, Art
+and Level Design interface, material-state boundaries, and test entry point.
