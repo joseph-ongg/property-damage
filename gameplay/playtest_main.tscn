@@ -1,7 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3 uid="uid://ddg530df5eor4"]
 
 [ext_resource type="PackedScene" path="res://gameplay/msd/gameplay_msd.tscn" id="1_msd"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=909077122]
 
-[node name="GameplayMSD" parent="." instance=ExtResource("1_msd")]
+[node name="GameplayMSD" parent="." unique_id=274649176 instance=ExtResource("1_msd")]
