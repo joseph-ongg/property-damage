@@ -30,14 +30,8 @@ func _ready() -> void:
 	for x in range(2, mini(grid.width, 59)):
 		for row in [29, 30, 31]:
 			_paint_if_valid(grid, x, row)
-	# A standing player sparks from their body center: bookshelf platform top
-	# is y338, player's center y318 (grid row 19, not the old row 20 only).
-	_paint_band(grid, 9, 21, 19, MaterialGrid.Materials.WOOD)
-	_paint_band(grid, 9, 21, 20, MaterialGrid.Materials.WOOD) # Bookshelf region.
-	# Design's central desk and Gameplay's one-way table top are y405;
-	# a player standing on it sparks from row 23, not row 24 alone.
-	for row in [23, 24, 25]:
-		_paint_band(grid, 23, 37, row, MaterialGrid.Materials.WOOD)
+	# Furniture fuel is painted by FurnitureFireLayer, which also tells the
+	# renderer which unlit material cells to keep invisible over the artwork.
 	# The wall-mounted AC is a separate nonflammable appliance over the desk.
 	for row in [20, 21]:
 		_paint_band(grid, 38, 42, row, MaterialGrid.Materials.STONE)
@@ -45,7 +39,7 @@ func _ready() -> void:
 	# STONE, preventing an accidental "burning fridge" after art replacement.
 	for row in [19, 20, 21, 29, 30, 31]:
 		_paint_band(grid, 45, 52, row, MaterialGrid.Materials.STONE)
-	_paint_if_valid(grid, 24, 29, MaterialGrid.Materials.OIL) # 少量实验油格 / A few test oil cells.
+	_paint_if_valid(grid, 22, 29, MaterialGrid.Materials.OIL) # 少量实验油格 / A few test oil cells.
 
 
 func _paint_band(grid: MaterialGrid, start: int, end: int, y: int, material: MaterialGrid.Materials) -> void:

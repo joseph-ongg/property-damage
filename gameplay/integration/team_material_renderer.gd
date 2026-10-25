@@ -7,10 +7,12 @@ class_name GameplayTeamMaterialRenderer
 extends Node2D
 
 @export_node_path("Node2D") var grid_path: NodePath
+@export_node_path("Node") var furniture_layer_path: NodePath
 @export_range(0.0, 1.0, 0.05) var material_opacity: float = 0.25
 @export_range(0.0, 1.0, 0.05) var fire_opacity: float = 0.62
 
 var _grid: MaterialGrid
+var _furniture_layer: GameplayFurnitureFireLayer
 var refresh_count: int = 0
 
 # Jackson's original material palette, including fire as an independent state.
@@ -27,6 +29,7 @@ const FIRE_COLOR := Color(1.0, 0.231, 0.027, 1.0)
 
 func _ready() -> void:
 	_grid = get_node_or_null(grid_path) as MaterialGrid
+	_furniture_layer = get_node_or_null(furniture_layer_path) as GameplayFurnitureFireLayer
 	if _grid == null:
 		push_warning("Gameplay material renderer has no Simulation grid")
 		return
@@ -39,15 +42,21 @@ func _on_cell_changed(_x: int, _y: int) -> void:
 	queue_redraw()
 
 
+func should_draw_cell(x: int, y: int) -> bool:
+	if _grid == null or _grid.get_cell_material(x, y) == MaterialGrid.Materials.AIR:
+		return false
+	return _furniture_layer == null or not _furniture_layer.covers_cell(Vector2i(x, y)) or _grid.is_burning(x, y)
+
+
 func _draw() -> void:
 	if _grid == null:
 		return
 	var side: float = float(_grid.cell_size)
 	for x in _grid.width:
 		for y in _grid.height:
-			var mat: int = int(_grid.get_cell_material(x, y))
-			if mat == MaterialGrid.Materials.AIR:
+			if not should_draw_cell(x, y):
 				continue
+			var mat: int = int(_grid.get_cell_material(x, y))
 			var burning := _grid.is_burning(x, y)
 			var ink: Color = FIRE_COLOR if burning else COLORS[clampi(mat, 0, COLORS.size() - 1)]
 			ink.a = fire_opacity if burning else material_opacity
