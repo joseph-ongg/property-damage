@@ -30,15 +30,14 @@ Player collision layer is 2 and the world collision layer is 1. Players collide 
 - `msd/msd_controller.gd`: Connects players, interactable props, Spark, and appliance effects. Includes the `experimental_books_enabled` and `experimental_appliances_enabled` switches.
 - `msd/burnable_prop.gd`: Lightweight book pickup, carrying, throwing, and scorch visuals—not a full physical material-destruction system.
 - `msd/appliance.gd`: Fridge toggle, fan push, AC slowdown (`effect_radius=130`, `cold_speed_scale=0.45`), and computer damage visuals.
-- `msd/magic_bolt.gd`: `G` / `.` fireball that lights bookshelf and table cells through the shared fire bridge; optional prop visuals remain experimental.
+- `msd/magic_bolt.gd`: Experimental `G` / `.` projectile that changes prop visuals without assigning combat damage.
 - `msd/interaction_hints.gd`: Nearby interaction instructions that share target selection with the controller's `get_interaction_offer()`.
 - `msd/player_conditions.gd`: `SLOW` and `WIND` visual states; physics remains owned by the motor and MSD controller.
 - `msd/room_visuals.gd`, `msd/art/generate_room.py`: Pixel-art room visuals, independent of collisions.
 - `integration/ethan_material_grid.gd`: Gameplay-scoped compatibility adapter using **Ethan's storage and ignition rules** from commit `46c3df2`, active in the default MSD arena. It inherits the existing `MaterialGrid` scaffold and adds no new fire algorithm. Replace it with the production Simulation path after upstream merges.
 - `integration/team_material_renderer.gd`: Jackson-derived material palette and signal-driven updates, displayed as translucent pixel stripes instead of an opaque full-grid overlay.
 - `integration/demo_material_grid.gd`: Legacy temporary storage for the separate Moonlit Ruins experiment only.
-- `integration/material_setup.gd`: Paints floor and appliance test materials; it does not store burning state.
-- `integration/furniture_fire_layer.gd`: Paints an invisible wood cell mask matching the bookshelf and table, including their legs. The renderer reveals these cells only while the simulation reports burning.
+- `integration/material_setup.gd`: Paints test materials only; it does not store burning state.
 - `demo/fire_visuals.gd`: Listens to `MaterialGrid.cell_changed` and draws subtle fire effects without implementing ignition or storage.
 
 ## 4. Integrating with the team's scene
@@ -70,7 +69,6 @@ Run an individual test from the repository root using Godot 4.7.2 Standard:
 | `gameplay_upstream_grid_test.gd` | Demo grid and Simulation-compatible fire API, materials, redraw events |
 | `gameplay_simulation_contract_test.gd` | Integration behavior against main's scaffold or the installed Ethan grid |
 | `gameplay_grid_scene_handoff_test.gd` | Active MSD scene wiring, material seeding, Spark, and grid replacement smoke test |
-| `gameplay_furniture_fire_test.gd` | Hidden bookshelf/table fuel, direct and fireball ignition, and simulation spread |
 | `gameplay_advanced_test.gd` | Double jumps, air momentum, book pickup, and appliances |
 | `gameplay_full_flow_test.gd` | Combined two-player movement, double jumps, Spark, drops, interactions, simultaneous magic, and long play |
 | `gameplay_keyboard_chords_test.gd` | Physical Shift+W, concurrent keyboard controls, and F/Enter Spark |

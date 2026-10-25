@@ -44,6 +44,8 @@ func _physics_process(_delta: float) -> void:
 
 
 func _on_magic_attack(player_index: int, player: GameplayPlayer) -> void:
+	if not experimental_books_enabled and not experimental_appliances_enabled:
+		return
 	var projectile := GameplayMagicBolt.new()
 	$Projectiles.add_child(projectile)
 	projectile.initialize(player)

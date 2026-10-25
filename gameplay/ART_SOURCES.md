@@ -6,7 +6,7 @@ The visual reference is the user's local **`Property Damage MidSem Presentation 
 
 - **Slide 15, "Character design" (Art & Audio):** The blue hooded wizard with yellow eyes is the actual Player 1 static sprite; its two-frame animation GIF is used as the movement cycle. Player 2 is recolored red from those same blue-source sprites while keeping the black silhouette and yellow eyes. Both player PNGs retain the original **736×736 RGBA source resolution and uncropped transparent margins**; Godot scales them to about 60 visible pixels high through `Sprite2D.scale` against the unchanged **32×64 collider**. P1 static PNG and original GIF bytes are copied exactly from the PPT; P2 is the same RGB/alpha source except for the blue-to-red robe/hat pixel colors.
 - **Slide 14, "Art subteam":** Bookcase, window, clock, fridge, air conditioner and monitor pixels are extracted from the displayed Art-team furniture composition. The local room is rebuilt around the existing Gameplay floor, wall, and one-way platform coordinates.
-- **Magic fireball:** Six crisp original 24×16 RGBA pixel frames drawn by `gameplay/msd/art/generate_fireball.py` replace the prior procedural soft glow. The art is visual only; the projectile now ignites bookshelf and table fuel through the existing fire bridge and MaterialGrid API.
+- **Magic fireball:** Six crisp original 24×16 RGBA pixel frames drawn by `gameplay/msd/art/generate_fireball.py` replace the prior procedural soft glow. They are visual only and do not modify hit detection or the MaterialGrid API.
 
 The Art Team assets and designs **belong to the Art subteam**. Gameplay imports and adapts them; do not describe them as original Suwen artwork or as newly generated AI images.
 
