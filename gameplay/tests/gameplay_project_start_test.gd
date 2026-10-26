@@ -1,5 +1,4 @@
-## F5 project launcher regression: the selected startup must be the playable
-## independent co-op room, not the team-owned placeholder in root main.tscn.
+## F5 opens level selection, then its Living Room button launches the arena.
 extends SceneTree
 
 var failures: Array[String] = []
@@ -19,18 +18,22 @@ func check(ok: bool, message: String) -> void:
 
 func _run() -> void:
 	var startup: String = str(ProjectSettings.get_setting("application/run/main_scene", ""))
-	check(startup == "res://gameplay/playtest_main.tscn", "F5 starts the playable Gameplay scene rather than the placeholder")
+	check(startup == "res://gameplay/level_select.tscn", "F5 starts on level selection")
 	var scene: PackedScene = load(startup)
 	check(scene != null, "configured F5 launch scene loads")
 	if scene == null:
 		quit(1)
 		return
-	var instance: Node2D = scene.instantiate()
+	var instance: Control = scene.instantiate()
 	root.add_child(instance)
+	current_scene = instance
+	check(instance.get_node_or_null("LivingRoomButton") != null, "level selection offers Living Room")
+	check(instance.get_node_or_null("GardenButton") != null, "level selection offers Garden")
+	(instance.get_node("LivingRoomButton") as Button).pressed.emit()
 	for _i in 65:
 		await physics_frame
-	var arena: Node2D = instance.get_node_or_null("GameplayMSD")
-	check(arena != null, "F5 launches the two-player gameplay arena")
+	var arena: Node2D = current_scene.get_node_or_null("GameplayMSD")
+	check(arena != null, "Living Room selection launches the two-player gameplay arena")
 	if arena != null:
 		var p1: GameplayPlayer = arena.get_node("Player1")
 		var p2: GameplayPlayer = arena.get_node("Player2")
@@ -40,6 +43,6 @@ func _run() -> void:
 		var bridge: GameplayFireBridge = arena.get_node("FireBridge")
 		check(bridge.grid() == grid, "F5 scene connects Spark to the active test material grid")
 		check(arena.get_node("HUD/Controls") != null and arena.get_node("HUD/ControlsP2") != null, "F5 scene shows both control guides")
-	instance.queue_free()
+	current_scene.queue_free()
 	print("PROJECT_START_SUMMARY failures=", failures.size())
 	quit(0 if failures.is_empty() else 1)

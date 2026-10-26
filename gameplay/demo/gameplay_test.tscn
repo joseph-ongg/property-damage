@@ -1,22 +1,22 @@
-[gd_scene load_steps=24 format=3]
+[gd_scene format=3 uid="uid://cjnn54vsak1y0"]
 
 [ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="1_player"]
-[ext_resource type="Script" path="res://gameplay/demo/demo_controller.gd" id="2_controller"]
-[ext_resource type="Script" path="res://gameplay/integration/demo_material_grid.gd" id="3_grid"]
-[ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="4_bridge"]
-[ext_resource type="Script" path="res://gameplay/demo/arena_visuals.gd" id="5_visuals"]
-[ext_resource type="Script" path="res://gameplay/demo/environment_art.gd" id="6_environment"]
+[ext_resource type="Script" uid="uid://d0yw3b31as01c" path="res://gameplay/demo/demo_controller.gd" id="2_controller"]
+[ext_resource type="Script" uid="uid://dbf81uxug7tac" path="res://gameplay/integration/demo_material_grid.gd" id="3_grid"]
+[ext_resource type="Script" uid="uid://yjex0sqsly22" path="res://gameplay/components/fire_bridge.gd" id="4_bridge"]
+[ext_resource type="Script" uid="uid://cmkmgtby56w7u" path="res://gameplay/demo/arena_visuals.gd" id="5_visuals"]
+[ext_resource type="Script" uid="uid://bga4wmrchb2y6" path="res://gameplay/demo/environment_art.gd" id="6_environment"]
 [ext_resource type="PackedScene" path="res://gameplay/interactables/ember_shard.tscn" id="7_shard"]
 [ext_resource type="PackedScene" path="res://gameplay/interactables/ember_brazier.tscn" id="8_brazier"]
-[ext_resource type="Script" path="res://gameplay/demo/hud_frame.gd" id="9_hudframe"]
-[ext_resource type="Script" path="res://gameplay/demo/ambient_motes.gd" id="10_motes"]
-[ext_resource type="Script" path="res://gameplay/demo/visual_feedback.gd" id="11_feedback"]
-[ext_resource type="Script" path="res://gameplay/demo/pause_overlay.gd" id="12_pause"]
-[ext_resource type="Script" path="res://gameplay/demo/victory_overlay.gd" id="13_victory"]
-[ext_resource type="Script" path="res://gameplay/demo/help_overlay.gd" id="14_help"]
-[ext_resource type="Script" path="res://gameplay/demo/objective_guides.gd" id="15_guides"]
-[ext_resource type="Script" path="res://gameplay/demo/fire_visuals.gd" id="16_fire_vfx"]
-[ext_resource type="Script" path="res://gameplay/integration/material_setup.gd" id="17_setup"]
+[ext_resource type="Script" uid="uid://q3i3a8up6hab" path="res://gameplay/demo/hud_frame.gd" id="9_hudframe"]
+[ext_resource type="Script" uid="uid://bcyc718gu3xgn" path="res://gameplay/demo/ambient_motes.gd" id="10_motes"]
+[ext_resource type="Script" uid="uid://b7g3t6ub1dmap" path="res://gameplay/demo/visual_feedback.gd" id="11_feedback"]
+[ext_resource type="Script" uid="uid://blyojuunxjsbq" path="res://gameplay/demo/pause_overlay.gd" id="12_pause"]
+[ext_resource type="Script" uid="uid://cacb6rxbaasrh" path="res://gameplay/demo/victory_overlay.gd" id="13_victory"]
+[ext_resource type="Script" uid="uid://djdx14kehql5i" path="res://gameplay/demo/help_overlay.gd" id="14_help"]
+[ext_resource type="Script" uid="uid://bfm4vmyasb62j" path="res://gameplay/demo/objective_guides.gd" id="15_guides"]
+[ext_resource type="Script" uid="uid://c7oi2qruh67dv" path="res://gameplay/demo/fire_visuals.gd" id="16_fire_vfx"]
+[ext_resource type="Script" uid="uid://bwiw22ctud58n" path="res://gameplay/integration/material_setup.gd" id="17_setup"]
 
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
@@ -33,198 +33,193 @@ size = Vector2(185, 12)
 [sub_resource type="RectangleShape2D" id="shape_platform_c"]
 size = Vector2(165, 12)
 
-[node name="GameplayDemo" type="Node2D"]
+[node name="GameplayDemo" type="Node2D" unique_id=98690992]
 script = ExtResource("2_controller")
 
-[node name="MoonlitRuins" type="Node2D" parent="."]
+[node name="MoonlitRuins" type="Node2D" parent="." unique_id=2105417634]
 script = ExtResource("6_environment")
 
-[node name="AmbientMotes" type="Node2D" parent="."]
+[node name="AmbientMotes" type="Node2D" parent="." unique_id=1916989715]
 script = ExtResource("10_motes")
 
-[node name="MaterialGrid" type="Node2D" parent="."]
+[node name="MaterialGrid" type="Node2D" parent="." unique_id=1544479895]
 script = ExtResource("3_grid")
 width = 30
 height = 17
 cell_size = 32
 
-[node name="TickTimer" type="Timer" parent="MaterialGrid"]
+[node name="TickTimer" type="Timer" parent="MaterialGrid" unique_id=1997688066]
 
-[node name="DemoMaterials" type="Node" parent="MaterialGrid"]
+[node name="DemoMaterials" type="Node" parent="MaterialGrid" unique_id=1494231094]
 script = ExtResource("17_setup")
 legacy_all_wood = true
 
-[node name="FireVisuals" type="Node2D" parent="."]
+[node name="FireVisuals" type="Node2D" parent="." unique_id=838769265]
 script = ExtResource("16_fire_vfx")
 grid_path = NodePath("../MaterialGrid")
 
-[node name="FireBridge" type="Node" parent="."]
+[node name="FireBridge" type="Node" parent="." unique_id=1785569587]
 script = ExtResource("4_bridge")
 grid_path = NodePath("../MaterialGrid")
 
-[node name="ArenaVisuals" type="Node2D" parent="."]
+[node name="ArenaVisuals" type="Node2D" parent="." unique_id=785969134]
 script = ExtResource("5_visuals")
 
-[node name="Floor" type="StaticBody2D" parent="."]
+[node name="Floor" type="StaticBody2D" parent="." unique_id=1949066590]
 position = Vector2(480, 518)
-collision_layer = 1
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=1168430282]
 shape = SubResource("shape_floor")
 
-[node name="LeftWall" type="StaticBody2D" parent="."]
+[node name="LeftWall" type="StaticBody2D" parent="." unique_id=1519719300]
 position = Vector2(-16, 270)
-collision_layer = 1
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall" unique_id=619991281]
 shape = SubResource("shape_wall")
 
-[node name="RightWall" type="StaticBody2D" parent="."]
+[node name="RightWall" type="StaticBody2D" parent="." unique_id=821247267]
 position = Vector2(976, 270)
-collision_layer = 1
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall" unique_id=1607131619]
 shape = SubResource("shape_wall")
 
-[node name="LowerPlatform" type="StaticBody2D" parent="."]
+[node name="LowerPlatform" type="StaticBody2D" parent="." unique_id=1521026736]
 position = Vector2(240, 426)
-collision_layer = 1
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LowerPlatform"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LowerPlatform" unique_id=28954141]
 shape = SubResource("shape_platform_a")
 one_way_collision = true
 
-[node name="UpperPlatform" type="StaticBody2D" parent="."]
+[node name="UpperPlatform" type="StaticBody2D" parent="." unique_id=978801133]
 position = Vector2(470, 344)
-collision_layer = 1
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="UpperPlatform"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="UpperPlatform" unique_id=1228648368]
 shape = SubResource("shape_platform_b")
 one_way_collision = true
 
-[node name="RightPlatform" type="StaticBody2D" parent="."]
+[node name="RightPlatform" type="StaticBody2D" parent="." unique_id=930809536]
 position = Vector2(737, 426)
-collision_layer = 1
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RightPlatform"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightPlatform" unique_id=2014754027]
 shape = SubResource("shape_platform_c")
 one_way_collision = true
 
-[node name="Player1" parent="." instance=ExtResource("1_player")]
+[node name="Player1" parent="." unique_id=1950596799 instance=ExtResource("1_player")]
 position = Vector2(130, 460)
-player_index = 1
 tint = Color(0.29, 0.9, 0.78, 1)
 fire_bridge_path = NodePath("../FireBridge")
 
-[node name="Player2" parent="." instance=ExtResource("1_player")]
+[node name="Player2" parent="." unique_id=350676951 instance=ExtResource("1_player")]
 position = Vector2(833, 460)
 player_index = 2
 tint = Color(1, 0.66, 0.37, 1)
 fire_bridge_path = NodePath("../FireBridge")
 
-[node name="Shards" type="Node2D" parent="."]
+[node name="Shards" type="Node2D" parent="." unique_id=950500252]
 
-[node name="Shard1" parent="Shards" instance=ExtResource("7_shard")]
+[node name="Shard1" parent="Shards" unique_id=2049704426 instance=ExtResource("7_shard")]
 position = Vector2(200, 475)
 
-[node name="Shard2" parent="Shards" instance=ExtResource("7_shard")]
+[node name="Shard2" parent="Shards" unique_id=674261100 instance=ExtResource("7_shard")]
 position = Vector2(240, 397)
 
-[node name="Shard3" parent="Shards" instance=ExtResource("7_shard")]
+[node name="Shard3" parent="Shards" unique_id=2048548342 instance=ExtResource("7_shard")]
 position = Vector2(470, 308)
 
-[node name="Shard4" parent="Shards" instance=ExtResource("7_shard")]
+[node name="Shard4" parent="Shards" unique_id=905250497 instance=ExtResource("7_shard")]
 position = Vector2(737, 397)
 
-[node name="Shard5" parent="Shards" instance=ExtResource("7_shard")]
+[node name="Shard5" parent="Shards" unique_id=43433328 instance=ExtResource("7_shard")]
 position = Vector2(760, 475)
 
-[node name="Braziers" type="Node2D" parent="."]
+[node name="Braziers" type="Node2D" parent="." unique_id=236765403]
 
-[node name="Brazier1" parent="Braziers" instance=ExtResource("8_brazier")]
+[node name="Brazier1" parent="Braziers" unique_id=478916020 instance=ExtResource("8_brazier")]
 position = Vector2(327, 498)
 
-[node name="Brazier2" parent="Braziers" instance=ExtResource("8_brazier")]
+[node name="Brazier2" parent="Braziers" unique_id=936380647 instance=ExtResource("8_brazier")]
 position = Vector2(470, 338)
 
-[node name="Brazier3" parent="Braziers" instance=ExtResource("8_brazier")]
+[node name="Brazier3" parent="Braziers" unique_id=400788620 instance=ExtResource("8_brazier")]
 position = Vector2(672, 498)
 
-[node name="ObjectiveGuides" type="Node2D" parent="."]
+[node name="ObjectiveGuides" type="Node2D" parent="." unique_id=309537176]
 script = ExtResource("15_guides")
 
-[node name="Feedback" type="Node2D" parent="."]
+[node name="Feedback" type="Node2D" parent="." unique_id=272935948]
 script = ExtResource("11_feedback")
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1892139750]
 
-[node name="Frame" type="Control" parent="HUD"]
+[node name="Frame" type="Control" parent="HUD" unique_id=1874762725]
+layout_mode = 3
+anchors_preset = 0
 mouse_filter = 2
 script = ExtResource("9_hudframe")
 
-[node name="Title" type="Label" parent="HUD"]
+[node name="Title" type="Label" parent="HUD" unique_id=970706498]
 offset_left = 34.0
 offset_top = 17.0
 offset_right = 507.0
 offset_bottom = 42.0
-theme_override_font_sizes/font_size = 19
 theme_override_colors/font_color = Color(0.97, 0.9, 0.73, 1)
+theme_override_font_sizes/font_size = 19
 text = "MOONLIT RUINS  /  CO-OP QUEST"
 
-[node name="Controls" type="Label" parent="HUD"]
+[node name="Controls" type="Label" parent="HUD" unique_id=377755411]
 visible = false
 offset_left = 27.0
 offset_top = 49.0
 offset_right = 555.0
 offset_bottom = 69.0
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.56, 0.93, 0.86, 1)
+theme_override_font_sizes/font_size = 12
 text = "P1  A / D MOVE   W JUMP   F SPARK   Q DASH"
 
-[node name="ControlsP2" type="Label" parent="HUD"]
+[node name="ControlsP2" type="Label" parent="HUD" unique_id=1454894920]
 visible = false
 offset_left = 27.0
 offset_top = 70.0
 offset_right = 555.0
 offset_bottom = 91.0
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.97, 0.73, 0.54, 1)
+theme_override_font_sizes/font_size = 12
 text = "P2  ← / → MOVE   ↑ JUMP   ENTER SPARK   / DASH"
 
-[node name="Status" type="Label" parent="HUD"]
+[node name="Status" type="Label" parent="HUD" unique_id=408287416]
 offset_left = 26.0
 offset_top = 49.0
 offset_right = 512.0
 offset_bottom = 69.0
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.93, 0.78, 0.51, 1)
+theme_override_font_sizes/font_size = 12
 text = "COLLECT THE SHARDS. REKINDLE THE THREE BRAZIERS."
 
-[node name="FireCounter" type="Label" parent="HUD"]
+[node name="FireCounter" type="Label" parent="HUD" unique_id=47189629]
 offset_left = 26.0
 offset_top = 93.0
 offset_right = 512.0
 offset_bottom = 113.0
-theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.75, 0.87, 0.95, 1)
+theme_override_font_sizes/font_size = 11
 text = "SPARKS SENT   P1: 0   P2: 0"
 
-[node name="Cooldowns" type="Label" parent="HUD"]
+[node name="Cooldowns" type="Label" parent="HUD" unique_id=820253615]
 offset_left = 26.0
 offset_top = 111.0
 offset_right = 512.0
 offset_bottom = 131.0
-theme_override_font_sizes/font_size = 11
 theme_override_colors/font_color = Color(0.67, 0.83, 0.86, 1)
+theme_override_font_sizes/font_size = 11
 text = "P1 SPARK: READY    P2 SPARK: READY"
 
-[node name="Footer" type="Label" parent="HUD"]
+[node name="Footer" type="Label" parent="HUD" unique_id=357101310]
 offset_left = 27.0
 offset_top = 508.0
 offset_right = 925.0
@@ -232,122 +227,134 @@ offset_bottom = 532.0
 theme_override_colors/font_color = Color(0.78, 0.86, 0.96, 1)
 text = "H HELP / CONTROLS    •    P / ESC PAUSE    •    R RESTART    •    TAP / HOLD JUMP"
 
-[node name="Quest" type="Label" parent="HUD"]
+[node name="Quest" type="Label" parent="HUD" unique_id=197696928]
 offset_left = 26.0
 offset_top = 72.0
 offset_right = 512.0
 offset_bottom = 92.0
-theme_override_font_sizes/font_size = 12
 theme_override_colors/font_color = Color(0.96, 0.83, 0.59, 1)
+theme_override_font_sizes/font_size = 12
 text = "EMBER SHARDS 0/5   BRAZIERS 0/3"
 
-[node name="PauseOverlay" type="CanvasLayer" parent="."]
+[node name="PauseOverlay" type="CanvasLayer" parent="." unique_id=1792987988]
 layer = 12
 script = ExtResource("12_pause")
 
-[node name="Backdrop" type="ColorRect" parent="PauseOverlay"]
+[node name="Backdrop" type="ColorRect" parent="PauseOverlay" unique_id=1182315484]
+visible = false
 offset_right = 960.0
 offset_bottom = 540.0
 mouse_filter = 2
 color = Color(0.026, 0.038, 0.071, 0.79)
 
-[node name="Title" type="Label" parent="PauseOverlay/Backdrop"]
+[node name="Title" type="Label" parent="PauseOverlay/Backdrop" unique_id=1982845742]
+layout_mode = 0
 offset_left = 235.0
 offset_top = 184.0
 offset_right = 725.0
 offset_bottom = 250.0
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(0.98, 0.83, 0.59, 1)
+theme_override_font_sizes/font_size = 40
 text = "JOURNEY PAUSED"
+horizontal_alignment = 1
 
-[node name="Instructions" type="Label" parent="PauseOverlay/Backdrop"]
+[node name="Instructions" type="Label" parent="PauseOverlay/Backdrop" unique_id=1728467088]
+layout_mode = 0
 offset_left = 265.0
 offset_top = 285.0
 offset_right = 700.0
 offset_bottom = 348.0
-horizontal_alignment = 1
 theme_override_font_sizes/font_size = 17
 text = "P / ESC   —   RESUME
 R   —   RESTART THE QUEST"
+horizontal_alignment = 1
 
-[node name="VictoryOverlay" type="CanvasLayer" parent="."]
+[node name="VictoryOverlay" type="CanvasLayer" parent="." unique_id=97437654]
 layer = 11
+visible = false
 script = ExtResource("13_victory")
 
-[node name="Backdrop" type="ColorRect" parent="VictoryOverlay"]
+[node name="Backdrop" type="ColorRect" parent="VictoryOverlay" unique_id=1835365606]
 offset_right = 960.0
 offset_bottom = 540.0
 mouse_filter = 2
-color = Color(0.022, 0.038, 0.064, 0.70)
+color = Color(0.022, 0.038, 0.064, 0.7)
 
-[node name="Crest" type="Label" parent="VictoryOverlay/Backdrop"]
+[node name="Crest" type="Label" parent="VictoryOverlay/Backdrop" unique_id=196094861]
+layout_mode = 0
 offset_left = 210.0
 offset_top = 137.0
 offset_right = 750.0
 offset_bottom = 206.0
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 54
 theme_override_colors/font_color = Color(0.97, 0.79, 0.43, 1)
+theme_override_font_sizes/font_size = 54
 text = "✦"
+horizontal_alignment = 1
 
-[node name="Headline" type="Label" parent="VictoryOverlay/Backdrop"]
+[node name="Headline" type="Label" parent="VictoryOverlay/Backdrop" unique_id=1557553983]
+layout_mode = 0
 offset_left = 165.0
 offset_top = 214.0
 offset_right = 795.0
 offset_bottom = 273.0
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 38
 theme_override_colors/font_color = Color(0.99, 0.9, 0.65, 1)
+theme_override_font_sizes/font_size = 38
 text = "RUINS REKINDLED"
+horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="VictoryOverlay/Backdrop"]
+[node name="Subtitle" type="Label" parent="VictoryOverlay/Backdrop" unique_id=1681839885]
+layout_mode = 0
 offset_left = 170.0
 offset_top = 282.0
 offset_right = 790.0
 offset_bottom = 320.0
-horizontal_alignment = 1
 theme_override_font_sizes/font_size = 17
 text = "5 EMBER SHARDS    •    3 ANCIENT BRAZIERS"
+horizontal_alignment = 1
 
-[node name="Stats" type="Label" parent="VictoryOverlay/Backdrop"]
+[node name="Stats" type="Label" parent="VictoryOverlay/Backdrop" unique_id=1770713114]
+layout_mode = 0
 offset_left = 185.0
 offset_top = 333.0
 offset_right = 775.0
 offset_bottom = 359.0
-horizontal_alignment = 1
 theme_override_font_sizes/font_size = 16
 text = "P1: 0    P2: 0    DUO COMBOS: 0"
+horizontal_alignment = 1
 
-[node name="RestartHint" type="Label" parent="VictoryOverlay/Backdrop"]
+[node name="RestartHint" type="Label" parent="VictoryOverlay/Backdrop" unique_id=586830172]
+layout_mode = 0
 offset_left = 250.0
 offset_top = 400.0
 offset_right = 710.0
 offset_bottom = 432.0
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 17
 theme_override_colors/font_color = Color(0.77, 0.89, 0.93, 1)
+theme_override_font_sizes/font_size = 17
 text = "PRESS  R  TO BEGIN AGAIN"
+horizontal_alignment = 1
 
-[node name="HelpOverlay" type="CanvasLayer" parent="."]
+[node name="HelpOverlay" type="CanvasLayer" parent="." unique_id=1924664311]
 layer = 13
+visible = false
 script = ExtResource("14_help")
 
-[node name="Backdrop" type="ColorRect" parent="HelpOverlay"]
+[node name="Backdrop" type="ColorRect" parent="HelpOverlay" unique_id=1292199747]
 offset_right = 960.0
 offset_bottom = 540.0
 mouse_filter = 2
 color = Color(0.024, 0.038, 0.066, 0.86)
 
-[node name="Border" type="ColorRect" parent="HelpOverlay/Backdrop"]
+[node name="Border" type="ColorRect" parent="HelpOverlay/Backdrop" unique_id=1251894002]
+layout_mode = 0
 offset_left = 119.0
 offset_top = 68.0
 offset_right = 841.0
 offset_bottom = 470.0
 mouse_filter = 2
-color = Color(0.80, 0.64, 0.43, 0.93)
+color = Color(0.8, 0.64, 0.43, 0.93)
 
-[node name="Panel" type="ColorRect" parent="HelpOverlay/Backdrop"]
+[node name="Panel" type="ColorRect" parent="HelpOverlay/Backdrop" unique_id=274429366]
+layout_mode = 0
 offset_left = 121.0
 offset_top = 70.0
 offset_right = 839.0
@@ -355,26 +362,29 @@ offset_bottom = 468.0
 mouse_filter = 2
 color = Color(0.064, 0.092, 0.145, 0.98)
 
-[node name="Heading" type="Label" parent="HelpOverlay/Backdrop"]
+[node name="Heading" type="Label" parent="HelpOverlay/Backdrop" unique_id=799638943]
+layout_mode = 0
 offset_left = 170.0
 offset_top = 92.0
 offset_right = 790.0
 offset_bottom = 138.0
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.97, 0.85, 0.6, 1)
 theme_override_font_sizes/font_size = 28
-theme_override_colors/font_color = Color(0.97, 0.85, 0.60, 1)
 text = "TRAVELER'S FIELD GUIDE"
+horizontal_alignment = 1
 
-[node name="P1Title" type="Label" parent="HelpOverlay/Backdrop"]
+[node name="P1Title" type="Label" parent="HelpOverlay/Backdrop" unique_id=852690299]
+layout_mode = 0
 offset_left = 163.0
 offset_top = 155.0
 offset_right = 455.0
 offset_bottom = 185.0
-theme_override_font_sizes/font_size = 19
 theme_override_colors/font_color = Color(0.49, 0.92, 0.84, 1)
+theme_override_font_sizes/font_size = 19
 text = "PLAYER 1  /  TURQUOISE"
 
-[node name="P1Keys" type="Label" parent="HelpOverlay/Backdrop"]
+[node name="P1Keys" type="Label" parent="HelpOverlay/Backdrop" unique_id=913078243]
+layout_mode = 0
 offset_left = 163.0
 offset_top = 196.0
 offset_right = 460.0
@@ -385,16 +395,18 @@ W         JUMP
 F          SPARK
 Q         DASH"
 
-[node name="P2Title" type="Label" parent="HelpOverlay/Backdrop"]
+[node name="P2Title" type="Label" parent="HelpOverlay/Backdrop" unique_id=645549287]
+layout_mode = 0
 offset_left = 501.0
 offset_top = 155.0
 offset_right = 814.0
 offset_bottom = 185.0
-theme_override_font_sizes/font_size = 19
 theme_override_colors/font_color = Color(1, 0.72, 0.49, 1)
+theme_override_font_sizes/font_size = 19
 text = "PLAYER 2  /  AMBER"
 
-[node name="P2Keys" type="Label" parent="HelpOverlay/Backdrop"]
+[node name="P2Keys" type="Label" parent="HelpOverlay/Backdrop" unique_id=209267726]
+layout_mode = 0
 offset_left = 501.0
 offset_top = 196.0
 offset_right = 816.0
@@ -405,23 +417,25 @@ text = "← / →     WALK
 ENTER   SPARK
 /            DASH"
 
-[node name="Objective" type="Label" parent="HelpOverlay/Backdrop"]
+[node name="Objective" type="Label" parent="HelpOverlay/Backdrop" unique_id=483896420]
+layout_mode = 0
 offset_left = 164.0
 offset_top = 326.0
 offset_right = 815.0
 offset_bottom = 394.0
+theme_override_colors/font_color = Color(0.9, 0.87, 0.75, 1)
 theme_override_font_sizes/font_size = 15
-theme_override_colors/font_color = Color(0.90, 0.87, 0.75, 1)
 text = "COLLECT ALL 5 EMBER SHARDS AND LIGHT 3 BRAZIERS.
 TAP JUMP FOR A SHORT HOP, HOLD TO REACH HIGH PLATFORMS.
 GREEN RINGS SHOW BRAZIERS IN SPARK RANGE."
 
-[node name="CloseHint" type="Label" parent="HelpOverlay/Backdrop"]
+[node name="CloseHint" type="Label" parent="HelpOverlay/Backdrop" unique_id=1135771225]
+layout_mode = 0
 offset_left = 180.0
 offset_top = 425.0
 offset_right = 780.0
 offset_bottom = 450.0
-horizontal_alignment = 1
-theme_override_font_sizes/font_size = 17
 theme_override_colors/font_color = Color(0.95, 0.76, 0.48, 1)
+theme_override_font_sizes/font_size = 17
 text = "PRESS H TO RETURN TO YOUR QUEST"
+horizontal_alignment = 1

@@ -2,6 +2,10 @@
 ## This is a test harness, NOT a fabricated score, property-damage or win loop.
 extends Node2D
 
+@export var garden_level: bool = false
+
+const GARDEN_VISUALS: Script = preload("res://gameplay/garden/garden_visuals.gd")
+
 @onready var status_text: Label = $HUD/SparkStatus
 
 var sparks_p1: int = 0
@@ -20,12 +24,48 @@ func _ready() -> void:
 	if DisplayServer.get_name() != "headless":
 		get_window().content_scale_size = Vector2i(960, 540)
 		get_window().content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	if garden_level:
+		_setup_garden()
+	else:
+		$HUD/SystemHint.text = "P PAUSE   R RESTART   M LEVELS"
 	$Player1.sparked.connect(_on_sparked)
 	$Player2.sparked.connect(_on_sparked)
 	$Player1.interact_pressed.connect(_on_interact)
 	$Player2.interact_pressed.connect(_on_interact)
 	$Player1.magic_attacked.connect(_on_magic_attack)
 	$Player2.magic_attacked.connect(_on_magic_attack)
+
+
+func _setup_garden() -> void:
+	experimental_books_enabled = false
+	experimental_appliances_enabled = false
+	for layer_name in ["RoomVisuals", "RoomLighting", "RoomLightingFX", "RoomForeground", "Books", "Appliances"]:
+		get_node(layer_name).visible = false
+	for body_name in ["BookshelfTop", "TableTop", "FridgeTop"]:
+		get_node(body_name).collision_layer = 0
+	$TeamMaterialRenderer.material_opacity = 0.0
+	$TeamMaterialRenderer.queue_redraw()
+	var art: Node2D = GARDEN_VISUALS.new()
+	art.name = "GardenVisuals"
+	art.z_index = -5
+	add_child(art)
+	$Player1.position = Vector2(215, 459)
+	$Player2.position = Vector2(630, 459)
+	var trunk := StaticBody2D.new()
+	trunk.name = "TreeTrunk"
+	trunk.position = Vector2(790, 310)
+	trunk.collision_layer = 1
+	trunk.collision_mask = 0
+	var trunk_shape := CollisionShape2D.new()
+	var rectangle := RectangleShape2D.new()
+	rectangle.size = Vector2(92, 376)
+	trunk_shape.shape = rectangle
+	trunk.add_child(trunk_shape)
+	add_child(trunk)
+	$HUD/Title.text = "PROPERTY DAMAGE"
+	$HUD/Subtitle.text = "GARDEN  /  LOCAL CO-OP"
+	$HUD/SystemHint.text = "P PAUSE   R RESTART   M LEVELS"
+	$HUD/SystemHint.add_theme_color_override("font_color", Color("31464d"))
 
 
 func _physics_process(_delta: float) -> void:
@@ -186,3 +226,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		# Consume R before reload invalidates this scene's nodes.
 		get_viewport().set_input_as_handled()
 		get_tree().reload_current_scene()
+	elif key == KEY_M and not get_tree().paused:
+		get_viewport().set_input_as_handled()
+		get_tree().change_scene_to_file("res://gameplay/level_select.tscn")

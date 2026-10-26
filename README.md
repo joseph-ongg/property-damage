@@ -8,7 +8,7 @@
 
 1. Install **Godot 4.7.2 Standard** (GDScript; the .NET edition is not required).
 2. Import the repository root containing `project.godot` into Godot.
-3. Press **F5** to run the independent two-player living-room prototype, now configured as the branch's default project startup scene. You can also open `gameplay/playtest_main.tscn` and press **F6**. The repository-owned `main.tscn` file remains unchanged.
+3. Press **F5** to open level selection, then choose **Living Room** or **Garden**. You can also open `gameplay/playtest_main.tscn` or `gameplay/garden/garden_level.tscn` and press **F6**. The repository-owned `main.tscn` file remains unchanged.
 4. To try the unrelated fantasy prototype, open `gameplay/demo/gameplay_test.tscn` and press **F6**. Its Moonlit Ruins theme, collectibles, brazier objectives, and victory conditions are *not* confirmed team requirements.
 
 ## Controls
@@ -23,6 +23,7 @@
 | Pick up / throw a book; interact with furniture | `E` | `Shift` |
 | Pause / resume | `P` or `Esc` | Shared |
 | Restart the currently played Gameplay scene when unpaused | `R` | Shared |
+| Return to level selection when unpaused | `M` | Shared |
 
 Down+Jump only drops through one-way platforms; it does not jump from solid floors. Dash is disabled in the living-room playtest. The separate fantasy test scene uses `Q` and `/` for Dash. Available interactions appear contextually near nearby objects.
 
@@ -45,6 +46,7 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 - A separate ranged magic projectile can scorch books or short the computer. It has no mana cost or health damage.
 - The optional prop interactions can be disabled via `experimental_books_enabled` and `experimental_appliances_enabled` on the MSD controller.
 - The fridge interior and wall-mounted AC are deliberately rendered **behind** player sprites; interaction and status overlays remain above players.
+- A garden level based on the supplied layout includes a rose arbor, hose box, fence, tree, hanging treehouse, nest, gnomes and mushrooms. Fence and tree cells use the same burn grid as the living room.
 
 ### Not implemented or not yet approved
 
@@ -66,6 +68,8 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 | `gameplay/integration/team_material_renderer.gd` | Jackson's material palette and signal-driven renderer adapted as a translucent pixel layer so the Art team scene remains visible |
 | `gameplay/integration/demo_material_grid.gd` | Legacy lightweight grid, retained only for the separate fantasy experiment |
 | `gameplay/msd/msd_controller.gd` | Living-room controller for players, Spark, props, and appliances |
+| `gameplay/level_select.tscn` / `gameplay/garden/garden_level.tscn` | Level selection and the garden arena |
+| `gameplay/garden/garden_visuals.gd` | Garden artwork and matching burnable grid footprint |
 | `gameplay/msd/burnable_prop.gd` | Book carrying, throwing, and scorch visuals |
 | `gameplay/msd/appliance.gd` | Fridge, fan, AC, and computer |
 | `gameplay/msd/magic_bolt.gd` | Experimental ranged attack |

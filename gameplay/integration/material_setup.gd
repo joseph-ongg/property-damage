@@ -6,12 +6,17 @@
 ## Choose WOOD cells here; upstream MaterialGrid still owns ignition and extinguishing.
 extends Node
 
+const GARDEN_VISUALS: Script = preload("res://gameplay/garden/garden_visuals.gd")
+
 @export var legacy_all_wood: bool = false
 
 
 func _ready() -> void:
 	var grid: MaterialGrid = get_parent() as MaterialGrid
 	if grid == null:
+		return
+	if bool(grid.get_parent().get("garden_level")):
+		GARDEN_VISUALS.paint_grid(grid)
 		return
 	if legacy_all_wood:
 		# 旧实验关卡：以前每格都是假木头，维持相同的测试目标。
