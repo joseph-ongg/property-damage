@@ -1,5 +1,5 @@
 ## Directional prototype magic attack. No health, mana or damage scores.
-## Remote scorch only; the team's Spark/MaterialGrid interface is untouched.
+## Furniture ignition uses the same bridge and MaterialGrid as Spark.
 class_name GameplayMagicBolt
 extends Node2D
 
@@ -41,13 +41,19 @@ func _physics_process(delta: float) -> void:
 	var ray := PhysicsRayQueryParameters2D.create(before, after, 1)
 	var obstruction := get_world_2d().direct_space_state.intersect_ray(ray)
 	global_position = after if obstruction.is_empty() else obstruction.position
+	var room := get_parent().get_parent()
+	var furniture_hit := _ignite_furniture(room, before, global_position)
+	if not furniture_hit.is_empty():
+		_resolved = true
+		hit.emit(furniture_hit, caster_index)
+		queue_free()
+		return
 	if not obstruction.is_empty():
 		# Solid world geometry wins over proximity-based prop effects. Without
 		# this guard a 32px book scorch radius could damage a book *through*
 		# a wall immediately behind the projectile impact point.
 		queue_free()
 		return
-	var room := get_parent().get_parent()
 	if room.experimental_books_enabled:
 		for book: GameplayBurnableProp in room.get_node("Books").get_children():
 			# A nearby book still needs a clear ray from bolt to object.
@@ -67,6 +73,24 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 	else:
 		queue_redraw()
+
+
+func _ignite_furniture(room: Node, start: Vector2, finish: Vector2) -> String:
+	var layer: GameplayFurnitureFireLayer = room.get_node_or_null("MaterialGrid/FurnitureFireLayer") as GameplayFurnitureFireLayer
+	var bridge: GameplayFireBridge = room.get_node_or_null("FireBridge") as GameplayFireBridge
+	if layer == null or bridge == null:
+		return ""
+	var grid: MaterialGrid = bridge.grid() as MaterialGrid
+	if grid == null:
+		return ""
+	# Sample at half-cell intervals so a fast projectile cannot skip a thin leg.
+	var steps := maxi(1, ceili(start.distance_to(finish) / (float(grid.cell_size) * 0.5)))
+	for step in range(steps + 1):
+		var point := start.lerp(finish, float(step) / float(steps))
+		var cell := bridge.world_to_cell(point)
+		if layer.covers_cell(cell) and bridge.ignite_world(point):
+			return layer.furniture_at_cell(cell)
+	return ""
 
 
 func _has_clear_path(target: Vector2) -> bool:
