@@ -459,3 +459,21 @@ or internet art was used. Art can still override the textures and animation
 at the same 48x56 registration via the Inspector, without changing Gameplay
 physics, Simulation or other teams' assets. See
 `gameplay/props/fan/README.md` for the current interface contract.
+
+## Platform V2 (Gameplay subteam – Suwen)
+
+Eight new one-way surfaces are integrated with the existing MSD living room:
+window sill, air-conditioner rim, bed/sofa, two Art-painted picture frames,
+and three new wall-mounted pixel bookshelves. Their collision shapes are
+world-layer-1 only and retain the existing `CharacterBody2D` one-way physics,
+including Down+Jump drop-through, two-player independence, and thrown-book
+support. Original floor, bookshelf, table and refrigerator collisions remain.
+
+The bookshelf plates and deterministic hand-drawing script live at
+`res://gameplay/platforms/sprites/` and `gameplay/platforms/generate_bookshelves.py`.
+The Art/Level Design handoff uses `one_way_ledge.tscn` with configurable
+`span_cells`, `material_tag`, `visible_surface`, `sprite_texture`, and
+`world_surface_bounds()`. The `material_tag` is informational; this change
+does **not** modify Ethan's MaterialGrid or Austin's furniture fire ownership.
+For coordinates, authoring provenance and the isolated regression test, see
+`gameplay/platforms/README.md`.
