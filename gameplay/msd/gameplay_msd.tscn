@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
@@ -18,6 +18,10 @@
 [ext_resource type="Script" path="res://gameplay/msd/room_depth_layer.gd" id="14_depth_layer"]
 [ext_resource type="Script" path="res://gameplay/msd/room_lighting_fx.gd" id="15_fx"]
 [ext_resource type="PackedScene" path="res://gameplay/props/fan/fan_device.tscn" id="16_fan"]
+[ext_resource type="PackedScene" path="res://gameplay/platforms/one_way_ledge.tscn" id="18_ledge"]
+[ext_resource type="Texture2D" path="res://gameplay/platforms/sprites/wall_bookshelf_oak.png" id="19_oak"]
+[ext_resource type="Texture2D" path="res://gameplay/platforms/sprites/wall_bookshelf_teal.png" id="20_teal"]
+[ext_resource type="Texture2D" path="res://gameplay/platforms/sprites/wall_bookshelf_walnut.png" id="21_walnut"]
 
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
@@ -138,6 +142,62 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FridgeTop"]
 shape = SubResource("shape_fridge")
 one_way_collision = true
+
+[node name="WindowSill" parent="." instance=ExtResource("18_ledge")]
+position = Vector2(152, 207)
+platform_id = &"windowsill"
+span_cells = 9
+material_tag = &"stone"
+visible_surface = false
+
+[node name="ACUpperRim" parent="." instance=ExtResource("18_ledge")]
+position = Vector2(648, 323)
+platform_id = &"acupperrim"
+span_cells = 7
+material_tag = &"metal"
+visible_surface = false
+
+[node name="BedTop" parent="." instance=ExtResource("18_ledge")]
+position = Vector2(72, 393)
+platform_id = &"bedtop"
+span_cells = 8
+material_tag = &"fabric"
+visible_surface = false
+
+[node name="GalleryFrameTop" parent="." instance=ExtResource("18_ledge")]
+position = Vector2(480, 92)
+platform_id = &"galleryframetop"
+span_cells = 10
+material_tag = &"wood"
+visible_surface = false
+
+[node name="SmallFrameTop" parent="." instance=ExtResource("18_ledge")]
+position = Vector2(746, 135)
+platform_id = &"smallframetop"
+span_cells = 5
+material_tag = &"wood"
+visible_surface = false
+
+[node name="WallShelfLeft" parent="." instance=ExtResource("18_ledge")]
+position = Vector2(382, 280)
+platform_id = &"wallshelfleft"
+span_cells = 6
+material_tag = &"wood"
+sprite_texture = ExtResource("19_oak")
+
+[node name="WallShelfCenter" parent="." instance=ExtResource("18_ledge")]
+position = Vector2(540, 270)
+platform_id = &"wallshelfcenter"
+span_cells = 7
+material_tag = &"wood"
+sprite_texture = ExtResource("20_teal")
+
+[node name="WallShelfRight" parent="." instance=ExtResource("18_ledge")]
+position = Vector2(846, 287)
+platform_id = &"wallshelfright"
+span_cells = 6
+material_tag = &"wood"
+sprite_texture = ExtResource("21_walnut")
 
 [node name="Player1" parent="." instance=ExtResource("1_player")]
 z_index = 10
