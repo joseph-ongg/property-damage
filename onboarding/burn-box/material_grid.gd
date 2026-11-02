@@ -30,6 +30,14 @@ extends Node2D
 ## Seconds before burning Oil becomes Ash.
 @export_range(0.1, 30.0) var oil_burn_time: float = 2.0
 
+## Wind direction as a vector in grid-cell axes; positive Y points down in Godot.
+## Its magnitude is ignored because the direction is normalized before use.
+@export var wind_direction: Vector2 = Vector2.ZERO
+
+## Dimensionless wind multiplier: 0.0 keeps spread unchanged, while larger
+## values increase downwind and decrease upwind spread.
+@export_range(0.0, 1.0) var wind_strength: float = 0.0
+
 # Cell data is indexed as [x][y]: column first, then row.
 # Material and fire state are separate, so burning Wood is still Wood.
 # Other systems should use the public API instead of modifying these arrays.
@@ -141,6 +149,8 @@ func _spread_fire() -> void:
 				if near_water:
 					continue
 
+				var spread_direction := Vector2(target.x - x, target.y - y)
+				chance = _wind_adjusted_spread_chance(chance, spread_direction)
 				if randf() < chance:
 					if not cells_to_ignite.has(target):
 						cells_to_ignite.append(target)
@@ -148,6 +158,20 @@ func _spread_fire() -> void:
 	# Apply ignition only after every existing fire has been checked.
 	for cell in cells_to_ignite:
 		ignite(cell.x, cell.y)
+
+
+## Adjusts a target's base chance according to its direction from the fire.
+## Wind strength scales the base chance by the wind alignment.
+func _wind_adjusted_spread_chance(base_chance: float, spread_direction: Vector2) -> float:
+	if base_chance <= 0.0:
+		return 0.0
+	if wind_strength == 0.0 or wind_direction == Vector2.ZERO:
+		return clampf(base_chance, 0.0, 1.0)
+
+	var normalized_wind := wind_direction.normalized()
+	var normalized_spread := spread_direction.normalized()
+	var alignment := normalized_wind.dot(normalized_spread)
+	return clampf(base_chance * (1.0 + wind_strength * alignment), 0.0, 1.0)
 
 
 # ---------- Public API: other teams call these ----------
