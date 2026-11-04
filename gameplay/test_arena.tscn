@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://dqggyxa1026n5"]
+
+[ext_resource type="PackedScene" uid="uid://ccagj28ds73v3" path="res://gameplay/player.tscn" id="1_2pcup"]
+[ext_resource type="Script" uid="uid://biwmi3fan3evb" path="res://gameplay/candle.gd" id="2_abui0"]
+[ext_resource type="Texture2D" uid="uid://g5bjrtn5t7dm" path="res://gameplay/art/brazier_lit.png" id="3_1clrg"]
+[ext_resource type="Texture2D" uid="uid://yawhho1op00l" path="res://gameplay/art/brazier_idle.png" id="4_eeltc"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_al4oj"]
+size = Vector2(1000, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_62xjh"]
+size = Vector2(40, 200)
+
+[node name="Test Arena" type="Node2D" unique_id=211412662]
+
+[node name="Floor" type="StaticBody2D" parent="." unique_id=162510511]
+position = Vector2(500, 500)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=1432741016]
+shape = SubResource("RectangleShape2D_al4oj")
+
+[node name="Player" parent="." unique_id=818539248 instance=ExtResource("1_2pcup")]
+position = Vector2(500, 300)
+
+[node name="Candle" type="Area2D" parent="." unique_id=1094083624]
+script = ExtResource("2_abui0")
+lit_texture = ExtResource("3_1clrg")
+idle_texture = ExtResource("4_eeltc")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Candle" unique_id=883911340]
+shape = SubResource("RectangleShape2D_62xjh")
+
+[node name="Sprite2D" type="Sprite2D" parent="Candle" unique_id=697379962]
+texture = ExtResource("3_1clrg")
