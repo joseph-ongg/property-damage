@@ -20,6 +20,17 @@ const P2_RUN: Array[Texture2D] = [
 	preload("res://gameplay/art/mage_2_run_1.png"),
 ]
 
+# Ninja and Werewolf use layered 32px art and independent animation resources.
+# Art Team assets can be substituted without editing the player controller.
+const NINJA_VISUALS: GameplayCharacterVisualSet = preload("res://gameplay/characters/ninja_visuals.tres")
+const WEREWOLF_VISUALS: GameplayCharacterVisualSet = preload("res://gameplay/characters/werewolf_visuals.tres")
+const CHARACTER_TYPES: Array[String] = ["mage", "ninja", "werewolf"]
+const CHARACTER_DESIGN: Dictionary = {
+	"mage": {"move_scale": 1.0, "jump_scale": 1.0, "design_hp": 120, "projectile": "fireball"},
+	"ninja": {"move_scale": 1.2, "jump_scale": 1.12, "design_hp": 100, "projectile": "shuriken"},
+	"werewolf": {"move_scale": 0.85, "jump_scale": 1.0, "design_hp": 160, "projectile": "TBD"},
+}
+
 signal sparked(player_index: int, target: Vector2, accepted: bool)
 signal interact_pressed(player_index: int, player: GameplayPlayer)
 signal magic_attacked(player_index: int, player: GameplayPlayer)
@@ -29,6 +40,10 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 # Art can replace either mage via the Inspector without editing Gameplay code.
 # Leaving this unset keeps the original local P1/P2 prototype sprites.
 @export var sprite_override: Texture2D
+# Character-select handoff: call set_character_kind("ninja") or
+# set_character_kind("werewolf"). P1/P2 controls do not change.
+@export_enum("mage", "ninja", "werewolf") var character_kind: String = "mage"
+@export var character_art_override: GameplayCharacterVisualSet
 @export_node_path("Node") var fire_bridge_path: NodePath
 @export var reset_height: float = 580.0
 @export var dash_enabled: bool = true  # Optional extra; off in the team MSD demo.
@@ -50,6 +65,9 @@ var _animation_clock: float = 0.0
 var _action_pose_remaining: float = 0.0
 var _dash_was_active: bool = false
 var _magic_cooldown: float = 0.0
+var _hurt_pose_remaining: float = 0.0
+var _original_motor_speed: float = 0.0
+var _original_jump_speed: float = 0.0
 
 
 func _enter_tree() -> void:
@@ -69,7 +87,9 @@ func _ready() -> void:
 	_bridge = get_node_or_null(fire_bridge_path) as GameplayFireBridge
 	if player_index == 2:
 		facing = -1
-	sprite.texture = sprite_override if sprite_override != null else (MAGE1 if player_index == 1 else MAGE2)
+	_original_motor_speed = motor.speed
+	_original_jump_speed = motor.jump_speed
+	set_character_kind(character_kind)
 	sprite.flip_h = facing < 0
 	_apply_art_size()
 	$NameTag.text = "P%d" % player_index
@@ -120,6 +140,7 @@ func _physics_process(delta: float) -> void:
 	dash.tick(delta)
 	_animation_clock += delta
 	_action_pose_remaining = maxf(0.0, _action_pose_remaining - delta)
+	_hurt_pose_remaining = maxf(0.0, _hurt_pose_remaining - delta)
 	var moving := absf(velocity.x) > 18.0
 	if dash.active() or _dash_was_active:
 		queue_redraw()
@@ -148,12 +169,59 @@ func _physics_process(delta: float) -> void:
 		platform_drop.reset(self)
 
 
+func _visual_profile() -> GameplayCharacterVisualSet:
+	if character_art_override != null:
+		return character_art_override
+	match character_kind:
+		"ninja":
+			return NINJA_VISUALS
+		"werewolf":
+			return WEREWOLF_VISUALS
+	return null
+
+
+# Called by character selection or the Inspector. No changes to input,
+# collision layers, the Health component, or damage attribution.
+func set_character_kind(kind: String) -> bool:
+	if not CHARACTER_TYPES.has(kind):
+		return false
+	character_kind = kind
+	if is_node_ready():
+		var spec: Dictionary = CHARACTER_DESIGN[kind]
+		motor.speed = _original_motor_speed * float(spec["move_scale"])
+		motor.jump_speed = _original_jump_speed * float(spec["jump_scale"])
+		_update_character_sprite(absf(velocity.x) > 18.0)
+	return true
+
+
+func character_design_info() -> Dictionary:
+	# Informational Design values; Eva's Health component owns actual HP.
+	return CHARACTER_DESIGN.get(character_kind, CHARACTER_DESIGN["mage"]).duplicate()
+
+
+func show_hurt_pose(duration: float = 0.24) -> void:
+	# A Health adapter can request this without owning the sprite node.
+	_hurt_pose_remaining = maxf(_hurt_pose_remaining, duration)
+	_update_character_sprite(absf(velocity.x) > 18.0)
+
+
 func _update_character_sprite(moving: bool) -> void:
-	# An Inspector override always takes priority over the PPT-derived frames.
-	# When standing use the Character design static; when walking animate the
-	# two original GIF frames at the deck's 80ms cadence.
+	# The Inspector's one-frame override remains highest priority.
 	var target_texture: Texture2D = sprite_override
+	var visuals := _visual_profile()
+	if target_texture == null and visuals != null:
+		var pose := "idle"
+		if _hurt_pose_remaining > 0.0:
+			pose = "hurt"
+		elif _action_pose_remaining > 0.0:
+			pose = "action"
+		elif not is_on_floor() and absf(velocity.y) > 40.0:
+			pose = "jump"
+		elif moving:
+			pose = "run"
+		target_texture = visuals.texture_for(pose, _animation_clock)
 	if target_texture == null:
+		# Preserve the original two PPT-derived mage art paths unchanged.
 		if _action_pose_remaining > 0.0:
 			target_texture = MAGE1_ACTION if player_index == 1 else MAGE2_ACTION
 		elif moving:
@@ -164,9 +232,9 @@ func _update_character_sprite(moving: bool) -> void:
 	if sprite.texture != target_texture:
 		sprite.texture = target_texture
 		_apply_art_size()
-	# The Art Team's original PNG has asymmetric transparent margins. Center
-	# the visible robe while facing either direction; do not crop source art.
-	sprite.position.x = float(facing) * 4.0 if sprite_override == null else 0.0
+	# The original mage has uneven transparent margins. The new 32x32
+	# frames are already registered to a common center.
+	sprite.position.x = float(facing) * 4.0 if visuals == null and sprite_override == null else 0.0
 	sprite.position.y = -10.0
 
 
