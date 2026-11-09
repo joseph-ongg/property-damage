@@ -10,6 +10,22 @@ func frames(n: int) -> void:
 	for _i in n:
 		await physics_frame
 
+func tap_character_key(code: Key) -> void:
+	# A real keystroke needs distinct press/release events on separate frames.
+	# Reusing an InputEvent object or leaving keys held makes Godot synthetic
+	# input non-deterministic and can swallow a later character selection.
+	var press := InputEventKey.new()
+	press.keycode = code
+	press.pressed = true
+	Input.parse_input_event(press)
+	await frames(3)
+	var release := InputEventKey.new()
+	release.keycode = code
+	release.pressed = false
+	Input.parse_input_event(release)
+	await frames(2)
+
+
 func check(condition: bool, label: String) -> void:
 	if condition:
 		print("PASS: ",label)
@@ -102,24 +118,22 @@ func _run() -> void:
 	p1.character_art_override = null
 	# In the playable character scene, either player can switch between all
 	# three classes without rebuilding the arena or changing input mappings.
-	var e1 := InputEventKey.new()
-	e1.keycode = KEY_3
-	e1.pressed = true
-	Input.parse_input_event(e1)
-	await frames(3)
+	await tap_character_key(KEY_3)
 	check(p1.character_kind == "werewolf" and is_equal_approx(p1.motor.speed, 245.0 * 0.85), "P1 keyboard selection switches Ninja to Werewolf")
-	var e2 := InputEventKey.new()
-	e2.keycode = KEY_7
-	e2.pressed = true
-	Input.parse_input_event(e2)
-	await frames(3)
+	await tap_character_key(KEY_7)
 	check(p2.character_kind == "mage" and is_equal_approx(p2.motor.speed, 245.0), "P2 keyboard selection switches Werewolf to Mage")
-	var e3 := InputEventKey.new()
-	e3.keycode = KEY_2
-	e3.pressed = true
-	Input.parse_input_event(e3)
-	await frames(3)
+	await tap_character_key(KEY_2)
 	check(p1.character_kind == "ninja" and p1.sprite.texture.get_size() == Vector2(32,32), "P1 can reselect Ninja without losing visual registration")
+	# Cover all six shortcuts and repeated changes; child HUD controls must
+	# not swallow character selection keys when they have focus.
+	for key in [KEY_1, KEY_3, KEY_2, KEY_1, KEY_3, KEY_2]:
+		await tap_character_key(key)
+		var expected: String = {KEY_1:"mage", KEY_2:"ninja", KEY_3:"werewolf"}[key]
+		check(p1.character_kind == expected and p1.sprite.texture != null, "P1 shortcut repeatedly selects %s" % expected)
+	for key in [KEY_8, KEY_9, KEY_7]:
+		await tap_character_key(key)
+		var expected: String = {KEY_7:"mage", KEY_8:"ninja", KEY_9:"werewolf"}[key]
+		check(p2.character_kind == expected and p2.sprite.texture != null, "P2 shortcut selects %s" % expected)
 	scene.queue_free()
 	print("CHARACTER_ART_SUMMARY failures=",failures.size())
 	quit(0 if failures.is_empty() else 1)

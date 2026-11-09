@@ -14,12 +14,19 @@ func _ready() -> void:
 	get_node("Main/GameplayMSD/Player2").set_character_kind(player2_character)
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
+	# Demo selection keys are handled before child HUD/GUI input can consume
+	# them. Keep the menu and normal P1/P2 gameplay bindings unchanged.
+	if get_tree().paused:
+		return
 	if not event is InputEventKey or not event.pressed or event.echo:
 		return
-	if P1_CHOICES.has(event.keycode):
-		player1_character = P1_CHOICES[event.keycode]
+	var key: Key = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+	if P1_CHOICES.has(key):
+		player1_character = P1_CHOICES[key]
 		get_node("Main/GameplayMSD/Player1").set_character_kind(player1_character)
-	elif P2_CHOICES.has(event.keycode):
-		player2_character = P2_CHOICES[event.keycode]
+		get_viewport().set_input_as_handled()
+	elif P2_CHOICES.has(key):
+		player2_character = P2_CHOICES[key]
 		get_node("Main/GameplayMSD/Player2").set_character_kind(player2_character)
+		get_viewport().set_input_as_handled()
