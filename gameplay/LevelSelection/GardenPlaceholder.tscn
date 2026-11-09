@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://b56a2ax0fhlui"]
+
+[ext_resource type="Texture2D" uid="uid://cxbrdq3hdgqxm" path="res://gameplay/LevelSelection/Gardenmap.png" id="1_v3xlr"]
+[ext_resource type="Script" uid="uid://bnyiweghqv16p" path="res://gameplay/LevelSelection/back_to_menu.gd.gd" id="2_kjpma"]
+
+[node name="GardenPlaceholder" type="Node2D" unique_id=929374660]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=857917967]
+position = Vector2(576, 324)
+texture = ExtResource("1_v3xlr")
+
+[node name="Backtomenu" type="Node" parent="." unique_id=1129678854]
+script = ExtResource("2_kjpma")
