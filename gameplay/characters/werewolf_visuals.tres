@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="GameplayCharacterVisualSet" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://gameplay/characters/character_visual_set.gd" id="1_set"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_idle_0.png" id="2_tex"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_idle_1.png" id="3_tex"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_run_0.png" id="4_tex"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_run_1.png" id="5_tex"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_run_2.png" id="6_tex"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_run_3.png" id="7_tex"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_jump_0.png" id="8_tex"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_attack_0.png" id="9_tex"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_hurt_0.png" id="10_tex"]
+
+[resource]
+script = ExtResource("1_set")
+idle_frames = Array[Texture2D]([ExtResource("2_tex"), ExtResource("3_tex")])
+run_frames = Array[Texture2D]([ExtResource("4_tex"), ExtResource("5_tex"), ExtResource("6_tex"), ExtResource("7_tex")])
+jump_texture = ExtResource("8_tex")
+action_texture = ExtResource("9_tex")
+hurt_texture = ExtResource("10_tex")
+run_fps = 10.0
+idle_fps = 3.0

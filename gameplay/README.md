@@ -477,3 +477,27 @@ The Art/Level Design handoff uses `one_way_ledge.tscn` with configurable
 does **not** modify Ethan's MaterialGrid or Austin's furniture fire ownership.
 For coordinates, authoring provenance and the isolated regression test, see
 `gameplay/platforms/README.md`.
+
+## 22. Playable Ninja and Werewolf character art
+
+`gameplay/characters/` includes complete 32×32 pixel character animation
+resources for **Ninja** and **Werewolf**: Idle (2 frames), Run (4 frames),
+Jump, Attack and Hurt. The original P1/P2 Mage sprites and collision bodies
+are unchanged. `GameplayPlayer` exposes a `character_kind` Inspector property
+(`mage`, `ninja`, `werewolf`), `set_character_kind()` for selection interfaces,
+and a separate optional `character_art_override` resource. The resources
+contain animation frames and timing without taking ownership of input or
+physics. The Ninja receives the Design 1.2× movement speed and higher jump;
+the Werewolf receives 0.85× movement speed. Design HP values are available
+as metadata, while Eva's Health code still owns actual HP. Character-specific
+projectile behavior is reserved for the combat integration and is not claimed
+as complete.
+
+Run `res://gameplay/characters/character_demo.tscn` for a live two-character
+arena with Ninja on P1 and Werewolf on P2. Press **1/2/3** to switch P1's
+Mage/Ninja/Werewolf; press **7/8/9** to switch P2's characters while playing.
+These controls exist only in the dedicated scene and do not conflict with the
+team's map-selection flow. The animation/physics regression test is at
+`gameplay/tests/gameplay_character_art_test.gd`. Real Godot screenshots and a
+nine-pose gallery are under `gameplay/characters/`. Read
+`gameplay/characters/README.md` for Art and Level Design integration notes.
