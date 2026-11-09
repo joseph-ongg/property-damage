@@ -87,3 +87,16 @@ The Art Team source `team_clock.png` is a crop whose bezel meets the right image
 ## Gameplay left-facing desk fan (October 13, 2026)
 
 The angled desk fan in `gameplay/props/fan/sprites/` is **new original procedural pixel art** drawn by `gameplay/props/fan/generate_fan.py` with Pillow on the local Mac. No AI image generator, remote download, or reused copyrighted game art was used. Layered rear housing/stand, six rotor frames and front perspective grille are native 48x56 RGBA textures. They are distinct from the Art Team's PPT originals and can be overridden separately by that team. See `gameplay/props/fan/README.md` for exact replacement and state API contracts.
+
+## Platform V2 floating-bookshelf art
+
+`gameplay/platforms/sprites/wall_bookshelf_oak.png`,
+`wall_bookshelf_teal.png` and `wall_bookshelf_walnut.png` are original
+procedural pixel drawings made locally with Pillow by
+`gameplay/platforms/generate_bookshelves.py`. No AI image generator, web art,
+or Art Team source assets were used for these **new** textures. The base
+living-room backdrop, its window, bed/sofa, picture frames and AC remain
+the original scene art; the added one-way platform colliders are invisible
+on those existing objects. The reusable collision script was adapted from
+Suwen's earlier local platform work (`suwen/arena-platforms-20261021`, based
+on `suwen/platforms` commit `7c96bdd`).
