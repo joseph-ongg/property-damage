@@ -7,6 +7,7 @@ signal touched_fire
 
 @export var enabled: bool = false
 @export var damage_interval: float = 1.0
+@onready var fall_damage := GameplayFallDamage.new()
 var _cooldown: float = 0.0
 
 
@@ -20,3 +21,4 @@ func tick(delta: float, bridge: GameplayFireBridge, player: CharacterBody2D) -> 
 	if bridge.is_burning_world(feet):
 		_cooldown = damage_interval
 		touched_fire.emit()
+		

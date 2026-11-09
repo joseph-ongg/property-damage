@@ -38,10 +38,12 @@ func _on_damaged(_amount: int) -> void:
 
 
 func _draw() -> void:
-	var total_width := spacing * (_max_hp - 1)
-	for i in _max_hp:
+	var count := 3
+	var total_width := spacing * (count - 1)
+	for i in count:
 		var center := Vector2(i * spacing - total_width * 0.5, 0.0)
-		_draw_heart(center, full_color if i < _hp else empty_color)
+		var full := _hp > i * _max_hp / float(count)
+		_draw_heart(center, full_color if full else empty_color)
 
 
 func _draw_heart(c: Vector2, color: Color) -> void:
