@@ -1,4 +1,5 @@
-## Draws one heart per max HP above a character's head.
+## Draws three hearts above a character's head. Each heart is a third of max HP
+## and fades smoothly as it drains, so small hits (1-2 HP) are visible.
 class_name HeartsDisplay
 extends Node2D
 
@@ -18,7 +19,6 @@ func _ready() -> void:
 		return
 	health.changed.connect(_on_changed)
 	health.damaged.connect(_on_damaged)
-	# Deferred so Health has finished its own _ready regardless of node order.
 	_on_changed.call_deferred(health.hp, health.max_hp)
 
 
@@ -29,7 +29,6 @@ func _on_changed(hp: int, max_hp: int) -> void:
 
 
 func _on_damaged(_amount: int) -> void:
-	# Small shake so hits feel readable.
 	var tween := create_tween()
 	var base := position
 	tween.tween_property(self, "position", base + Vector2(3, 0), 0.04)
@@ -38,12 +37,15 @@ func _on_damaged(_amount: int) -> void:
 
 
 func _draw() -> void:
+	if _max_hp <= 0:
+		return
 	var count := 3
+	var per_heart := float(_max_hp) / count
 	var total_width := spacing * (count - 1)
 	for i in count:
 		var center := Vector2(i * spacing - total_width * 0.5, 0.0)
-		var full := _hp > i * _max_hp / float(count)
-		_draw_heart(center, full_color if full else empty_color)
+		var fill := clampf((float(_hp) - i * per_heart) / per_heart, 0.0, 1.0)
+		_draw_heart(center, empty_color.lerp(full_color, fill))
 
 
 func _draw_heart(c: Vector2, color: Color) -> void:
