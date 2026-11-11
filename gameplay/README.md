@@ -501,3 +501,17 @@ team's map-selection flow. The animation/physics regression test is at
 `gameplay/tests/gameplay_character_art_test.gd`. Real Godot screenshots and a
 nine-pose gallery are under `gameplay/characters/`. Read
 `gameplay/characters/README.md` for Art and Level Design integration notes.
+
+## 22. Character selection / Health integration
+
+Angela's map menu now offers P1 and P2 Mage/Ninja/Werewolf selectors; choices
+are consumed by the actual team-room players on Living Room launch. The
+default playable scene still opens the two legacy Mages and now exposes
+Angela's `Back to Maps (M)` control. The game scene's original 32x64
+CharacterBody2D colliders and input bindings are unchanged. `Health` is Eva's
+original component; character max HP values follow current Design (Mage 120,
+Ninja 100, Werewolf 160). A small numeric status label mirrors its signals,
+without changing damage rules or generating 160 individual hearts. Character
+animations and existing Ninja speed/jump and Werewolf speed modifiers remain
+unchanged. No new Austin item mechanics or attack hitboxes are implemented.
+See `gameplay/characters/README.md` and the integration regression test.

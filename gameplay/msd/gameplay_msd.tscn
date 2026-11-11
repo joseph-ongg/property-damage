@@ -200,6 +200,7 @@ material_tag = &"wood"
 sprite_texture = ExtResource("21_walnut")
 
 [node name="Player1" parent="." instance=ExtResource("1_player")]
+use_menu_character_selection = true
 z_index = 10
 position = Vector2(80, 459)
 player_index = 1
@@ -210,6 +211,7 @@ enhanced_jumping = true
 platform_drop_enabled = true
 
 [node name="Player2" parent="." instance=ExtResource("1_player")]
+use_menu_character_selection = true
 z_index = 10
 position = Vector2(884, 459)
 player_index = 2

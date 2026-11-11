@@ -15,3 +15,45 @@ The Character Design document specifies Wizard speed ×1.0 / 120 HP / fireball; 
 ### Art source and scale
 
 All 32×32 source PNGs are authored by Suwen's Gameplay implementation using programmatic Pillow drawing (`generate_characters.py`) and can be regenerated. Existing Art Team mage PNG/GIF originals are preserved, not recolored or redistributed. Player sprite visual height remains 60px to align foot placement with the current arena; the physical collider is still 32×64. `sprite.flip_h` uses the existing facing and the same pixels for the opposite orientation.
+
+## Real menu + Health integration (follow-up PR)
+
+Angela's `gameplay/LevelSelection/map_select.tscn` now includes independent P1
+(WASD) and P2 (arrow keys) character selectors above its existing Living
+Room and Garden buttons. Pick Mage, Ninja, or Werewolf, then choose a map.
+The **Living Room** loads real gameplay players with the selected character
+kind, visual animations and movement/jump multipliers. The Garden scene is
+still Angela's placeholder (no combatants to instantiate there yet).
+
+The two chosen kinds travel across the scene change through the tiny
+`character_selection_state.gd` session script (no project autoload or input
+remapping). Only the existing team-room P1/P2 prefab instances opt into
+using that state; standalone prefab demos and direct scene launches keep
+explicit Inspector/default Mage choices. Return via the newly added
+**Back to Maps (M)** button in the Living Room, or run `map_select.tscn`
+directly, to select again. A fresh F5 run retains the original Mage defaults,
+without changing `project.godot` or the team's default scene.
+
+Every `GameplayPlayer` prefab now contains **Eva's original Health component**
+and a compact numeric HP indicator (`HP current/max`) rather than an impractical
+160-heart row. On character choice, the existing `Health.max_hp` and
+`Health.reset()` are configured to **Mage 120, Ninja 100, Werewolf 160**.
+Ninja / Werewolf movement multipliers and Ninja higher jump are unchanged.
+`Health.changed` refreshes the indicator and `Health.damaged` shows the
+existing Hurt art. Eva's `take_damage`, invulnerability, healing and death
+signals are unmodified. Death/respawn and combat damage routing are not
+implemented by this menu/HP integration.
+
+**Austin's item/projectile gameplay remains separate:** Ninja shuriken and
+Werewolf claws are action sprite poses, not newly invented hitboxes, item
+physics, or damage values. Coordinate projectile and attack semantics with
+Austin/Design before wiring real combat. The Werewolf projectile is still
+TBD in the Design contract. The older draft character-art PR can merge first;
+this integration can then be retargeted to `main` and re-reviewed.
+
+Integration verification: `res://gameplay/tests/gameplay_character_selection_health_test.gd`
+starts the actual Angela menu, chooses Ninja and Werewolf, navigates into the
+Living Room, checks actual sprites, 32x64 colliders, motor parameters, Eva HP
+and signals, hurt/heal/invulnerability, Back-to-Maps, reselects Mage and checks
+a direct no-menu launch. Set `CAPTURE_CHARACTER_SELECT=/absolute/output/prefix`
+and run Godot without `--headless` for real menu/game screenshots.

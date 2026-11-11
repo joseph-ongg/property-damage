@@ -25,6 +25,7 @@ const P2_RUN: Array[Texture2D] = [
 const NINJA_VISUALS: GameplayCharacterVisualSet = preload("res://gameplay/characters/ninja_visuals.tres")
 const WEREWOLF_VISUALS: GameplayCharacterVisualSet = preload("res://gameplay/characters/werewolf_visuals.tres")
 const CHARACTER_TYPES: Array[String] = ["mage", "ninja", "werewolf"]
+const Selection = preload("res://gameplay/characters/character_selection_state.gd")
 const CHARACTER_DESIGN: Dictionary = {
 	"mage": {"move_scale": 1.0, "jump_scale": 1.0, "design_hp": 120, "projectile": "fireball"},
 	"ninja": {"move_scale": 1.2, "jump_scale": 1.12, "design_hp": 100, "projectile": "shuriken"},
@@ -44,6 +45,9 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 # set_character_kind("werewolf"). P1/P2 controls do not change.
 @export_enum("mage", "ninja", "werewolf") var character_kind: String = "mage"
 @export var character_art_override: GameplayCharacterVisualSet
+# Enabled only on the team arena's two player instances. Independent demos
+# and direct prefab instantiation keep the Inspector-selected kind.
+@export var use_menu_character_selection: bool = false
 @export_node_path("Node") var fire_bridge_path: NodePath
 @export var reset_height: float = 580.0
 @export var dash_enabled: bool = true  # Optional extra; off in the team MSD demo.
@@ -57,6 +61,8 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 @onready var spark: GameplaySparkEmitter = $SparkEmitter
 @onready var landing_fx: Node2D = $LandingFX
 @onready var hazard: GameplayFireHazard = $FireHazard
+@onready var health: Health = $Health
+@onready var health_label: Label = $HealthLabel
 
 var facing: int = 1
 var _spawn: Vector2
@@ -89,6 +95,12 @@ func _ready() -> void:
 		facing = -1
 	_original_motor_speed = motor.speed
 	_original_jump_speed = motor.jump_speed
+	# Eva owns Health.take_damage()/heal()/invulnerability; Gameplay only
+	# chooses starting/max HP and listens to its existing signals.
+	health.changed.connect(_on_health_changed)
+	health.damaged.connect(_on_health_damaged)
+	if use_menu_character_selection and Selection.has_selection:
+		character_kind = Selection.for_player(player_index)
 	set_character_kind(character_kind)
 	sprite.flip_h = facing < 0
 	_apply_art_size()
@@ -190,8 +202,21 @@ func set_character_kind(kind: String) -> bool:
 		var spec: Dictionary = CHARACTER_DESIGN[kind]
 		motor.speed = _original_motor_speed * float(spec["move_scale"])
 		motor.jump_speed = _original_jump_speed * float(spec["jump_scale"])
+		# A character-choice transition starts that character at full HP.
+		# Damage/healing rules and invulnerability remain in Eva's Health.
+		health.max_hp = int(spec["design_hp"])
+		health.reset()
 		_update_character_sprite(absf(velocity.x) > 18.0)
 	return true
+
+
+func _on_health_changed(current_hp: int, maximum_hp: int) -> void:
+	# A numeric indicator avoids drawing 160 hearts when a Werewolf is used.
+	health_label.text = "HP %d/%d" % [current_hp, maximum_hp]
+
+
+func _on_health_damaged(_amount: int) -> void:
+	show_hurt_pose()
 
 
 func character_design_info() -> Dictionary:

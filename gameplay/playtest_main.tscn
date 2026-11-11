@@ -1,7 +1,12 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/msd/gameplay_msd.tscn" id="1_msd"]
+[ext_resource type="Script" path="res://gameplay/LevelSelection/back_to_menu.gd" id="2_menu"]
 
 [node name="Main" type="Node2D"]
 
 [node name="GameplayMSD" parent="." instance=ExtResource("1_msd")]
+
+[node name="BackToMenu" type="Node" parent="."]
+script = ExtResource("2_menu")
+button_position = Vector2(788, 12)

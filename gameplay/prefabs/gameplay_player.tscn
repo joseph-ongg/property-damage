@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://gameplay/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/components/player_motor.gd" id="2_motor"]
@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://gameplay/components/spark_aim.gd" id="6_aim"]
 [ext_resource type="Script" path="res://gameplay/components/landing_fx.gd" id="7_landing"]
 [ext_resource type="Script" path="res://gameplay/components/platform_drop.gd" id="8_platform_drop"]
+[ext_resource type="Script" path="res://gameplay/components/health.gd" id="9_health"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(32, 64)
@@ -47,6 +48,19 @@ script = ExtResource("7_landing")
 
 [node name="FireHazard" type="Node" parent="."]
 script = ExtResource("4_hazard")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("9_health")
+
+[node name="HealthLabel" type="Label" parent="."]
+offset_left = -42.0
+offset_top = -95.0
+offset_right = 42.0
+offset_bottom = -78.0
+mouse_filter = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 11
+text = "HP 120/120"
 
 [node name="NameTag" type="Label" parent="."]
 offset_left = -12.0
