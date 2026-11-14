@@ -5,6 +5,7 @@
 ## 参考 Jackson / c897a2e 的 cell_changed 信号驱动重绘。
 ## Based on Jackson commit c897a2e: redraw in response to cell_changed.
 extends Node2D
+const FIRE_ART: Texture2D = preload("res://gameplay/msd/art/FIRE.png")
 
 @export_node_path("Node2D") var grid_path: NodePath
 
@@ -44,8 +45,4 @@ func _draw() -> void:
 		# Keep within the MaterialGrid cell and let Ethan own burn state.
 		var center := (Vector2(cell) * size + Vector2.ONE * size * 0.5).round()
 		var px := maxf(1.0, roundf(size / 16.0))
-		draw_rect(Rect2(center + Vector2(-5, 1) * px, Vector2(10, 5) * px), Color("ba391c"))
-		draw_rect(Rect2(center + Vector2(-4, -3) * px, Vector2(8, 7) * px), Color("ee681e"))
-		draw_rect(Rect2(center + Vector2(-2, -6) * px, Vector2(4, 8) * px), Color("ffa72c"))
-		draw_rect(Rect2(center + Vector2(-1, -2) * px, Vector2(2, 4) * px), Color("fff0a4"))
-		draw_rect(Rect2(center + Vector2(2, -6) * px, Vector2(2, 2) * px), Color("ffd86d"))
+		draw_texture(FIRE_ART, center)

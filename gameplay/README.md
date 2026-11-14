@@ -28,9 +28,10 @@ Player collision layer is 2 and the world collision layer is 1. Players collide 
 ## 3. Optional living-room modules
 
 - `msd/msd_controller.gd`: Connects players, interactable props, Spark, and appliance effects. Includes the `experimental_books_enabled` and `experimental_appliances_enabled` switches.
-- `msd/burnable_prop.gd`: Lightweight book pickup, carrying, throwing, and scorch visuals—not a full physical material-destruction system.
+- `msd/interactable_item.gd`: Shared tags, HP, timed fire damage, and condition bars; flammable footprints are seeded into the existing grid by the room controller.
+- `msd/burnable_prop.gd`, `msd/world_item.gd`: Throw physics and configurable room items. Carry uses `C` / `,`; use remains `E` / `Shift`.
 - `msd/appliance.gd`: Fridge toggle, fan push, AC slowdown (`effect_radius=130`, `cold_speed_scale=0.45`), and computer damage visuals.
-- `msd/magic_bolt.gd`: `G` / `.` fireball that lights bookshelf and table cells through the shared fire bridge; optional prop visuals remain experimental.
+- `msd/magic_bolt.gd`: `G` / `.` fireball that hits the nearest damageable item or player and lights furniture cells through the shared fire bridge.
 - `msd/interaction_hints.gd`: Nearby interaction instructions that share target selection with the controller's `get_interaction_offer()`.
 - `msd/player_conditions.gd`: `SLOW` and `WIND` visual states; physics remains owned by the motor and MSD controller.
 - `msd/room_visuals.gd`, `msd/art/generate_room.py`: Pixel-art room visuals, independent of collisions.
@@ -128,9 +129,9 @@ matching local fridge platform is 96 px wide. The air conditioner and monitor
 retain their source width/height ratios. These changes apply to the isolated
 Gameplay arena, not to the production Arena scene owned by other teams.
 
-Spark's demo material seeding now includes bookshelf standing height (grid
-row 19), and avoids painting flammable WOOD under the fridge footprint
-(columns 45–52, row 29): those cells are STONE. Both the temporary floor
+Spark's demo material seeding includes bookshelf standing height (grid
+row 19). The room controller adds WOOD to each flammable item's actual
+hit rectangle, including the fridge and AC. Both the temporary floor
 material grid and the fire overlay continue to use the **same** MaterialGrid
 node, so no duplicate material state is introduced. The hit effects and fire
 visuals use hard-edge pixel rectangles rather than blurred anti-aliased glows.
@@ -144,8 +145,8 @@ The production material grid remains Simulation-owned.
   center desk and computer, clock, and right refrigerator; all original tested
   one-way physics platform positions remain unchanged.
 - **Materials:** Seed WOOD across the real floor collision (rows 29–31),
-  bookshelf standing row 19, and central desk rows 23–25. Fridge columns 45–52
-  are STONE through row 31 and the wall-mounted AC is STONE in rows 20–21.
+  bookshelf standing row 19, central desk rows 23–25, and flammable item
+  hit rectangles. Areas outside an item's footprint retain their source material.
   Spark still targets material via `GameplayFireBridge` alone.
 - **Ethan's working grid:** The normal MSD scene's `MaterialGrid` now uses
   `gameplay/integration/ethan_material_grid.gd`: Ethan-compatible storage/burn state,
@@ -155,8 +156,8 @@ The production material grid remains Simulation-owned.
   automatically delegates to Ethan's parent methods instead of allocating
   duplicate arrays. We also test the merged-state configuration in a separate
   temporary project.
-  There is still **no spread, oil movement, collapse, or physics damage** in
-  this upstream commit; those were only proposed future features on the slides.
+  The installed upstream grid spreads fire and burns WOOD/OIL into ASH.
+  Oil movement and collapse remain outside this Gameplay prototype.
 - **Jackson's rendering:** `TeamMaterialRenderer` listens to the same grid's
   `cell_changed` and uses Jackson's material/fire colors (source commit
   `c897a2e`). Air is hidden; non-air material receives transparent pixel
@@ -320,7 +321,7 @@ The controller and its hint UI already share `can_pick_up()` and
 maintaining a second target-selection implementation.
 
 `gameplay_interaction_occlusion_test.gd` reproduces blocked and unblocked
-book pickup using P1's actual E input, verifies throwing a retrieved book,
+book pickup using P1's actual C input, verifies throwing a retrieved book,
 blocks fridge interactions through a thin wall, validates removal of that
 wall, and checks reachable books under one-way platforms for both P1 and P2.
 It first reproduced the original problem with failing assertions, then

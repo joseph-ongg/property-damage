@@ -45,8 +45,9 @@ func _run() -> void:
 	check(prop.scorched, "P1's actual spark changes nearby book appearance")
 	check(prop.flash_left > 0.0, "book scorches produce brief ember feedback")
 	check(not top.scorched, "unrelated books are unchanged")
-	check(room.status_text.text.contains("VISUAL TEST"), "HUD distinguishes mock prop feedback from Simulation")
-	check(not prop.try_scorch(prop.global_position, 2), "book cannot repeatedly reward a scorch")
+	check(room.status_text.text.contains("BOOKS DAMAGED"), "HUD reports book damage")
+	var hp_before_second_hit := prop.hp
+	check(prop.try_scorch(prop.global_position, 2) and prop.hp == hp_before_second_hit - 1.0, "each player hit removes another book HP")
 	await frames(95)
 	check(prop.scorched and prop.flash_left == 0.0, "book remains charred when transient embers expire")
 	# Missing Simulation shouldn't cause the visual prototype to crash.
