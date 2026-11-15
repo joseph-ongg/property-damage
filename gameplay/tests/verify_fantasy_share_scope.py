@@ -27,7 +27,7 @@ bad = [p for p in changed if (
 )]
 assert not bad, f"Excluded paths staged: {bad}"
 assert git("merge-base", "--is-ancestor", BASE, "HEAD") == "", "Angela is not an ancestor"
-assert git("merge-base", "--is-ancestor", "c9e8144", "HEAD") == "", "Gameplay history was lost"
+assert git("merge-base", "--is-ancestor", "5e4ce8d", "HEAD") == "", "Gameplay history was lost"
 source = (ROOT / "gameplay/presentation/generate_assets.py").read_text()
 assert "wave.open" not in source and "sound" not in source.lower(), "generator still produces sound"
 print(f"SHARE_SCOPE_OK changed_files={len(changed)} no_audio=true angela_script_unmodified=true")
