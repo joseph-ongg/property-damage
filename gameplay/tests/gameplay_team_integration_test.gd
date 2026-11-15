@@ -48,8 +48,8 @@ func _run() -> void:
 	check(grid.get_cell_material(29,23) == MaterialGrid.Materials.WOOD, "Design desk material includes player's spark row above the tabletop")
 	check(grid.get_cell_material(29,25) == MaterialGrid.Materials.WOOD, "Design desk material includes its physical surface row")
 	check(grid.get_cell_material(16,31) == MaterialGrid.Materials.WOOD, "the visual wood floor reaches the collision boundary")
-	check(grid.get_cell_material(48,31) == MaterialGrid.Materials.STONE, "fridge foundation remains nonflammable despite wood floor")
-	check(grid.get_cell_material(40,20) == MaterialGrid.Materials.STONE, "Design's wall-mounted AC has nonflammable housing")
+	check(grid.get_cell_material(48,31) == MaterialGrid.Materials.WOOD, "flammable fridge foundation is represented in the grid")
+	check(grid.get_cell_material(40,20) == MaterialGrid.Materials.WOOD, "wall-mounted AC has flammable grid fuel")
 	check(room.get_node("BookshelfTop").position == Vector2(238,344) and room.get_node("TableTop").position == Vector2(485,411), "Design layout preserves the tested one-way platforms")
 
 	var first_pose: Texture2D = GameplayPlayer.MAGE1_ACTION

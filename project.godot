@@ -12,9 +12,15 @@ config_version=5
 
 config/name="Property Damage"
 config/description="Local two-player 2D fighting game in a live materials-simulation arena."
-run/main_scene="res://gameplay/playtest_main.tscn"
+run/main_scene="res://gameplay/presentation/main_menu.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://gameplay/presentation/assets/app_icon.png"
+
+[display]
+
+window/size/viewport_width=960
+window/size/viewport_height=540
+window/stretch/mode="canvas_items"
 
 [rendering]
 

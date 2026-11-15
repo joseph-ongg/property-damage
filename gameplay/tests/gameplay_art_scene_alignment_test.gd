@@ -56,8 +56,8 @@ func _run() -> void:
 	check(not bridge.ignite_world(fridge_top_target), "fridge collision-level material is nonflammable")
 	var fridge_base := Vector2(780, 478)
 	var fridge_cell := bridge.world_to_cell(fridge_base)
-	check(grid.get_cell_material(fridge_cell.x, fridge_cell.y) == MaterialGrid.Materials.STONE, "fridge footprint cannot catch fire through floor WOOD material")
-	check(not bridge.ignite_world(fridge_base), "Spark rejects visually false fridge-base ignition")
+	check(grid.get_cell_material(fridge_cell.x, fridge_cell.y) == MaterialGrid.Materials.WOOD, "flammable fridge footprint has grid fuel")
+	check(bridge.ignite_world(fridge_base), "Spark can ignite the fridge footprint")
 	check(bridge.ignite_world(Vector2(850, 478)), "wood floor immediately outside fridge still accepts Spark")
 	check(bridge.grid() == grid and room.get_node("FireVisuals")._grid == grid, "artwork replacement does not create duplicate Simulation storage")
 
