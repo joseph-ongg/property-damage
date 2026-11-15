@@ -6,6 +6,10 @@
 ## Based on Jackson commit c897a2e: redraw in response to cell_changed.
 extends Node2D
 
+# Visual-only use of the new Art Team flame sprite. No changes to MaterialGrid.
+const ART_TEAM_FLAME: Texture2D = preload("res://gameplay/art_team/exported/fire_0.png")
+
+@export var use_art_team_flame: bool = true
 @export_node_path("Node2D") var grid_path: NodePath
 
 var _grid: MaterialGrid = null
@@ -43,6 +47,11 @@ func _draw() -> void:
 		# All flame elements snap to whole pixels, matching the pixel projectile.
 		# Keep within the MaterialGrid cell and let Ethan own burn state.
 		var center := (Vector2(cell) * size + Vector2.ONE * size * 0.5).round()
+		if use_art_team_flame:
+			# The 32x32 source has transparent margins; at 1:1 it covers
+			# approximately one 16px cell without stretching the original art.
+			draw_texture(ART_TEAM_FLAME, (center - Vector2(16.0, 16.0)).round())
+			continue
 		var px := maxf(1.0, roundf(size / 16.0))
 		draw_rect(Rect2(center + Vector2(-5, 1) * px, Vector2(10, 5) * px), Color("ba391c"))
 		draw_rect(Rect2(center + Vector2(-4, -3) * px, Vector2(8, 7) * px), Color("ee681e"))
