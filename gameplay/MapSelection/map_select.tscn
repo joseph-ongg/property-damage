@@ -1,6 +1,12 @@
 [gd_scene format=3 uid="uid://drtgao1tfad4i"]
 
-[ext_resource type="Script" uid="uid://d2uiqrhxnmkd2" path="res://gameplay/LevelSelection/map_select.gd" id="1_w2y14"]
+[ext_resource type="Script" uid="uid://d2uiqrhxnmkd2" path="res://gameplay/MapSelection/map_select.gd" id="1_w2y14"]
+
+[sub_resource type="Theme" id="Theme_06kof"]
+Button/colors/focus = Color(0, 0, 0, 1)
+Button/colors/hover = Color(0, 0, 0, 1)
+Button/colors/normal = Color(0, 0, 0, 1)
+Button/colors/pressed = Color(0, 0, 0, 1)
 
 [node name="MapSelect" type="Control" unique_id=1957363117]
 layout_mode = 3
@@ -9,7 +15,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = SubResource("Theme_06kof")
 script = ExtResource("1_w2y14")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=624596561]
+layout_mode = 0
+offset_right = 1164.0
+offset_bottom = 658.0
+color = Color(0.16862746, 0.20392157, 0.27058825, 1)
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=1575073800]
 layout_mode = 1
@@ -21,3 +34,8 @@ grow_vertical = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer" unique_id=647785810]
 layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer" unique_id=2086367199]
+layout_mode = 2
+text = "Select A Map"
+horizontal_alignment = 1
