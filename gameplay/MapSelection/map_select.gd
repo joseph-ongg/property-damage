@@ -18,7 +18,7 @@ func _ready() -> void:
 		button.add_theme_font_size_override("font_size", 32)
 		button.pressed.connect(_load_map.bind(map["path"]))
 		list.add_child(button)
-	list.get_child(0).grab_focus()  # so the keyboard works right away
+	list.get_child(0).grab_focus()  # so the keyboard works right awayS
 
 
 func _load_map(path: String) -> void:
