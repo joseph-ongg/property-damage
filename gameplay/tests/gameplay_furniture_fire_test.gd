@@ -30,7 +30,7 @@ func _run() -> void:
 		check(layer.covers_cell(cell) and grid.get_cell_material(cell.x, cell.y) == MaterialGrid.Materials.WOOD, "furniture has flammable grid fuel at %s" % str(cell))
 		check(not renderer.should_draw_cell(cell.x, cell.y), "unlit furniture material is invisible at %s" % str(cell))
 	check(not layer.covers_cell(Vector2i(29, 28)) and grid.get_cell_material(29, 28) == MaterialGrid.Materials.AIR, "open space under tabletop is not fuel")
-	check(not layer.covers_cell(Vector2i(40, 20)) and grid.get_cell_material(40, 20) == MaterialGrid.Materials.STONE, "AC remains outside furniture fuel")
+	check(not layer.covers_cell(Vector2i(40, 20)) and grid.get_cell_material(40, 20) == MaterialGrid.Materials.WOOD, "flammable AC now has its own grid fuel")
 	check(bridge.ignite_world(Vector2(200, 360)), "direct ignition uses existing fire bridge on bookshelf")
 	check(grid.is_burning(12, 22) and renderer.should_draw_cell(12, 22), "lit bookshelf is visible through the existing renderer")
 	grid.ignite(11, 24)

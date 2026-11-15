@@ -26,6 +26,7 @@ const NINJA_VISUALS: GameplayCharacterVisualSet = preload("res://gameplay/charac
 const WEREWOLF_VISUALS: GameplayCharacterVisualSet = preload("res://gameplay/characters/werewolf_visuals.tres")
 const CHARACTER_TYPES: Array[String] = ["mage", "ninja", "werewolf"]
 const Selection = preload("res://gameplay/characters/character_selection_state.gd")
+const RULES: GameplayTuning = preload("res://gameplay/tuning/gameplay_balance.tres")
 const CHARACTER_DESIGN: Dictionary = {
 	"mage": {"move_scale": 1.0, "jump_scale": 1.0, "design_hp": 120, "projectile": "fireball"},
 	"ninja": {"move_scale": 1.2, "jump_scale": 1.12, "design_hp": 100, "projectile": "shuriken"},
@@ -34,6 +35,7 @@ const CHARACTER_DESIGN: Dictionary = {
 
 signal sparked(player_index: int, target: Vector2, accepted: bool)
 signal interact_pressed(player_index: int, player: GameplayPlayer)
+signal carry_pressed(player_index: int, player: GameplayPlayer)
 signal magic_attacked(player_index: int, player: GameplayPlayer)
 
 @export_range(1, 2) var player_index: int = 1
@@ -61,6 +63,7 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 @onready var spark: GameplaySparkEmitter = $SparkEmitter
 @onready var landing_fx: Node2D = $LandingFX
 @onready var hazard: GameplayFireHazard = $FireHazard
+@onready var fall_damage: GameplayFallDamage = $FallDamage
 @onready var health: Health = $Health
 @onready var health_label: Label = $HealthLabel
 
@@ -74,6 +77,9 @@ var _magic_cooldown: float = 0.0
 var _hurt_pose_remaining: float = 0.0
 var _original_motor_speed: float = 0.0
 var _original_jump_speed: float = 0.0
+# Austin's item-destruction damage progression; Health remains Eva's single HP source.
+var attack_damage: float = 10.0
+var destroyed_objects: int = 0
 
 
 func _enter_tree() -> void:
@@ -82,6 +88,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	add_to_group("player_%d" % player_index)
 	collision_layer = 2  # players
 	collision_mask = 1   # only world; players pass through each other
 	_spawn = global_position
@@ -99,6 +106,14 @@ func _ready() -> void:
 	# chooses starting/max HP and listens to its existing signals.
 	health.changed.connect(_on_health_changed)
 	health.damaged.connect(_on_health_damaged)
+	hazard.enabled = true
+	hazard.damage_interval = RULES.fire_tick_seconds
+	hazard.touched_fire.connect(_on_fire_contact)
+	fall_damage.safe_distance = RULES.fall_safe_distance
+	fall_damage.damage_per_pixel = RULES.fall_damage_per_pixel
+	fall_damage.hard_landing.connect(_on_hard_landing)
+	fall_damage.reset(self)
+	attack_damage = RULES.base_attack_damage
 	if use_menu_character_selection and Selection.has_selection:
 		character_kind = Selection.for_player(player_index)
 	set_character_kind(character_kind)
@@ -141,6 +156,7 @@ func _physics_process(delta: float) -> void:
 	var forced_x := float(dash.direction) * dash.dash_speed if dash.active() else INF
 	var was_grounded := is_on_floor()
 	motor.step(self, delta, horizontal, jump, forced_x, Input.is_action_just_released(prefix + "jump"), platform_drop.is_dropping())
+	fall_damage.tick(self)
 	platform_drop.tick(self, delta)  # 离开单向平台后立即恢复原碰撞。 / Restore normal collision after dropping through a one-way platform.
 	if not was_grounded and is_on_floor():
 		landing_fx.trigger()
@@ -165,6 +181,9 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed(prefix + "interact"):
 		_action_pose_remaining = 0.26
 		interact_pressed.emit(player_index, self)
+	if Input.is_action_just_pressed(prefix + "carry"):
+		_action_pose_remaining = 0.26
+		carry_pressed.emit(player_index, self)
 	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
 		_action_pose_remaining = 0.26
 		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
@@ -217,6 +236,38 @@ func _on_health_changed(current_hp: int, maximum_hp: int) -> void:
 
 func _on_health_damaged(_amount: int) -> void:
 	show_hurt_pose()
+
+
+## Item and combat adapters: don't create a second HP store.
+func take_damage(amount: float, _auto_respawn: bool = true) -> bool:
+	return health.take_damage(maxi(1, roundi(amount)))
+
+
+func heal(amount: float) -> void:
+	health.heal(roundi(amount))
+
+
+func _on_fire_contact() -> void:
+	take_damage(RULES.fire_damage_per_tick)
+
+
+func _on_hard_landing(amount: int) -> void:
+	take_damage(float(amount))
+
+
+func reward_destruction() -> void:
+	destroyed_objects += 1
+	attack_damage = RULES.base_attack_damage * (1.0 + RULES.bonus_per_destroyed_item * float(destroyed_objects))
+
+
+func respawn(reset_health: bool = true) -> void:
+	global_position = _spawn
+	velocity = Vector2.ZERO
+	motor.reset()
+	dash.reset()
+	platform_drop.reset(self)
+	if reset_health:
+		health.reset()
 
 
 func character_design_info() -> Dictionary:

@@ -1,6 +1,6 @@
 extends Node
 
-const MENU_SCENE := "res://gameplay/LevelSelection/map_select.tscn"
+const MENU_SCENE := "res://gameplay/MapSelection/map_select.tscn"
 
 @export var show_button: bool = true
 @export var button_position: Vector2 = Vector2(12, 12)

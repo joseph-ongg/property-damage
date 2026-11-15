@@ -92,23 +92,23 @@ func _run() -> void:
 	Input.action_release("p1_left")
 	check(p1.velocity.x < 185.0, "air steering still allows changing velocity")
 
-	# Real E input: pick up, follow player, throw, settle on a collision surface.
-	_reset_player(p1, Vector2(310, 478))
+	# Real C input: pick up, follow player, throw, settle on a collision surface.
+	_reset_player(p1, Vector2(350, 478))
 	await frames(3)
 	var book: GameplayBurnableProp = room.get_node("Books/FloorBooks")
-	Input.action_press("p1_interact")
+	Input.action_press("p1_carry")
 	await frames(3)
-	Input.action_release("p1_interact")
-	check(book.carried_by == p1 and room.held_books.get(1) == book, "E picks up the nearby book")
+	Input.action_release("p1_carry")
+	check(book.carried_by == p1 and room.held_items.get(1) == book, "C picks up the nearby book")
 	var book_before := book.global_position
 	Input.action_press("p1_left")
 	await frames(12)
 	Input.action_release("p1_left")
 	check(book.global_position.x < book_before.x - 15.0, "held book follows the player's movement")
-	Input.action_press("p1_interact")
+	Input.action_press("p1_carry")
 	await frames(3)
-	Input.action_release("p1_interact")
-	check(book.carried_by == null and book.flying and not room.held_books.has(1), "pressing E again throws the book")
+	Input.action_release("p1_carry")
+	check(book.carried_by == null and book.flying and not room.held_items.has(1), "pressing C again throws the book")
 	var thrown_start := book.global_position
 	await frames(12)
 	check(book.global_position.distance_to(thrown_start) > 15.0, "thrown book travels with independent velocity")
@@ -152,7 +152,8 @@ func _run() -> void:
 	await frames(3)
 	Input.action_release("p1_spark")
 	check(computer.charred and not computer.switched_on, "real Spark shorts the computer without changing Simulation storage")
-	check(not computer.receive_spark(computer.global_position, 2), "already destroyed computer cannot be triggered repeatedly")
+	var hp_before_second_spark := computer.hp
+	check(computer.receive_spark(computer.global_position, 2) and computer.hp == hp_before_second_spark - 1.0, "computer needs repeated one HP hits before destruction")
 	check(not room.has_node("VictoryOverlay"), "optional interactions add no invented victory rule")
 	scene.queue_free()
 	print("GAMEPLAY_ADVANCED_SUMMARY failures=", failed.size())

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="GameplayTuning" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://gameplay/tuning/gameplay_tuning.gd" id="1_tuning"]
+
+[resource]
+script = ExtResource("1_tuning")
+base_attack_damage = 10.0
+bonus_per_destroyed_item = 0.05
+item_hit_damage = 1.0
+fire_damage_per_tick = 2.0
+fire_tick_seconds = 1.0
+item_fire_damage_interval = 3.0
+item_fire_duration = 10.0
+fall_safe_distance = 220.0
+fall_damage_per_pixel = 0.15
+rounds_to_win = 2
+bolt_speed = 395.0
+bolt_lifetime = 1.45
