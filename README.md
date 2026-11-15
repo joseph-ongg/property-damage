@@ -1,6 +1,6 @@
-# Property Damage — Two-Player Gameplay Prototype
+# Property Damage — Full Local Gameplay Integration (November 14, 2026)
 
-> **Status:** A playable, independent Gameplay prototype for the Property Damage project, **not** a merged or officially approved final build. The extra furniture interactions, ranged spells, and pixel-art room are optional experiments. Final win conditions have not been confirmed.
+> **Status:** Playable local integration candidate with current upstream WindModel, Austin item mechanics, Eva Health/fall damage, Angela MapSelection v2, Art Team Piskel assets, and reusable best-of-three combat. **Not** an official upstream release; the planned third arena, production Garden polish and confirmed Werewolf attack are still pending. See [Full integration handoff](gameplay/FULL_INTEGRATION.md).
 
 [Getting started](#getting-started) · [Controls](#controls) · [Features](#implemented-features) · [Code map](#code-map) · [Tests](#testing) · [Credits](#code-and-art-attribution)
 
@@ -8,7 +8,7 @@
 
 1. Install **Godot 4.7.2 Standard** (GDScript; the .NET edition is not required).
 2. Import the repository root containing `project.godot` into Godot.
-3. Press **F5** to run the independent two-player living-room prototype, now configured as the branch's default project startup scene. You can also open `gameplay/playtest_main.tscn` and press **F6**. The repository-owned `main.tscn` file remains unchanged.
+3. Press **F5** to open Angela's updated character and map selection menu. Pick any two characters and enter either playable Living Room or Garden. Direct Living Room playtest remains at `gameplay/playtest_main.tscn` (F6).
 4. To try the unrelated fantasy prototype, open `gameplay/demo/gameplay_test.tscn` and press **F6**. Its Moonlit Ruins theme, collectibles, brazier objectives, and victory conditions are *not* confirmed team requirements.
 
 ## Controls
@@ -20,9 +20,12 @@
 | Drop through a one-way platform | `S` + `W` | Down + Up arrows |
 | Spark: attempt to ignite the cell ahead | `F` | `Enter` |
 | Ranged magic projectile (experimental) | `G` | `.` (period) |
-| Pick up / throw a book; interact with furniture | `E` | `Shift` |
+| Pick up / throw a throwable item | `C` | `,` (comma) |
+| Use furniture or eat food | `E` | `Shift` |
+| Start / stop microwave, or close its door | Down + `E` | Down + `Shift` |
 | Pause / resume | `P` or `Esc` | Shared |
-| Restart the currently played Gameplay scene when unpaused | `R` | Shared |
+| Next round / restart match at result screen | `R` | Shared |
+| Back to character/map menu | `M` | Shared |
 
 Down+Jump only drops through one-way platforms; it does not jump from solid floors. Dash is disabled in the living-room playtest. The separate fantasy test scene uses `Q` and `/` for Dash. Available interactions appear contextually near nearby objects.
 
@@ -39,18 +42,21 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 ### Optional visual and interaction prototypes
 
 - Art-team-inspired pixel-art living room with clear platform edges, original uncropped Art-team Character design 736×736 blue/red mage stills and moving frames, scaled in Godot, split P1/P2 control panels, landing and Spark feedback, and nearby interaction prompts.
-- Books can be picked up, carried, thrown, and visually scorched by Spark or magic.
-- A fridge with an opening door; a fan that pushes nearby players; an AC that slows nearby movement; and a computer with switch/shorted states.
+- Books, the clock, painting, plushie, plant, food, and fan cable can be picked up and thrown. Fragile objects break on impact; thrown damage uses their pixel width × height / 10,000.
+- Room objects share flammable, throwable, and fragile tags plus HP. Fire from the existing grid burns items for 1 HP every 3 seconds and self extinguishes after 10 seconds. Attacks remove 1 item HP each; the destroying player gains 5% of base attack damage.
+- Characters use 120/100/160 real HP for Mage/Ninja/Werewolf; grid fire deals 2 HP per second. Damageable objects block shots before players. First to win two rounds takes the best-of-three match.
+- The fridge opens to reveal throwable healing food. Its existing top-mounted microwave holds three nuggets: open and eat for 20 HP, or hold Down and press Use to cook for 10 seconds, then eat for 50 HP. The fan cable plugs in automatically near the outlet, leaves the player's hand, and stays locked until unplugged with Use. The AC can disperse its fire when turned on. The bookshelf can be climbed; falling through the trashcan opening hurts and respawns a player after two seconds; broken plant shards hurt players who step on them.
+- Characters render in front of room items. Burning and burned-out objects show placeholder flame and ash sprites.
 - When the AC is on, its **130-pixel** effect radius applies a **0.45** movement-speed multiplier. Inherited airborne momentum also slows toward the adjusted speed cap; `SLOW` and cool-colored particles indicate the effect. Movement returns to normal outside its range.
-- A separate ranged magic projectile can scorch books or short the computer. It has no mana cost or health damage.
+- A separate ranged magic projectile damages the first item or player along its path. It has no mana cost.
 - The optional prop interactions can be disabled via `experimental_books_enabled` and `experimental_appliances_enabled` on the MSD controller.
+- Designers can adjust a world item's exported tags, HP, hit size, and burn timing in the scene; set `use_kind_defaults` to `false` to retain Inspector values instead of the prototype presets. Appliances have the corresponding `use_device_defaults` switch.
 - The fridge interior and wall-mounted AC are deliberately rendered **behind** player sprites; interaction and status overlays remain above players.
 
 ### Not implemented or not yet approved
 
-- Real fire propagation, burnout, full material destruction, or final physics-based furniture damage.
-- Mana, player health, scaling damage based on property destruction, official scoring, rounds, or win/loss rules.
-- Final integration of the team's Art and Simulation scenes and gameplay approval.
+- Third arena, final Garden-specific physics and scenery, final Werewolf attack approval, full game-balance pass, and final Art Team animations.
+- Official upstream merge and team QA/sign-off. The present candidate is local-only.
 
 ## Code map
 
@@ -67,6 +73,7 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 | `gameplay/integration/demo_material_grid.gd` | Legacy lightweight grid, retained only for the separate fantasy experiment |
 | `gameplay/msd/msd_controller.gd` | Living-room controller for players, Spark, props, and appliances |
 | `gameplay/msd/burnable_prop.gd` | Book carrying, throwing, and scorch visuals |
+| `gameplay/msd/interactable_item.gd` / `gameplay/msd/world_item.gd` | Shared tags, HP, grid fire response, and configurable room props |
 | `gameplay/msd/appliance.gd` | Fridge, fan, AC, and computer |
 | `gameplay/msd/magic_bolt.gd` | Experimental ranged attack |
 | `gameplay/msd/interaction_hints.gd` / `gameplay/msd/player_conditions.gd` | Contextual prompts and `SLOW` / `WIND` indicators |
@@ -91,7 +98,7 @@ These are representative tests, not the entire suite. See the Gameplay README fo
 ## Code and art attribution
 
 - **Austin:** Remaining-jump counting and the approach to dropping through one-way platforms, adapted for independent two-player controls.
-- **Ethan:** The `MaterialGrid` public API and storage implementation on his separate `ethan/burn-box-grid` branch. The Gameplay branch does not modify or ship his Simulation file, and his PR has not yet been merged into `main`.
+- **Ethan:** The `MaterialGrid` public API, burning state, fire spread and the WindModel merged in upstream PR #13. Existing Simulation implementation remains owned by Ethan.
 - **Jackson:** `cell_changed`-driven material and burning-state rendering approach, adapted into lightweight visual feedback.
 - **Gameplay art attribution:** P1 is derived from the Art Team's Character design PNG/GIF in the project MidSem deck; P2 recolors that sprite to red. The room uses Art Team furniture tiles, with local layout/redraw through `gameplay/msd/art/generate_room.py`. The fireball pixel frames are generated locally using `gameplay/msd/art/generate_fireball.py`. See [`gameplay/ART_SOURCES.md`](gameplay/ART_SOURCES.md) for exact provenance.
 

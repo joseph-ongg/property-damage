@@ -29,6 +29,10 @@ func _run() -> void:
 	var p1: GameplayPlayer = room.get_node("Player1")
 	var p2: GameplayPlayer = room.get_node("Player2")
 	var fan: GameplayAppliance = room.get_node("Appliances/FanDevice")
+	var outlet: GameplayWorldItem = room.get_node("WorldItems/Outlet")
+	var cable: GameplayWorldItem = room.get_node("WorldItems/FanCable")
+	cable.global_position = outlet.global_position + Vector2(5, 0)
+	outlet.plugged = true
 	var hints: Node2D = room.get_node("InteractionHints")
 	var states: Node2D = room.get_node("PlayerConditions")
 
@@ -40,7 +44,7 @@ func _run() -> void:
 	check(p1.is_on_floor(), "P1 is standing on the actual room floor near the fan")
 	check(fan.can_interact(p1), "the fan's tabletop controls are reachable from the floor")
 	check(room.get_interaction_offer(p1).get("target") == fan, "nearest interaction selects the fan")
-	check(hints.hint_for(p1) == "E  TURN ON FAN", "the prompt offers a usable E key")
+	check(hints.hint_for(p1).contains("E TURN ON FAN"), "the prompt offers a usable E key")
 
 	Input.action_press("p1_interact")
 	await frames(3)
@@ -70,7 +74,7 @@ func _run() -> void:
 	p2.velocity = Vector2.ZERO
 	p2.motor.reset()
 	await frames(4)
-	check(hints.hint_for(p2) == "SHIFT  TURN ON FAN", "P2 sees Shift instead of E at the floor")
+	check(hints.hint_for(p2).contains("SHIFT TURN ON FAN"), "P2 sees Shift instead of E at the floor")
 	Input.action_press("p2_interact")
 	await frames(3)
 	Input.action_release("p2_interact")

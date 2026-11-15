@@ -1,45 +1,55 @@
-## F5 project launcher regression: the selected startup must be the playable
-## independent co-op room, not the team-owned placeholder in root main.tscn.
+## F5 release launcher regression: show Angela's character and map selection
+## before loading the same real two-player room.
 extends SceneTree
 
 var failures: Array[String] = []
 
 
 func _initialize() -> void:
-	call_deferred("_run")
+    call_deferred("_run")
 
 
 func check(ok: bool, message: String) -> void:
-	if ok:
-		print("PASS: ", message)
-	else:
-		failures.append(message)
-		push_error("FAIL: " + message)
+    if ok:
+        print("PASS: ", message)
+    else:
+        failures.append(message)
+        push_error("FAIL: " + message)
 
 
 func _run() -> void:
-	var startup: String = str(ProjectSettings.get_setting("application/run/main_scene", ""))
-	check(startup == "res://gameplay/playtest_main.tscn", "F5 starts the playable Gameplay scene rather than the placeholder")
-	var scene: PackedScene = load(startup)
-	check(scene != null, "configured F5 launch scene loads")
-	if scene == null:
-		quit(1)
-		return
-	var instance: Node2D = scene.instantiate()
-	root.add_child(instance)
-	for _i in 65:
-		await physics_frame
-	var arena: Node2D = instance.get_node_or_null("GameplayMSD")
-	check(arena != null, "F5 launches the two-player gameplay arena")
-	if arena != null:
-		var p1: GameplayPlayer = arena.get_node("Player1")
-		var p2: GameplayPlayer = arena.get_node("Player2")
-		check(p1 != null and p2 != null, "F5 scene has both independent player controllers")
-		check(p1.is_on_floor() and p2.is_on_floor(), "both players spawn safely on the arena floor")
-		var grid: MaterialGrid = arena.get_node("MaterialGrid")
-		var bridge: GameplayFireBridge = arena.get_node("FireBridge")
-		check(bridge.grid() == grid, "F5 scene connects Spark to the active test material grid")
-		check(arena.get_node("HUD/Controls") != null and arena.get_node("HUD/ControlsP2") != null, "F5 scene shows both control guides")
-	instance.queue_free()
-	print("PROJECT_START_SUMMARY failures=", failures.size())
-	quit(0 if failures.is_empty() else 1)
+    var startup := str(ProjectSettings.get_setting("application/run/main_scene", ""))
+    check(startup == "res://gameplay/MapSelection/map_select.tscn",
+        "F5 starts Angela's latest map and character selection menu")
+    var scene := load(startup) as PackedScene
+    check(scene != null, "project launcher loads")
+    if scene == null:
+        quit(1)
+        return
+    var menu := scene.instantiate()
+    root.add_child(menu)
+    current_scene = menu
+    await physics_frame
+    check(menu.player1_select != null and menu.player2_select != null,
+        "F5 exposes both independent character selectors")
+    menu._load_map("res://gameplay/playtest_main.tscn")
+    for _i in 65:
+        await physics_frame
+    var instance := current_scene
+    var arena := instance.get_node_or_null("GameplayMSD") if instance != null else null
+    check(arena != null, "menu starts actual two-player Gameplay arena")
+    if arena != null:
+        var p1 := arena.get_node("Player1") as GameplayPlayer
+        var p2 := arena.get_node("Player2") as GameplayPlayer
+        check(p1 != null and p2 != null, "both player controllers exist")
+        check(p1.is_on_floor() and p2.is_on_floor(), "players spawn on the arena floor")
+        check(arena.get_node("FireBridge").grid() == arena.get_node("MaterialGrid"),
+            "fire input is wired into Ethan's working MaterialGrid")
+        check(arena.get_node("MatchManager") is GameplayMatchManager,
+            "the arena has a best-of-three round manager")
+        check(arena.has_node("WorldItems") and arena.has_node("Books"),
+            "Austin's item interaction scene is active")
+    if instance != null:
+        instance.queue_free()
+    print("PROJECT_START_SUMMARY failures=", failures.size())
+    quit(0 if failures.is_empty() else 1)

@@ -1,7 +1,9 @@
-## Directional prototype magic attack. No health, mana or damage scores.
+## Directional magic attack with swept first-hit item/player damage.
 ## Furniture ignition uses the same bridge and MaterialGrid as Spark.
 class_name GameplayMagicBolt
 extends Node2D
+
+const RULES: GameplayTuning = preload("res://gameplay/tuning/gameplay_balance.tres")
 
 signal hit(target_name: String, caster_index: int)
 
@@ -22,11 +24,15 @@ var direction: int = 1
 var caster_index: int = 1
 var _age: float = 0.0
 var _resolved: bool = false
+var attack_kind: String = "mage"
 
 
 func initialize(player: GameplayPlayer) -> void:
 	caster_index = player.player_index
 	direction = player.facing
+	speed = RULES.bolt_speed * (1.3 if player.character_kind == "ninja" else 1.0)
+	lifetime = 0.14 if player.character_kind == "werewolf" else RULES.bolt_lifetime
+	attack_kind = player.character_kind
 	global_position = player.global_position + Vector2(direction * 19, -7)
 	queue_redraw()
 
@@ -42,7 +48,13 @@ func _physics_process(delta: float) -> void:
 	var obstruction := get_world_2d().direct_space_state.intersect_ray(ray)
 	global_position = after if obstruction.is_empty() else obstruction.position
 	var room := get_parent().get_parent()
-	var furniture_hit := _ignite_furniture(room, before, global_position)
+	var combat_hit := _hit_combat_target(room, before, global_position)
+	if not combat_hit.is_empty():
+		_resolved = true
+		hit.emit(combat_hit, caster_index)
+		queue_free()
+		return
+	var furniture_hit := _ignite_furniture(room, before, global_position) if attack_kind == "mage" else ""
 	if not furniture_hit.is_empty():
 		_resolved = true
 		hit.emit(furniture_hit, caster_index)
@@ -75,6 +87,57 @@ func _physics_process(delta: float) -> void:
 		queue_redraw()
 
 
+func _hit_combat_target(room: Node, start: Vector2, finish: Vector2) -> String:
+	var nearest_distance := INF
+	var target: Node = null
+	var impact_point: Vector2 = finish
+	for item: GameplayInteractableItem in get_tree().get_nodes_in_group("interactable_items"):
+		if not room.is_ancestor_of(item) or item.destroyed_item or is_inf(item.max_hp):
+			continue
+		var point: Variant = _segment_rect_hit(start, finish, item.hit_rect())
+		if point != null and start.distance_to(point) < nearest_distance:
+			nearest_distance = start.distance_to(point)
+			target = item
+			impact_point = point
+	for player: GameplayPlayer in [room.get_node("Player1"), room.get_node("Player2")]:
+		if player.player_index == caster_index:
+			continue
+		var player_rect := Rect2(player.global_position + Vector2(-16, -45), Vector2(32, 60))
+		var point: Variant = _segment_rect_hit(start, finish, player_rect)
+		if point != null and start.distance_to(point) < nearest_distance:
+			nearest_distance = start.distance_to(point)
+			target = player
+			impact_point = point
+	if target is GameplayInteractableItem:
+		var item := target as GameplayInteractableItem
+		item.take_damage(RULES.item_hit_damage, caster_index)
+		if attack_kind == "mage":
+			# Ignite the Simulation grid at the actual impact cell, not only
+			# the item's separate condition overlay.
+			var bridge := room.get_node_or_null("FireBridge") as GameplayFireBridge
+			if bridge != null:
+				bridge.ignite_world(impact_point)
+			item.ignite()
+		return item.item_name
+	if target is GameplayPlayer:
+		var attacker: GameplayPlayer = room.get_node("Player%d" % caster_index)
+		(target as GameplayPlayer).take_damage(attacker.attack_damage)
+		return "P%d" % (target as GameplayPlayer).player_index
+	return ""
+
+
+func _segment_rect_hit(start: Vector2, finish: Vector2, rect: Rect2) -> Variant:
+	if rect.has_point(start):
+		return start
+	var corners: Array[Vector2] = [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]
+	var closest: Variant = null
+	for i in 4:
+		var point: Variant = Geometry2D.segment_intersects_segment(start, finish, corners[i], corners[(i + 1) % 4])
+		if point != null and (closest == null or start.distance_to(point) < start.distance_to(closest)):
+			closest = point
+	return closest
+
+
 func _ignite_furniture(room: Node, start: Vector2, finish: Vector2) -> String:
 	var layer: GameplayFurnitureFireLayer = room.get_node_or_null("MaterialGrid/FurnitureFireLayer") as GameplayFurnitureFireLayer
 	var bridge: GameplayFireBridge = room.get_node_or_null("FireBridge") as GameplayFireBridge
@@ -101,6 +164,16 @@ func _has_clear_path(target: Vector2) -> bool:
 
 
 func _draw() -> void:
+	if attack_kind == "ninja":
+		# An original small four-point metal shuriken, not a Mage fireball.
+		draw_colored_polygon(PackedVector2Array([Vector2(0, -8), Vector2(3, -3), Vector2(9, 0), Vector2(3, 3), Vector2(0, 8), Vector2(-3, 3), Vector2(-9, 0), Vector2(-3, -3)]), Color("#a6d7e5"))
+		draw_circle(Vector2.ZERO, 2.0, Color("#344e6e"))
+		return
+	if attack_kind == "werewolf":
+		# Provisional close-range claw effect until Design finalizes the attack.
+		for offset in [-5.0, 0.0, 5.0]:
+			draw_line(Vector2(-7.0, offset - 7.0), Vector2(7.0, offset + 7.0), Color("#f2d2ad"), 2.0)
+		return
 	var frame: Texture2D = FIRE_FRAMES[int(_age * 14.0) % FIRE_FRAMES.size()]
 	# Flip the comet trail when flying to the left. Pixel edges stay crisp.
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(float(direction), 1.0))

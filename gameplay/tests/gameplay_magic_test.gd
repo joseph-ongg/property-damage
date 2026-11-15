@@ -30,6 +30,7 @@ func _run() -> void:
 	var p2: GameplayPlayer = room.get_node("Player2")
 	var book: GameplayBurnableProp = room.get_node("Books/FloorBooks")
 	var pc: GameplayAppliance = room.get_node("Appliances/ComputerDevice")
+	(room.get_node("WorldItems/Plushie") as GameplayWorldItem).global_position = Vector2(600, 480)
 	check(InputMap.has_action("p1_attack") and InputMap.has_action("p2_attack"), "distinct magic-attack keys registered")
 	check(not book.scorched and not pc.charred, "book and computer start undamaged")
 	p1.global_position = Vector2(249, 478)
@@ -42,11 +43,11 @@ func _run() -> void:
 	Input.action_release("p1_attack")
 	check(p1._magic_cooldown > 0.0, "ranged attack consumes an independent cooldown")
 	await frames(23)
-	check(book.scorched, "P1 direction-based magic travels to and scorches a book")
+	check(book.hp < book.max_hp, "P1 direction-based magic damages a book")
 	check(not pc.charred, "ranged magic doesn't damage distant computer")
 	check(room.status_text.text.contains("MAGIC HIT"), "HUD identifies prototype magic impact")
 
-	p2.global_position = Vector2(620, 384)
+	p2.global_position = Vector2(580, 380)
 	p2.velocity = Vector2.ZERO
 	p2.facing = -1
 	await frames(4)
@@ -54,7 +55,7 @@ func _run() -> void:
 	await frames(3)
 	Input.action_release("p2_attack")
 	await frames(24)
-	check(pc.charred, "P2's left-facing magic damages the nearby computer")
+	check(pc.hp < pc.max_hp, "P2's left-facing magic damages the nearby computer")
 	check(room.sparks_p1 == 0 and room.sparks_p2 == 0, "ranged magic does not fake Simulation Spark accounting")
 	check(not room.has_node("VictoryOverlay"), "ranged magic introduces no unauthorized win condition")
 	main.queue_free()

@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://gameplay/components/player_motor.gd" id="2_motor"]
 [ext_resource type="Script" path="res://gameplay/components/spark_emitter.gd" id="3_spark"]
 [ext_resource type="Script" path="res://gameplay/components/fire_hazard.gd" id="4_hazard"]
+[ext_resource type="Script" path="res://gameplay/components/fall_damage.gd" id="11_fall"]
 [ext_resource type="Script" path="res://gameplay/components/player_dash.gd" id="5_dash"]
 [ext_resource type="Script" path="res://gameplay/components/spark_aim.gd" id="6_aim"]
 [ext_resource type="Script" path="res://gameplay/components/landing_fx.gd" id="7_landing"]
@@ -48,6 +49,9 @@ script = ExtResource("7_landing")
 
 [node name="FireHazard" type="Node" parent="."]
 script = ExtResource("4_hazard")
+
+[node name="FallDamage" type="Node" parent="."]
+script = ExtResource("11_fall")
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("9_health")
