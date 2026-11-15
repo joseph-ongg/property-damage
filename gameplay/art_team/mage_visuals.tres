@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GameplayCharacterVisualSet" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://gameplay/characters/character_visual_set.gd" id="1_set"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/mage_idle_0.png" id="t1"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/mage_damage_0.png" id="t2"]
+
+[resource]
+script = ExtResource("1_set")
+idle_frames = Array[Texture2D]([ExtResource("t1")])
+run_frames = Array[Texture2D]([ExtResource("t1")])
+jump_texture = ExtResource("t1")
+action_texture = ExtResource("t1")
+hurt_texture = ExtResource("t2")
+run_fps = 10.0
+idle_fps = 3.0
