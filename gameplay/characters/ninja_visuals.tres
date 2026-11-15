@@ -6,9 +6,9 @@
 [ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_1.png" id="t3"]
 [ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_2.png" id="t4"]
 [ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_3.png" id="t5"]
-[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/ninja_jump_0.png" id="t6"]
-[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/ninja_attack_0.png" id="t7"]
-[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/ninja_hurt_0.png" id="t8"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/generated/ninja_jump.png" id="t6"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/generated/ninja_action.png" id="t7"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/generated/ninja_hurt.png" id="t8"]
 
 [resource]
 script = ExtResource("1_set")

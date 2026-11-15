@@ -69,10 +69,23 @@ func ignite() -> void:
 	queue_redraw()
 
 
+## Find the bridge owned by this item's arena. The global group lookup is
+## unsafe when a preview, test or scene transition has both Garden and Living
+## Room alive simultaneously; one item's fire must never migrate to another.
+func room_fire_bridge() -> GameplayFireBridge:
+	var ancestor: Node = get_parent()
+	while ancestor != null:
+		var bridge := ancestor.get_node_or_null("FireBridge") as GameplayFireBridge
+		if bridge != null:
+			return bridge
+		ancestor = ancestor.get_parent()
+	return null
+
+
 func _process(delta: float) -> void:
 	if destroyed_item or not has_tag("flammable"):
 		return
-	var bridge: GameplayFireBridge = get_tree().get_first_node_in_group("room_fire_bridge") as GameplayFireBridge
+	var bridge: GameplayFireBridge = room_fire_bridge()
 	var touching_fire := false
 	if bridge != null:
 		var area := hit_rect()

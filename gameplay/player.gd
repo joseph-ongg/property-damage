@@ -80,6 +80,10 @@ var _original_jump_speed: float = 0.0
 # Austin's item-destruction damage progression; Health remains Eva's single HP source.
 var attack_damage: float = 10.0
 var destroyed_objects: int = 0
+var knocked_out: bool = false
+# Only the polished menu-driven match uses a pre-round input lock; direct
+# prefab / headless Gameplay tests keep their existing independent controls.
+var input_locked: bool = false
 
 
 func _enter_tree() -> void:
@@ -106,6 +110,7 @@ func _ready() -> void:
 	# chooses starting/max HP and listens to its existing signals.
 	health.changed.connect(_on_health_changed)
 	health.damaged.connect(_on_health_damaged)
+	health.died.connect(_on_health_died)
 	hazard.enabled = true
 	hazard.damage_interval = RULES.fire_tick_seconds
 	hazard.touched_fire.connect(_on_fire_contact)
@@ -127,6 +132,9 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if input_locked:
+		velocity = Vector2.ZERO
+		return
 	var prefix := "p%d_" % player_index
 	# 输入名以 p1_/p2_ 区分，两名玩家互不抢按键。
 	# Prefix each action with p1_ or p2_ so the controls stay independent.
@@ -238,6 +246,18 @@ func _on_health_damaged(_amount: int) -> void:
 	show_hurt_pose()
 
 
+func _on_health_died() -> void:
+	# Immediately change the defeated fighter's visual state before
+	# MatchManager freezes physics. No second HP or AnimationTree is created.
+	knocked_out = true
+	_hurt_pose_remaining = 999.0
+	_action_pose_remaining = 0.0
+	sprite.modulate = Color(0.86, 0.76, 0.93, 0.80)
+	sprite.rotation = 0.72 * float(facing)
+	$NameTag.text = "KO"
+	_update_character_sprite(false)
+
+
 ## Item and combat adapters: don't create a second HP store.
 func take_damage(amount: float, _auto_respawn: bool = true) -> bool:
 	return health.take_damage(maxi(1, roundi(amount)))
@@ -261,6 +281,12 @@ func reward_destruction() -> void:
 
 
 func respawn(reset_health: bool = true) -> void:
+	knocked_out = false
+	_hurt_pose_remaining = 0.0
+	_action_pose_remaining = 0.0
+	sprite.rotation = 0.0
+	sprite.modulate = Color.WHITE
+	$NameTag.text = "P%d" % player_index
 	global_position = _spawn
 	velocity = Vector2.ZERO
 	motor.reset()
@@ -268,6 +294,7 @@ func respawn(reset_health: bool = true) -> void:
 	platform_drop.reset(self)
 	if reset_health:
 		health.reset()
+	_update_character_sprite(false)
 
 
 func character_design_info() -> Dictionary:
@@ -287,7 +314,9 @@ func _update_character_sprite(moving: bool) -> void:
 	var visuals := _visual_profile()
 	if target_texture == null and visuals != null:
 		var pose := "idle"
-		if _hurt_pose_remaining > 0.0:
+		if knocked_out:
+			pose = "hurt"
+		elif _hurt_pose_remaining > 0.0:
 			pose = "hurt"
 		elif _action_pose_remaining > 0.0:
 			pose = "action"
@@ -298,7 +327,7 @@ func _update_character_sprite(moving: bool) -> void:
 		target_texture = visuals.texture_for(pose, _animation_clock)
 	if target_texture == null:
 		# Preserve the original two PPT-derived mage art paths unchanged.
-		if _action_pose_remaining > 0.0:
+		if _action_pose_remaining > 0.0 or knocked_out:
 			target_texture = MAGE1_ACTION if player_index == 1 else MAGE2_ACTION
 		elif moving:
 			var run_frames: Array[Texture2D] = P1_RUN if player_index == 1 else P2_RUN

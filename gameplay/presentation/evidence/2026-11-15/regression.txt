@@ -1,0 +1,22 @@
+Property Damage visual/Garden share QA — Godot 4.7.2
+PASS gameplay_arcane_features_test exit=0 1.2s ARCANE_FEATURES_SUMMARY failures=0
+PASS gameplay_project_start_test exit=0 0.7s PROJECT_START_SUMMARY failures=0
+PASS gameplay_garden_destructible_test exit=0 0.7s GARDEN_DESTRUCTIBLE_SUMMARY failures=0
+PASS gameplay_complete_match_test exit=0 0.6s COMPLETE_MATCH_SUMMARY failures=0
+PASS gameplay_long_session_test exit=0 0.9s LONG_SESSION_SUMMARY failures=0 matches=16 rounds=32 elapsed_ms=376
+PASS gameplay_item_system_test exit=0 2.5s ITEM_SYSTEM_SUMMARY failures=0
+PASS gameplay_character_art_test exit=0 4.6s CHARACTER_ART_SUMMARY failures=0
+PASS gameplay_character_selection_health_test exit=0 1.1s CHARACTER_SELECT_HEALTH_SUMMARY failures=0
+PASS gameplay_art_team_assets_test exit=0 0.8s ART_TEAM_INTEGRATION_SUMMARY failures=0
+PASS gameplay_magic_test exit=0 2.6s GAMEPLAY_MAGIC_SUMMARY failures=0
+PASS gameplay_furniture_fire_test exit=0 0.6s FURNITURE_FIRE_SUMMARY failures=0
+PASS gameplay_upstream_grid_test exit=0 0.4s UPSTREAM_GRID_SUMMARY failures=0
+PASS gameplay_simulation_contract_test exit=0 0.3s SIMULATION_CONTRACT_SUMMARY upstream_storage=true failures=0
+PASS gameplay_ui_test exit=0 1.9s GAMEPLAY_UI_SUMMARY failures=0
+PASS gameplay_team_integration_test exit=0 2.0s TEAM_INTEGRATION_SUMMARY failures=0
+PASS gameplay_render_layers_test exit=0 0.7s RENDER_LAYERS_SUMMARY failures=0
+PASS gameplay_interaction_occlusion_test exit=0 2.2s INTERACTION_OCCLUSION_SUMMARY failures=0
+PASS gameplay_interaction_polish_test exit=0 2.1s INTERACTION_POLISH_SUMMARY failures=0
+PASS gameplay_platform_v2_test exit=0 13.6s PLATFORM_V2_SUMMARY failures=0
+PASS gameplay_full_flow_test exit=0 14.9s FULL_FLOW_SUMMARY failures=0
+TOTAL=20 PASS=20 OTHER=0

@@ -8,6 +8,13 @@ const RULES: GameplayTuning = preload("res://gameplay/tuning/gameplay_balance.tr
 signal hit(target_name: String, caster_index: int)
 
 # Hand-painted pixel texture frames replace the old soft circles/rectangles.
+const SPELL_SIGILS: Array[Texture2D] = [
+    preload("res://gameplay/presentation/assets/spell_sigil_0.png"),
+    preload("res://gameplay/presentation/assets/spell_sigil_1.png"),
+    preload("res://gameplay/presentation/assets/spell_sigil_2.png"),
+    preload("res://gameplay/presentation/assets/spell_sigil_3.png"),
+]
+
 const FIRE_FRAMES: Array[Texture2D] = [
 	preload("res://gameplay/msd/art/fireball_0.png"),
 	preload("res://gameplay/msd/art/fireball_1.png"),
@@ -174,6 +181,11 @@ func _draw() -> void:
 		for offset in [-5.0, 0.0, 5.0]:
 			draw_line(Vector2(-7.0, offset - 7.0), Vector2(7.0, offset + 7.0), Color("#f2d2ad"), 2.0)
 		return
+	# Jewel-colored original arcane sigil adds the cast VFX without
+	# changing fireball collisions, physics, or upstream Simulation logic.
+	if _age < 0.25:
+		var sigil: Texture2D = SPELL_SIGILS[int(_age * 17.0) % SPELL_SIGILS.size()]
+		draw_texture(sigil, Vector2(-32, -32), Color(1, 1, 1, 0.72 - 1.7 * _age))
 	var frame: Texture2D = FIRE_FRAMES[int(_age * 14.0) % FIRE_FRAMES.size()]
 	# Flip the comet trail when flying to the left. Pixel edges stay crisp.
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(float(direction), 1.0))

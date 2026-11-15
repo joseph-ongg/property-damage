@@ -1,3 +1,12 @@
+> **Visual/Garden share branch (November 15, 2026):** This branch adds an original
+> fantasy-pixel title screen, decorative character portraits and lobby skin,
+> original Python/Pillow pixel-art assets, Garden breakable source-art layers,
+> UI/HUD/pause/result styling, and regression fixes. It **does not** include
+> audio, music, AudioStream/SoundBus, or new character/map selection behavior.
+> Angela's original `gameplay/MapSelection/map_select.gd` is preserved without
+> modifications; the new `lobby_decor.gd` only reads its existing controls.
+> See [visual handoff](gameplay/presentation/README.md).
+>
 # Property Damage — Full Local Gameplay Integration (November 14, 2026)
 
 > **Status:** Playable local integration candidate with current upstream WindModel, Austin item mechanics, Eva Health/fall damage, Angela MapSelection v2, Art Team Piskel assets, and reusable best-of-three combat. **Not** an official upstream release; the planned third arena, production Garden polish and confirmed Werewolf attack are still pending. See [Full integration handoff](gameplay/FULL_INTEGRATION.md).

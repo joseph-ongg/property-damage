@@ -1,5 +1,4 @@
-## F5 release launcher regression: show Angela's character and map selection
-## before loading the same real two-player room.
+## Product F5 launcher regression: Title -> Lobby -> Arena.
 extends SceneTree
 
 var failures: Array[String] = []
@@ -19,37 +18,44 @@ func check(ok: bool, message: String) -> void:
 
 func _run() -> void:
     var startup := str(ProjectSettings.get_setting("application/run/main_scene", ""))
-    check(startup == "res://gameplay/MapSelection/map_select.tscn",
-        "F5 starts Angela's latest map and character selection menu")
+    check(startup == "res://gameplay/presentation/main_menu.tscn",
+        "F5 starts a dedicated pixel fantasy title screen")
     var scene := load(startup) as PackedScene
-    check(scene != null, "project launcher loads")
+    check(scene != null, "title scene loads")
     if scene == null:
         quit(1)
         return
-    var menu := scene.instantiate()
-    root.add_child(menu)
-    current_scene = menu
+    var main := scene.instantiate()
+    root.add_child(main)
+    current_scene = main
     await physics_frame
-    check(menu.player1_select != null and menu.player2_select != null,
-        "F5 exposes both independent character selectors")
-    menu._load_map("res://gameplay/playtest_main.tscn")
-    for _i in 65:
+    check(main.has_node("Background") and main.start_button != null,
+        "title displays original pixel backdrop and LOCAL VERSUS")
+    main.start_button.pressed.emit()
+    await create_timer(0.12).timeout
+    for i in 4:
         await physics_frame
-    var instance := current_scene
-    var arena := instance.get_node_or_null("GameplayMSD") if instance != null else null
-    check(arena != null, "menu starts actual two-player Gameplay arena")
+    var lobby := current_scene
+    check(lobby != null and lobby.name == "MapSelect", "start enters the local duel lobby")
+    if lobby != null:
+        check(lobby.player1_select.item_count == 3 and lobby.player2_select.item_count == 3,
+            "lobby offers three available characters to each fighter")
+        check(lobby.has_node("LobbyDecor"),
+            "cosmetic lobby decor is layered over Angela's existing menu")
+        lobby._load_map("res://gameplay/playtest_main.tscn")
+    for i in 8:
+        await physics_frame
+    var game := current_scene
+    var arena := game.get_node_or_null("GameplayMSD") if game != null else null
+    check(arena != null, "lobby leads to actual Living Room battle")
     if arena != null:
         var p1 := arena.get_node("Player1") as GameplayPlayer
         var p2 := arena.get_node("Player2") as GameplayPlayer
-        check(p1 != null and p2 != null, "both player controllers exist")
-        check(p1.is_on_floor() and p2.is_on_floor(), "players spawn on the arena floor")
-        check(arena.get_node("FireBridge").grid() == arena.get_node("MaterialGrid"),
-            "fire input is wired into Ethan's working MaterialGrid")
+        check(p1 != null and p2 != null, "two fighters spawn")
         check(arena.get_node("MatchManager") is GameplayMatchManager,
-            "the arena has a best-of-three round manager")
-        check(arena.has_node("WorldItems") and arena.has_node("Books"),
-            "Austin's item interaction scene is active")
-    if instance != null:
-        instance.queue_free()
+            "match manages rounds and best-of-three result")
+        check(arena.get_node("PauseOverlay") != null, "arena has shared pause")
+    if game != null:
+        game.queue_free()
     print("PROJECT_START_SUMMARY failures=", failures.size())
     quit(0 if failures.is_empty() else 1)

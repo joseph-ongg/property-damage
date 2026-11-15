@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://gameplay/characters/character_visual_set.gd" id="1_set"]
 [ext_resource type="Texture2D" path="res://gameplay/art_team/exported/wolf_walk_0.png" id="t1"]
 [ext_resource type="Texture2D" path="res://gameplay/art_team/exported/wolf_walk_1.png" id="t2"]
-[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_jump_0.png" id="t3"]
-[ext_resource type="Texture2D" path="res://gameplay/characters/sprites/werewolf_attack_0.png" id="t4"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/generated/werewolf_jump.png" id="t3"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/generated/werewolf_action.png" id="t4"]
 [ext_resource type="Texture2D" path="res://gameplay/art_team/exported/wolf_damage_1.png" id="t5"]
 
 [resource]

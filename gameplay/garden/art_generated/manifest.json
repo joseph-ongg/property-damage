@@ -1,0 +1,31 @@
+{
+  "source": "gameplay/art_team/exported/garden.png",
+  "source_size": [
+    426,
+    286
+  ],
+  "integer_scale": 2,
+  "stage_size": [
+    960,
+    540
+  ],
+  "origin": [
+    54,
+    -16
+  ],
+  "parts": {
+    "rose": {
+      "source_mask_pixels": 10698,
+      "cells": 258
+    },
+    "tree": {
+      "source_mask_pixels": 19078,
+      "cells": 343
+    },
+    "mushrooms": {
+      "source_mask_pixels": 1733,
+      "cells": 42
+    }
+  },
+  "exact_source_pixel_reconstruction": true
+}

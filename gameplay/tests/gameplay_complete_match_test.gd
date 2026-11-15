@@ -38,8 +38,20 @@ func _run() -> void:
     check(manager.player1 == p1 and manager.player2 == p2, "Garden shares the real match manager")
     check(garden.get_node("GardenItems").get_child_count() == 3,
         "Garden has three distinct destructible environment objects")
-    check(grid.get_cell_material(18, 17) == MaterialGrid.Materials.WOOD,
-        "Garden rose trellis is flammable through Ethan's MaterialGrid")
+    var flame_mask: Texture2D = load("res://gameplay/garden/art_generated/garden_fuel_mask.png")
+    var mask_image := flame_mask.get_image()
+    var rose_cells := 0
+    for x in grid.width:
+        for y in grid.height:
+            var pigment := mask_image.get_pixel(x, y)
+            if pigment.r > 0.9:
+                rose_cells += 1
+                check(grid.get_cell_material(x, y) == MaterialGrid.Materials.WOOD,
+                    "sampled Garden rose pixel is flammable in Ethan's grid")
+                break
+        if rose_cells > 0:
+            break
+    check(rose_cells > 0, "Garden sources flammable fuel from actual Art Team pixels")
 
     var bolt := GameplayMagicBolt.new()
     garden.get_node("Projectiles").add_child(bolt)
@@ -60,9 +72,13 @@ func _run() -> void:
         "first lethal hit ends round and awards P1 one win")
     check(manager.panel.visible and not p1.is_physics_processing(),
         "finished round shows winner overlay and freezes combat")
+    check(p2.knocked_out and p2.sprite.rotation != 0.0 and p2.get_node("NameTag").text == "KO",
+        "defeated fighter has a distinct KO pose before the result panel")
     manager.continue_after_round()
     check(not manager.round_over and p1.health.hp == p1.health.max_hp and p2.health.hp == p2.health.max_hp,
         "next round resets Eva's Health and both player positions")
+    check(not p2.knocked_out and is_zero_approx(p2.sprite.rotation) and p2.get_node("NameTag").text == "P2",
+        "new round restores normal character sprite and P2 name tag")
     check(manager.round_number == 2 and manager.p1_wins == 1,
         "round scores survive a round reset")
     p2.health.take_damage(1000)
@@ -91,6 +107,7 @@ func _run() -> void:
     p1.health._invuln_left = 0.0
     var bridge := garden.get_node("FireBridge") as GameplayFireBridge
     var cell := bridge.world_to_cell(p1.global_position + Vector2(0, 13))
+    var original_cell_material := grid.get_cell_material(cell.x, cell.y)
     grid.set_cell_material(cell.x, cell.y, MaterialGrid.Materials.WOOD)
     grid.ignite(cell.x, cell.y)
     var before_fire := p1.health.hp
@@ -109,10 +126,10 @@ func _run() -> void:
     check(rose.destroyed_item and p1.attack_damage > original_attack,
         "destroying Garden object increases attack damage by five percent")
     manager.new_match()
-    check(not rose.destroyed_item and rose.hp == rose.max_hp and rose.global_position == Vector2(280, 302),
+    check(not rose.destroyed_item and rose.hp == rose.max_hp and rose.global_position == Vector2(210, 243),
         "new match restores destroyed Garden items to their original HP and position")
-    check(not grid.is_burning(cell.x, cell.y) and grid.get_cell_material(cell.x, cell.y) == MaterialGrid.Materials.AIR,
-        "new match restores original terrain material and clears old fire")
+    check(not grid.is_burning(cell.x, cell.y) and grid.get_cell_material(cell.x, cell.y) == original_cell_material,
+        "new match restores actual Art Team mask material and clears old fire")
     garden.queue_free()
     await physics_frame
 

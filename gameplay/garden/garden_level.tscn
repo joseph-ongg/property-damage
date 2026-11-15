@@ -8,13 +8,14 @@
 [ext_resource type="Script" path="res://gameplay/demo/fire_visuals.gd" id="6_flames"]
 [ext_resource type="Script" path="res://gameplay/match/match_manager.gd" id="7_match"]
 [ext_resource type="Script" path="res://gameplay/LevelSelection/back_to_menu.gd" id="8_menu"]
+[ext_resource type="Script" path="res://gameplay/demo/pause_overlay.gd" id="9_pause"]
 
 [sub_resource type="RectangleShape2D" id="floor"]
 size = Vector2(960, 40)
 [sub_resource type="RectangleShape2D" id="wall"]
 size = Vector2(32, 600)
 [sub_resource type="RectangleShape2D" id="ledge"]
-size = Vector2(230, 12)
+size = Vector2(320, 12)
 
 [node name="GardenBattle" type="Node2D"]
 script = ExtResource("1_arena")
@@ -41,7 +42,7 @@ script = ExtResource("6_flames")
 grid_path = NodePath("../MaterialGrid")
 
 [node name="Floor" type="StaticBody2D" parent="."]
-position = Vector2(480, 518)
+position = Vector2(480, 496)
 collision_layer = 1
 collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
@@ -62,10 +63,26 @@ collision_mask = 0
 shape = SubResource("wall")
 
 [node name="GardenFence" type="StaticBody2D" parent="."]
-position = Vector2(490, 384)
+position = Vector2(490, 360)
 collision_layer = 1
 collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="GardenFence"]
+shape = SubResource("ledge")
+one_way_collision = true
+
+[node name="LeftFenceUpper" type="StaticBody2D" parent="."]
+position = Vector2(229, 253)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftFenceUpper"]
+shape = SubResource("ledge")
+one_way_collision = true
+
+[node name="RightFenceUpper" type="StaticBody2D" parent="."]
+position = Vector2(697, 253)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightFenceUpper"]
 shape = SubResource("ledge")
 one_way_collision = true
 
@@ -94,9 +111,13 @@ platform_drop_enabled = true
 z_index = 14
 [node name="HUD" type="CanvasLayer" parent="."]
 
+[node name="PauseOverlay" type="CanvasLayer" parent="."]
+script = ExtResource("9_pause")
+
 [node name="MatchManager" type="CanvasLayer" parent="."]
 script = ExtResource("7_match")
 
 [node name="BackToMenu" type="Node" parent="."]
 script = ExtResource("8_menu")
-button_position = Vector2(796, 12)
+button_position = Vector2(796, 475)
+show_button = false

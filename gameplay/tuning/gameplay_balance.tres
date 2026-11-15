@@ -14,5 +14,6 @@ item_fire_duration = 10.0
 fall_safe_distance = 220.0
 fall_damage_per_pixel = 0.15
 rounds_to_win = 2
+round_seconds = 120.0
 bolt_speed = 395.0
 bolt_lifetime = 1.45

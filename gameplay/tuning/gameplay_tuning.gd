@@ -17,6 +17,7 @@ extends Resource
 
 @export_group("Match")
 @export_range(1, 5, 1) var rounds_to_win: int = 2
+@export_range(30.0, 300.0, 5.0) var round_seconds: float = 120.0
 
 @export_group("Projectile")
 @export_range(50.0, 1000.0, 5.0) var bolt_speed: float = 395.0

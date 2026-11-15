@@ -9,4 +9,5 @@
 
 [node name="BackToMenu" type="Node" parent="."]
 script = ExtResource("2_menu")
-button_position = Vector2(788, 12)
+button_position = Vector2(789, 475)
+show_button = false
