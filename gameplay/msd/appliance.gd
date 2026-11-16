@@ -16,12 +16,12 @@ const TEAM_MONITOR: Texture2D = preload("res://gameplay/msd/art/team_monitor.png
 const FAN_REAR: Texture2D = preload("res://gameplay/props/fan/sprites/rear.png")
 const FAN_FRONT: Texture2D = preload("res://gameplay/props/fan/sprites/front.png")
 const FAN_BLADES: Array[Texture2D] = [
-    preload("res://gameplay/props/fan/sprites/blade_0.png"),
-    preload("res://gameplay/props/fan/sprites/blade_1.png"),
-    preload("res://gameplay/props/fan/sprites/blade_2.png"),
-    preload("res://gameplay/props/fan/sprites/blade_3.png"),
-    preload("res://gameplay/props/fan/sprites/blade_4.png"),
-    preload("res://gameplay/props/fan/sprites/blade_5.png"),
+	preload("res://gameplay/props/fan/sprites/blade_0.png"),
+	preload("res://gameplay/props/fan/sprites/blade_1.png"),
+	preload("res://gameplay/props/fan/sprites/blade_2.png"),
+	preload("res://gameplay/props/fan/sprites/blade_3.png"),
+	preload("res://gameplay/props/fan/sprites/blade_4.png"),
+	preload("res://gameplay/props/fan/sprites/blade_5.png"),
 ]
 const FAN_RECT := Rect2(-24, -31, 48, 56)
 

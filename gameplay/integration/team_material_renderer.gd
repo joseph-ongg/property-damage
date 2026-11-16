@@ -45,7 +45,7 @@ func _on_cell_changed(_x: int, _y: int) -> void:
 func should_draw_cell(x: int, y: int) -> bool:
 	if _grid == null or _grid.get_cell_material(x, y) == MaterialGrid.Materials.AIR:
 		return false
-	return _furniture_layer == null or not _furniture_layer.covers_cell(Vector2i(x, y)) or _grid.is_burning(x, y)
+	return _furniture_layer == null or not _furniture_layer.covers_cell(Vector2i(x, y)) or _grid.is_burning(x, y) or _furniture_layer.is_cell_destroyed(Vector2i(x, y))
 
 
 func _draw() -> void:

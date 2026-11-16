@@ -26,7 +26,15 @@ func _ready() -> void:
 	$Player2.interact_pressed.connect(_on_interact)
 	$Player1.magic_attacked.connect(_on_magic_attack)
 	$Player2.magic_attacked.connect(_on_magic_attack)
+	$MaterialGrid/FurnitureFireLayer.object_destroyed.connect(_on_object_destroyed)
 
+func _on_object_destroyed(id: String) -> void:
+	var platform := get_node_or_null({"BOOKSHELF": "BookshelfTop", "TABLE": "TableTop",
+		"WALLSHELFLEFT": "WallShelfLeft", "WALLSHELFCENTER": "WallShelfCenter",
+		"WALLSHELFRIGHT": "WallShelfRight"}.get(id, ""))
+	if platform != null:
+		platform.set_deferred("collision_layer", 0)
+	_show_status("%s BURNED DOWN" % id)
 
 func _physics_process(_delta: float) -> void:
 	# Optional environmental forces, applied before Player._physics_process.
