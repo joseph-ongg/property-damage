@@ -37,8 +37,10 @@ func _run() -> void:
     var manager := garden.get_node("MatchManager") as GameplayMatchManager
     var grid := garden.get_node("MaterialGrid") as MaterialGrid
     check(manager.player1 == p1 and manager.player2 == p2, "Garden shares the real match manager")
-    check(garden.get_node("GardenItems").get_child_count() == 3,
-        "Garden has three distinct destructible environment objects")
+    check(garden.get_node("GardenItems").get_child_count() == 5
+        and garden.has_node("GardenItems/Gnome1")
+        and garden.has_node("GardenItems/Gnome2"),
+        "Garden retains three Art props plus two breakable gnomes")
     var flame_mask: Texture2D = load("res://gameplay/garden/art_generated/garden_fuel_mask.png")
     var mask_image := flame_mask.get_image()
     var rose_cells := 0

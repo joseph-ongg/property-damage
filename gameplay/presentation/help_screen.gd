@@ -20,7 +20,7 @@ func _ready() -> void:
         Vector2(78, 191), Vector2(360, 200), 16, U.WHITE)
     U.text(self, "MOVE             LEFT / RIGHT\nJUMP               UP  (double jump)\nDROP                DOWN + UP\nATTACK            .\nSPARK                ENTER\nPICK / THROW    ,\nINTERACT           SHIFT",
         Vector2(521, 191), Vector2(364, 200), 16, U.WHITE)
-    U.text(self, "Breaking objects boosts attack by 5%. Press ESC or P to pause.",
+    U.text(self, "Break props +5% ATK. Garden: E/SHIFT hose, crouch in tree holes. ESC = pause.",
         Vector2(105, 433), Vector2(750, 29), 15, U.GOLD, true)
     var back := U.button(self, "BACK TO TITLE", Vector2(352, 475),
         Vector2(256, 43), U.LAVENDER)

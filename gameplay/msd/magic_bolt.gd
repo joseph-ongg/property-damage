@@ -107,7 +107,7 @@ func _hit_combat_target(room: Node, start: Vector2, finish: Vector2) -> String:
 			target = item
 			impact_point = point
 	for player: GameplayPlayer in [room.get_node("Player1"), room.get_node("Player2")]:
-		if player.player_index == caster_index:
+		if player.player_index == caster_index or player.in_cover:
 			continue
 		var player_rect := Rect2(player.global_position + Vector2(-16, -45), Vector2(32, 60))
 		var point: Variant = _segment_rect_hit(start, finish, player_rect)

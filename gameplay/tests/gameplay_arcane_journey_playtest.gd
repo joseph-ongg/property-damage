@@ -1,9 +1,9 @@
 ## Actual Godot windowed art, Angela map selection, and match UI journey.
-## Twelve distinct real renderer screenshots, no image-gen and no audio.
+## Fifteen actual renderer shots; no image-gen, no audio.
 extends SceneTree
 
 var failures: Array[String] = []
-const PREFIX := "/tmp/property_damage_angela_v2_layout_20261115_"
+const PREFIX := "/tmp/property_damage_delivery_20261115_"
 
 
 func _initialize() -> void:
@@ -23,7 +23,10 @@ func frames(n: int) -> void:
 
 
 func snap(name: String) -> void:
-    await RenderingServer.frame_post_draw
+    # A paused or backgrounded native macOS window may suppress the next
+    # frame_post_draw signal indefinitely. Explicitly draw one diagnostic
+    # frame so actual-game screenshots cannot deadlock the QA runner.
+    RenderingServer.force_draw(false)
     var image := root.get_texture().get_image()
     var path := PREFIX + name + ".png"
     var err := image.save_png(path)
@@ -54,11 +57,20 @@ func _run() -> void:
 
     main.start_button.pressed.emit()
     await create_timer(0.17).timeout
+    var fighter := current_scene
+    check(fighter != null and fighter.name == "FighterSelect",
+        "main menu opens independent two-player registration")
+    check(fighter.start_button.disabled, "arena choice is locked before both Ready")
+    await snap("02_fighter_registration")
+    fighter.ready_buttons[0].button_pressed = true
+    fighter.ready_buttons[1].button_pressed = true
+    fighter._continue_to_maps()
+    await create_timer(0.17).timeout
     var lobby := current_scene
     check(lobby != null and lobby.name == "MapSelect", "Angela's original map scene loads")
-    check(lobby.list.get_child_count() == 3, "one label and two Angela-owned map buttons")
-    check(lobby.has_node("LobbyDecor"), "thematic cosmetics load without changing selection")
-    await snap("02_angela_map_select")
+    check(lobby.list.get_child_count() == 3, "Angela's original two map buttons unchanged")
+    check(lobby.has_node("LobbyDecor"), "cosmetic and third-arena controls are separate")
+    await snap("03_angela_map_select")
     var garden_button: Button
     for child in lobby.list.get_children():
         if child is Button and child.text == "Garden":
@@ -72,30 +84,33 @@ func _run() -> void:
     var manager := garden.get_node("MatchManager") as GameplayMatchManager
     var p1 := garden.get_node("Player1") as GameplayPlayer
     var p2 := garden.get_node("Player2") as GameplayPlayer
-    await snap("03_garden_entry")
+    await snap("04_garden_entry")
+    # User-selected characters cause the real 3-2-1 DUEL countdown.
+    await create_timer(2.8).timeout
     var old_x := p1.global_position.x
     Input.action_press("p1_right")
     await frames(17)
     Input.action_release("p1_right")
     check(p1.global_position.x > old_x + 4.0, "real Garden player movement")
-    await snap("04_garden_fight")
+    await snap("05_garden_fight")
 
     var pause := garden.get_node("PauseOverlay")
     pause.set_paused(true)
     check(paused and pause.is_paused, "Garden shared pause")
-    await snap("05_pause")
+    await snap("06_pause")
     pause._show_help(true)
-    await snap("06_pause_controls")
+    await snap("07_pause_controls")
     pause.set_paused(false)
 
     await fight_round(p1, p2)
     check(manager.round_over and manager.p1_wins == 1, "actual projectile wins first round")
-    await snap("07_round_result")
+    await snap("08_round_result")
     manager.continue_after_round()
+    await create_timer(2.8).timeout
     await frames(7)
     await fight_round(p1, p2)
     check(manager.match_over and manager.p1_wins == 2, "best of three resolves final victory")
-    await snap("08_match_result")
+    await snap("09_match_result")
 
     manager.back_to_menu()
     await create_timer(0.17).timeout
@@ -111,29 +126,47 @@ func _run() -> void:
     var living := current_scene
     check(living.get_node("GameplayMSD/MatchManager") is GameplayMatchManager,
         "Living Room loads with updated compact battle HUD")
-    await snap("09_living_room")
-    living.queue_free()
+    await snap("10_living_room")
+    # Map 3 is a separately integrated button, never a modification to
+    # Angela's map_select.gd or her existing two destination callbacks.
+    living.get_node("GameplayMSD/MatchManager").back_to_menu()
+    await create_timer(0.17).timeout
+    var third_menu := current_scene
+    var third_button: Button
+    for child in third_menu.get_node("LobbyDecor").get_children():
+        if child is Button and child.text.contains("OBSERVATORY"):
+            third_button = child
+    check(third_button != null, "third arena button appears beside Angela's original choices")
+    third_button.pressed.emit()
+    await create_timer(0.17).timeout
+    var observatory := current_scene
+    check(observatory != null and observatory.name == "ObservatoryBattle",
+        "third arena opens via real map button")
+    check(observatory.get_node("MatchManager") is GameplayMatchManager,
+        "third arena has reusable match manager and selected fighters")
+    await snap("11_observatory")
+    observatory.queue_free()
     await frames(3)
 
     var help := (load("res://gameplay/presentation/help_screen.tscn") as PackedScene).instantiate()
     root.add_child(help)
     current_scene = help
     await frames(3)
-    await snap("10_help")
+    await snap("12_help")
     help.queue_free()
     await frames(3)
     var settings := (load("res://gameplay/presentation/settings_screen.tscn") as PackedScene).instantiate()
     root.add_child(settings)
     current_scene = settings
     await frames(3)
-    await snap("11_settings")
+    await snap("13_settings")
     settings.queue_free()
     await frames(3)
     var credits := (load("res://gameplay/presentation/credits_screen.tscn") as PackedScene).instantiate()
     root.add_child(credits)
     current_scene = credits
     await frames(3)
-    await snap("12_credits")
+    await snap("14_credits")
     credits.queue_free()
-    print("ANGELA_V2_LAYOUT_SUMMARY failures=", failures.size())
+    print("GAME_READY_JOURNEY_SUMMARY failures=", failures.size())
     quit(0 if failures.is_empty() else 1)

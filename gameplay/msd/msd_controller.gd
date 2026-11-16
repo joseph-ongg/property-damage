@@ -77,9 +77,25 @@ func _physics_process(_delta: float) -> void:
 	_cable_near_outlet = cable_near
 	if outlet.plugged:
 		cable.global_position = outlet.global_position
-	var wind_carries_fire := active_fan.switched_on and _fan_has_fire(active_fan, grid)
-	grid.wind_direction = Vector2(-1, 0) if wind_carries_fire and active_fan.fan_facing_left else Vector2(1, 0) if wind_carries_fire else Vector2.ZERO
-	grid.wind_strength = 0.7 if wind_carries_fire else 0.0
+	# Ethan's MaterialGrid remains the only owner of fire spread state.
+	# Gameplay contributes directional wind *only* when active local airflow
+	# reaches burning cells. Fans and ACs are composable and independently
+	# switchable; their existing player movement/chill effects remain intact.
+	var vector_sum := Vector2.ZERO
+	for device: GameplayAppliance in [$Appliances/FanDevice, $Appliances/ACDevice]:
+		if device.simulation_wind_strength() > 0.0 and _device_has_fire(device, grid):
+			vector_sum += device.simulation_wind_direction() * device.simulation_wind_strength()
+	grid.wind_direction = vector_sum.normalized() if vector_sum.length_squared() > 0.00001 else Vector2.ZERO
+	grid.wind_strength = clampf(vector_sum.length(), 0.0, 1.0)
+
+
+## Simulation's easy entrypoint: one live snapshot for both named devices.
+## Each device exposes its own powered/operational/spatial contract.
+func simulation_wind_sources() -> Array[Dictionary]:
+	var states: Array[Dictionary] = []
+	for device: GameplayAppliance in [$Appliances/FanDevice, $Appliances/ACDevice]:
+		states.append(device.simulation_wind_state())
+	return states
 
 
 func _plug_fan_cable(cable: GameplayWorldItem, outlet: GameplayWorldItem) -> void:
@@ -96,17 +112,30 @@ func _plug_fan_cable(cable: GameplayWorldItem, outlet: GameplayWorldItem) -> voi
 
 
 func _fan_has_fire(fan: GameplayAppliance, grid: MaterialGrid) -> bool:
-	if fan.burning:
+	# Keep the previous test/Integration API available.
+	return _device_has_fire(fan, grid)
+
+
+func _device_has_fire(device: GameplayAppliance, grid: MaterialGrid) -> bool:
+	if device.burning:
 		return true
-	var wind_area := fan.fan_wind_local_rect()
-	var a := grid.world_to_cell(fan.global_position + wind_area.position)
-	var b := grid.world_to_cell(fan.global_position + wind_area.end - Vector2.ONE)
+	var bounds: Rect2
+	if device.device == GameplayAppliance.Device.FAN:
+		var area := device.fan_wind_local_rect()
+		bounds = Rect2(device.global_position + area.position, area.size)
+	elif device.device == GameplayAppliance.Device.AC:
+		var r := device.effect_radius
+		bounds = Rect2(device.global_position - Vector2(r, r), Vector2(r * 2, r * 2))
+	else:
+		return false
+	var a := grid.world_to_cell(bounds.position)
+	var b := grid.world_to_cell(bounds.end - Vector2.ONE)
 	for x in range(maxi(0, a.x), mini(grid.width, b.x + 1)):
 		for y in range(maxi(0, a.y), mini(grid.height, b.y + 1)):
-			if grid.is_burning(x, y) and fan.fan_wind_contains(Vector2(x + 0.5, y + 0.5) * float(grid.cell_size)):
+			if grid.is_burning(x, y) and device.simulation_wind_contains(
+					Vector2(x + 0.5, y + 0.5) * float(grid.cell_size)):
 				return true
 	return false
-
 
 func _on_magic_attack(player_index: int, player: GameplayPlayer) -> void:
 	var projectile := GameplayMagicBolt.new()

@@ -1,0 +1,142 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://gameplay/observatory/observatory_level.gd" id="1_level"]
+[ext_resource type="Script" path="res://gameplay/observatory/observatory_visuals.gd" id="2_visual"]
+[ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://gameplay/integration/ethan_material_grid.gd" id="4_grid"]
+[ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="5_bridge"]
+[ext_resource type="Script" path="res://gameplay/demo/fire_visuals.gd" id="6_fire"]
+[ext_resource type="Script" path="res://gameplay/match/match_manager.gd" id="7_match"]
+[ext_resource type="Script" path="res://gameplay/demo/pause_overlay.gd" id="8_pause"]
+[ext_resource type="Script" path="res://gameplay/observatory/observatory_mechanics.gd" id="9_mechanics"]
+[ext_resource type="Script" path="res://gameplay/LevelSelection/back_to_menu.gd" id="10_back"]
+
+[ext_resource type="Script" path="res://gameplay/presentation/impact_juice.gd" id="11_juice"]
+
+[sub_resource type="RectangleShape2D" id="floor"]
+size = Vector2(960, 40)
+[sub_resource type="RectangleShape2D" id="wall"]
+size = Vector2(32, 600)
+[sub_resource type="RectangleShape2D" id="ledge"]
+size = Vector2(226, 12)
+[sub_resource type="RectangleShape2D" id="upper"]
+size = Vector2(192, 12)
+
+[node name="ObservatoryBattle" type="Node2D"]
+script = ExtResource("1_level")
+
+[node name="ObservatoryVisuals" type="Node2D" parent="."]
+texture_filter = 1
+z_index = -5
+script = ExtResource("2_visual")
+
+[node name="MaterialGrid" type="Node2D" parent="."]
+script = ExtResource("4_grid")
+width = 60
+height = 34
+[node name="TickTimer" type="Timer" parent="MaterialGrid"]
+
+[node name="FireBridge" type="Node" parent="."]
+script = ExtResource("5_bridge")
+grid_path = NodePath("../MaterialGrid")
+
+[node name="FireVisuals" type="Node2D" parent="."]
+z_index = 6
+script = ExtResource("6_fire")
+grid_path = NodePath("../MaterialGrid")
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(480, 486)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("floor")
+
+[node name="LeftWall" type="StaticBody2D" parent="."]
+position = Vector2(0, 250)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
+shape = SubResource("wall")
+
+[node name="RightWall" type="StaticBody2D" parent="."]
+position = Vector2(960, 250)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall"]
+shape = SubResource("wall")
+
+[node name="LeftBridge" type="StaticBody2D" parent="."]
+position = Vector2(223, 382)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftBridge"]
+shape = SubResource("ledge")
+one_way_collision = true
+
+[node name="RightBridge" type="StaticBody2D" parent="."]
+position = Vector2(754, 382)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RightBridge"]
+shape = SubResource("ledge")
+one_way_collision = true
+
+[node name="MiddleBridge" type="StaticBody2D" parent="."]
+position = Vector2(486, 316)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MiddleBridge"]
+shape = SubResource("ledge")
+one_way_collision = true
+
+[node name="UpperBridge" type="StaticBody2D" parent="."]
+position = Vector2(486, 234)
+collision_layer = 1
+collision_mask = 0
+[node name="CollisionShape2D" type="CollisionShape2D" parent="UpperBridge"]
+shape = SubResource("upper")
+one_way_collision = true
+
+[node name="Player1" parent="." instance=ExtResource("3_player")]
+position = Vector2(85, 441)
+player_index = 1
+z_index = 10
+use_menu_character_selection = true
+fire_bridge_path = NodePath("../FireBridge")
+dash_enabled = false
+enhanced_jumping = true
+platform_drop_enabled = true
+
+[node name="Player2" parent="." instance=ExtResource("3_player")]
+position = Vector2(875, 441)
+player_index = 2
+z_index = 10
+use_menu_character_selection = true
+fire_bridge_path = NodePath("../FireBridge")
+dash_enabled = false
+enhanced_jumping = true
+platform_drop_enabled = true
+
+[node name="ArcaneProps" type="Node2D" parent="."]
+
+[node name="Projectiles" type="Node2D" parent="."]
+z_index = 14
+
+[node name="ObservatoryMechanics" type="Node2D" parent="."]
+script = ExtResource("9_mechanics")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="PauseOverlay" type="CanvasLayer" parent="."]
+script = ExtResource("8_pause")
+
+[node name="MatchManager" type="CanvasLayer" parent="."]
+script = ExtResource("7_match")
+
+[node name="BackToMenu" type="Node" parent="."]
+script = ExtResource("10_back")
+show_button = false
+
+[node name="ImpactJuice" type="Node2D" parent="."]
+script = ExtResource("11_juice")

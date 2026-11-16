@@ -81,6 +81,7 @@ var _original_jump_speed: float = 0.0
 var attack_damage: float = 10.0
 var destroyed_objects: int = 0
 var knocked_out: bool = false
+var in_cover: bool = false
 # Only the polished menu-driven match uses a pre-round input lock; direct
 # prefab / headless Gameplay tests keep their existing independent controls.
 var input_locked: bool = false
@@ -282,6 +283,7 @@ func reward_destruction() -> void:
 
 func respawn(reset_health: bool = true) -> void:
 	knocked_out = false
+	in_cover = false
 	_hurt_pose_remaining = 0.0
 	_action_pose_remaining = 0.0
 	sprite.rotation = 0.0

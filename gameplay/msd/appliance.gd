@@ -47,6 +47,11 @@ const MONITOR_RENDER_RECT := Rect2(-25, -32, 50, 39)
 # Simulation still owns grid fire state; item HP is local Gameplay state.
 @export var simulation_id: String = "living_room_fan_01"
 @export var fan_facing_left: bool = true
+# Public Simulation handoff. Both devices produce local airflow; the room
+# converts their active, fire-adjacent regions into upstream grid wind fields.
+@export_range(0.0, 1.0, 0.05) var fan_fire_wind_strength: float = 0.7
+@export var ac_facing_left: bool = true
+@export_range(0.0, 1.0, 0.05) var ac_fire_wind_strength: float = 0.45
 @export_range(1.0, 20.0, 0.5) var fan_animation_fps: float = 10.0
 @export var fan_sprite_offset: Vector2 = Vector2.ZERO
 @export var fan_rear_override: Texture2D
@@ -89,8 +94,11 @@ func _apply_device_defaults() -> void:
 
 
 func _on_destroyed(_source_player: int) -> void:
+	var was_powered := switched_on
 	charred = true
 	switched_on = false
+	if was_powered:
+		state_changed.emit(int(device), false, -1)
 	queue_redraw()
 
 
@@ -111,6 +119,8 @@ func interact(player: GameplayPlayer) -> bool:
 		return false
 	if device == Device.FAN:
 		set_fan_power(not switched_on, player.player_index)
+	elif device == Device.AC:
+		set_ac_power(not switched_on, player.player_index)
 	else:
 		switched_on = not switched_on
 		state_changed.emit(int(device), switched_on, player.player_index)
@@ -127,6 +137,54 @@ func set_fan_power(powered: bool, source_player_index: int = -1) -> void:
 	switched_on = powered
 	state_changed.emit(int(device), switched_on, source_player_index)
 	queue_redraw()
+
+
+## Stable external control: AC is now as accessible as Fan to Simulation.
+func set_ac_power(powered: bool, source_player_index: int = -1) -> void:
+	if device != Device.AC or switched_on == powered or (powered and (charred or destroyed_item)):
+		return
+	switched_on = powered
+	state_changed.emit(int(device), switched_on, source_player_index)
+	queue_redraw()
+
+
+## Source-of-truth runtime API for Simulation. No second fire/wind store.
+## In Godot grid coordinates +X is right, +Y is down. AC defaults left.
+func simulation_wind_direction() -> Vector2:
+	if device == Device.FAN:
+		return Vector2.LEFT if fan_facing_left else Vector2.RIGHT
+	if device == Device.AC:
+		return Vector2.LEFT if ac_facing_left else Vector2.RIGHT
+	return Vector2.ZERO
+
+
+func simulation_wind_strength() -> float:
+	if not switched_on or charred or destroyed_item:
+		return 0.0
+	match device:
+		Device.FAN: return fan_fire_wind_strength
+		Device.AC: return ac_fire_wind_strength
+	return 0.0
+
+
+func simulation_wind_contains(world_position: Vector2) -> bool:
+	if device == Device.FAN:
+		return fan_wind_contains(world_position)
+	if device == Device.AC:
+		return global_position.distance_to(world_position) <= effect_radius
+	return false
+
+
+func simulation_wind_state() -> Dictionary:
+	return {
+		"id": simulation_id,
+		"device": device_name(),
+		"powered": switched_on,
+		"operational": not (charred or destroyed_item),
+		"direction": simulation_wind_direction(),
+		"strength": simulation_wind_strength(),
+		"effect_radius": effect_radius,
+	}
 
 
 func fan_runtime_state() -> Dictionary:

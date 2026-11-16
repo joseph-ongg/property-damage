@@ -2,7 +2,7 @@
 extends Control
 
 const U = preload("res://gameplay/presentation/stylekit.gd")
-const LOBBY := "res://gameplay/MapSelection/map_select.tscn"
+const LOBBY := "res://gameplay/presentation/fighter_select.tscn"
 const HELP := "res://gameplay/presentation/help_screen.tscn"
 const SETTINGS := "res://gameplay/presentation/settings_screen.tscn"
 const CREDITS := "res://gameplay/presentation/credits_screen.tscn"

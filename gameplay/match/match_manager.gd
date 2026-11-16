@@ -437,6 +437,9 @@ func new_match() -> void:
 
 func _reset_round() -> void:
     _reset_level_state()
+    for mechanics in ["GardenMechanics", "ObservatoryMechanics"]:
+        if get_parent().has_node(mechanics):
+            get_parent().get_node(mechanics).reset_mechanics()
     _set_environment_running(true)
     for player: GameplayPlayer in [player1, player2]:
         player.respawn(true)

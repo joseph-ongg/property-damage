@@ -35,6 +35,15 @@ func _decorate() -> void:
     U.text(self, "Preview only  •  choose a map on the left",
         Vector2(507, 448), Vector2(400, 24), 13, U.MUTED, true)
 
+    # Extension only: Angela's original two buttons and callbacks are intact.
+    # The third arena is a separate optional Gameplay-owned action.
+    var third := U.button(self, "CLOCKTOWER OBSERVATORY",
+        Vector2(76, 423), Vector2(355, 45), U.GOLD)
+    third.add_theme_font_size_override("font_size", 16)
+    third.pressed.connect(func() -> void:
+        get_tree().change_scene_to_file(
+            "res://gameplay/observatory/observatory_level.tscn"))
+
     # Style existing buttons; no selection state or signal handler is changed.
     var list := get_parent().get_node("CenterContainer/VBoxContainer") as VBoxContainer
     list.add_theme_constant_override("separation", 13)

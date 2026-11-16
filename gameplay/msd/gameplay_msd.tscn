@@ -24,6 +24,8 @@
 [ext_resource type="Texture2D" path="res://gameplay/platforms/sprites/wall_bookshelf_teal.png" id="24_teal"]
 [ext_resource type="Texture2D" path="res://gameplay/platforms/sprites/wall_bookshelf_walnut.png" id="25_walnut"]
 
+[ext_resource type="Script" path="res://gameplay/presentation/impact_juice.gd" id="30_juice"]
+
 [sub_resource type="RectangleShape2D" id="shape_floor"]
 size = Vector2(960, 40)
 
@@ -80,7 +82,7 @@ texture_filter = 1
 script = ExtResource("15_fx")
 
 [node name="RoomForeground" type="Node2D" parent="." unique_id=509425243]
-z_index = 11
+z_index = 21
 texture_filter = 1
 script = ExtResource("14_depth_layer")
 foreground = true
@@ -314,6 +316,7 @@ position = Vector2(413, 389)
 position = Vector2(648, 469)
 script = ExtResource("8_appliance")
 device = 2
+simulation_id = "living_room_ac_01"
 
 [node name="ComputerDevice" type="Node2D" parent="Appliances" unique_id=1145432540]
 position = Vector2(552, 404)
@@ -588,3 +591,6 @@ horizontal_alignment = 1
 
 [node name="MatchManager" type="CanvasLayer" parent="."]
 script = ExtResource("26_match")
+
+[node name="ImpactJuice" type="Node2D" parent="."]
+script = ExtResource("30_juice")
