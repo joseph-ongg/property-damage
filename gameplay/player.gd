@@ -195,8 +195,11 @@ func _physics_process(delta: float) -> void:
 		carry_pressed.emit(player_index, self)
 	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
 		_action_pose_remaining = 0.26
-		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
-		sparked.emit(player_index, global_position + Vector2(facing * spark.reach, 0), accepted)
+		# Eva's aim marker is the source of truth for both the visual reticle
+		# and actual Simulation ignition; ranged Magic remains a separate action.
+		var target: Vector2 = $SparkAim.target_world_position()
+		var accepted := spark.cast_spark(global_position, facing, _bridge, tint, target)
+		sparked.emit(player_index, target, accepted)
 	# Process the input events first so the alternate Art Team action pose is
 	# visible on the exact same physics tick as the Spark/interaction/magic.
 	_update_character_sprite(moving)

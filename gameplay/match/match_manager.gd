@@ -443,6 +443,8 @@ func _reset_round() -> void:
     _set_environment_running(true)
     for player: GameplayPlayer in [player1, player2]:
         player.respawn(true)
+        # Start every new round with Eva's neutral, forward Spark aim.
+        player.get_node("SparkAim").reset_aim()
         player.destroyed_objects = 0
         player.attack_damage = RULES.base_attack_damage
         player.set_physics_process(true)

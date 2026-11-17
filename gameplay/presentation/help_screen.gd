@@ -16,9 +16,9 @@ func _ready() -> void:
         Vector2(360, 30), 22, U.TEAL)
     U.text(self, "PLAYER 2 / CORAL", Vector2(518, 154),
         Vector2(360, 30), 22, U.PINK)
-    U.text(self, "MOVE             A / D\nJUMP               W  (double jump)\nDROP                S + W\nATTACK            G\nSPARK                F\nPICK / THROW    C\nINTERACT           E",
+    U.text(self, "MOVE             A / D\nJUMP               W  (double jump)\nDROP                S + W\nATTACK            G\nSPARK                F (2x W/S: AIM)\nPICK / THROW    C\nINTERACT           E",
         Vector2(78, 191), Vector2(360, 200), 16, U.WHITE)
-    U.text(self, "MOVE             LEFT / RIGHT\nJUMP               UP  (double jump)\nDROP                DOWN + UP\nATTACK            .\nSPARK                ENTER\nPICK / THROW    ,\nINTERACT           SHIFT",
+    U.text(self, "MOVE             LEFT / RIGHT\nJUMP               UP  (double jump)\nDROP                DOWN + UP\nATTACK            .\nSPARK                ENTER (2x ↑/↓: AIM)\nPICK / THROW    ,\nINTERACT           SHIFT",
         Vector2(521, 191), Vector2(364, 200), 16, U.WHITE)
     U.text(self, "Break props +5% ATK. Garden: E/SHIFT hose, crouch in tree holes. ESC = pause.",
         Vector2(105, 433), Vector2(750, 29), 15, U.GOLD, true)
