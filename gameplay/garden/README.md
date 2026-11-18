@@ -183,17 +183,26 @@ The two-round regression is
 `gameplay/tests/gameplay_garden_round_handoff_test.gd`.
 
 
-## Final scoped review (2026-11-18)
+## Final review guide (2026-11-18)
 
-- 23/23 Godot tests pass, including Garden complete round handoff,
-  post-round interaction lockout, Eva i-frame attack bonus accounting,
-  and Garden flammable props with ash/reset.
-- A temporary cross-owner merge with the updated Jackson PR #20,
-  Ethan PR #19, Angela PR #16, Austin items and Eva Health components
-  passes 12/12 selected runtime tests after **manual** merge decisions.
-  No other owner's source was pushed or rewritten in PR #18.
-- Latest evidence: evidence/2026-11-18-original-art/qa_results.md
-- Remaining inter-team tasks: Angela menu/startup and best-of-three;
-  Austin/Eva Living Room HP unification; Ethan/Jackson controller and
-  scene conflict sign-off; Design's Garden item HP/damage values; Art
-  placeholders and Ninja's Living Room projectile appearance.
+**Start with [the Design acceptance matrix](DESIGN_ACCEPTANCE.md)** to
+distinguish Design-approved behavior, provisional numbers and external
+owner dependencies. Then read
+[the current cross-branch compatibility report](CROSS_BRANCH_COMPATIBILITY.md)
+for exact branch SHAs and merge conflicts. The previous 23/23 Garden
+regression and 12/12 historical selected all-owner tests remain recorded;
+the latest local acceptance also checks cross-map Ninja shuriken visuals.
+Run `./gameplay/garden/verify_pr18.sh --local` to reproduce the current
+local suite, `--branch-report` for live Git conflict counts, or
+`--menu` only in an isolated Angela menu integration worktree.
+
+Current Angela PR #16 includes the earlier experimental game-ready history
+and does not automatically merge with PR #18 (14 conflicts as of Nov 18).
+An isolated **menu-only** transplant of her current actual scene, with
+its obsolete Garden path patched temporarily, passed a two-round button
+→ Garden fight → menu E2E test. That is **not** sign-off of her actual
+best-of-three scoreboard or a modification of her PR.
+
+The shared Ninja visual uses a **temporary, code-drawn** shuriken in
+both Garden and Living Room; the same `GameplayMagicBolt` file automatically
+merges with Austin's new projectile hit method. Final art is pending.

@@ -20,12 +20,16 @@ const FIRE_FRAMES: Array[Texture2D] = [
 
 var direction: int = 1
 var caster_index: int = 1
+## Design: Ninja attacks appear as shurikens in *both* arenas.
+## Temporary procedural marker until Art Team provides the sprite.
+var projectile_kind: String = "fireball"
 var _age: float = 0.0
 var _resolved: bool = false
 
 
 func initialize(player: GameplayPlayer) -> void:
 	caster_index = player.player_index
+	projectile_kind = "shuriken" if player.character_kind == "ninja" else "fireball"
 	direction = player.facing
 	global_position = player.global_position + Vector2(direction * 19, -7)
 	queue_redraw()
@@ -101,6 +105,19 @@ func _has_clear_path(target: Vector2) -> bool:
 
 
 func _draw() -> void:
+	if projectile_kind == "shuriken":
+		# Unapproved placeholder glyph, never misattribute it to Art Team.
+		# Draw-only change: collision, 10-HP balance and Austin's item hit
+		# logic remain owned by the original projectile implementation.
+		draw_set_transform(Vector2.ZERO, _age * 11.0, Vector2.ONE)
+		var spokes := PackedVector2Array([
+			Vector2(-14, -1), Vector2(-4, -4), Vector2(-1, -14),
+			Vector2(4, -4), Vector2(14, -1), Vector2(4, 4),
+			Vector2(1, 14), Vector2(-4, 4)])
+		draw_colored_polygon(spokes, Color("#aab5c3"))
+		draw_circle(Vector2.ZERO, 2.5, Color("#343c48"))
+		draw_set_transform(Vector2.ZERO)
+		return
 	var frame: Texture2D = FIRE_FRAMES[int(_age * 14.0) % FIRE_FRAMES.size()]
 	# Flip the comet trail when flying to the left. Pixel edges stay crisp.
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(float(direction), 1.0))

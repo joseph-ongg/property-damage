@@ -6,15 +6,12 @@ extends GameplayMagicBolt
 const BASE_PLAYER_DAMAGE := 10  # Design/PM: all character attacks start at 10.
 
 var _caster: GameplayPlayer
-## Explicit Design: Ninja shoots a shuriken, Mage shoots fireball.
-## The shuriken silhouette is a visible temporary code-drawn indicator;
-## there is no shuriken image among the current Art Team Piskel sources.
-var projectile_kind: String = "fireball"
 
 
 func initialize(player: GameplayPlayer) -> void:
     _caster = player
-    projectile_kind = "shuriken" if player.character_kind == "ninja" else "fireball"
+    # The shared MagicBolt now handles Ninja/Wizard art in either arena.
+    # Garden's subclass only implements its stage-specific hit ordering.
     super.initialize(player)
 
 
@@ -75,20 +72,3 @@ func _physics_process(delta: float) -> void:
         queue_free()
         return
     super._physics_process(delta)
-
-
-
-func _draw() -> void:
-    if projectile_kind != "shuriken":
-        super._draw()
-        return
-    # Temporary shuriken shape, not represented as approved Art Team art.
-    # Its physics, speed and base damage are the same as the other fighters.
-    draw_set_transform(Vector2.ZERO, _age * 11.0, Vector2.ONE)
-    var spikes := PackedVector2Array([
-        Vector2(-14, -1), Vector2(-4, -4), Vector2(-1, -14),
-        Vector2(4, -4), Vector2(14, -1), Vector2(4, 4),
-        Vector2(1, 14), Vector2(-4, 4)])
-    draw_colored_polygon(spikes, Color("#aab5c3"))
-    draw_circle(Vector2.ZERO, 2.5, Color("#343c48"))
-    draw_set_transform(Vector2.ZERO)
