@@ -20,6 +20,15 @@ const P2_RUN: Array[Texture2D] = [
 	preload("res://gameplay/art/mage_2_run_1.png"),
 ]
 
+# Actual Art Team Piskel frames; no generated or substitute poses.
+# Inspector and Angela's future character selector can call set_character_kind.
+const NINJA_VISUALS: GameplayCharacterVisualSet = preload(
+	"res://gameplay/characters/ninja_visuals.tres")
+const WEREWOLF_VISUALS: GameplayCharacterVisualSet = preload(
+	"res://gameplay/characters/werewolf_visuals.tres")
+const CHARACTER_HP := {"mage": 120, "ninja": 100, "werewolf": 160}
+const CHARACTER_MOVE := {"mage": 1.0, "ninja": 1.2, "werewolf": 0.85}
+
 signal sparked(player_index: int, target: Vector2, accepted: bool)
 signal interact_pressed(player_index: int, player: GameplayPlayer)
 signal magic_attacked(player_index: int, player: GameplayPlayer)
@@ -29,6 +38,11 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 # Art can replace either mage via the Inspector without editing Gameplay code.
 # Leaving this unset keeps the original local P1/P2 prototype sprites.
 @export var sprite_override: Texture2D
+@export_enum("mage", "ninja", "werewolf") var character_kind: String = "mage"
+@export var character_art_override: GameplayCharacterVisualSet
+## Design explicitly requires a higher Ninja jump but gives no numerical
+## multiplier. 1.10 is a playtest placeholder, NOT Design-approved; editable.
+@export_range(1.01, 1.5, 0.01) var ninja_jump_multiplier: float = 1.10
 @export_node_path("Node") var fire_bridge_path: NodePath
 @export var reset_height: float = 580.0
 @export var dash_enabled: bool = true  # Optional extra; off in the team MSD demo.
@@ -42,7 +56,11 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 @onready var spark: GameplaySparkEmitter = $SparkEmitter
 @onready var landing_fx: Node2D = $LandingFX
 @onready var hazard: GameplayFireHazard = $FireHazard
+@onready var health_component: Health = $Health
 
+var _base_motor_speed: float = 0.0
+var _base_motor_jump_speed: float = 0.0
+var _hurt_pose_seconds: float = 0.0
 var facing: int = 1
 var _spawn: Vector2
 var _bridge: GameplayFireBridge
@@ -69,7 +87,10 @@ func _ready() -> void:
 	_bridge = get_node_or_null(fire_bridge_path) as GameplayFireBridge
 	if player_index == 2:
 		facing = -1
-	sprite.texture = sprite_override if sprite_override != null else (MAGE1 if player_index == 1 else MAGE2)
+	_base_motor_speed = motor.speed
+	_base_motor_jump_speed = motor.jump_speed
+	health_component.damaged.connect(_on_character_hurt)
+	set_character_kind(character_kind)
 	sprite.flip_h = facing < 0
 	_apply_art_size()
 	$NameTag.text = "P%d" % player_index
@@ -77,6 +98,44 @@ func _ready() -> void:
 	$JumpCharges.visible = enhanced_jumping
 	$JumpCharges.add_theme_color_override("font_color", tint)
 	queue_redraw()
+
+
+## Only character appearance and Design-specified HP/move scales change.
+## The higher Ninja jump uses a clearly labeled, editable provisional factor;
+## final numerical tuning and the Werewolf attack await Design review.
+## Does not create or replace Angela's selection UI or Eva's Health logic.
+func set_character_kind(kind: String) -> void:
+	if not CHARACTER_HP.has(kind):
+		push_warning("Unknown character: " + kind)
+		return
+	character_kind = kind
+	if _base_motor_speed > 0.0:
+		motor.speed = _base_motor_speed * float(CHARACTER_MOVE[kind])
+	if _base_motor_jump_speed > 0.0:
+		motor.jump_speed = _base_motor_jump_speed * (
+			ninja_jump_multiplier if kind == "ninja" else 1.0)
+	if health_component != null:
+		health_component.max_hp = int(CHARACTER_HP[kind])
+		health_component.reset()
+	_hurt_pose_seconds = 0.0
+	if sprite != null:
+		_update_character_sprite(false)
+
+
+func _on_character_hurt(_amount: int) -> void:
+	_hurt_pose_seconds = 0.25
+	_update_character_sprite(false)
+
+
+func _character_visuals() -> GameplayCharacterVisualSet:
+	if character_art_override != null:
+		return character_art_override
+	match character_kind:
+		"ninja":
+			return NINJA_VISUALS
+		"werewolf":
+			return WEREWOLF_VISUALS
+	return null
 
 
 func _physics_process(delta: float) -> void:
@@ -120,6 +179,7 @@ func _physics_process(delta: float) -> void:
 	dash.tick(delta)
 	_animation_clock += delta
 	_action_pose_remaining = maxf(0.0, _action_pose_remaining - delta)
+	_hurt_pose_seconds = maxf(0.0, _hurt_pose_seconds - delta)
 	var moving := absf(velocity.x) > 18.0
 	if dash.active() or _dash_was_active:
 		queue_redraw()
@@ -153,6 +213,9 @@ func _update_character_sprite(moving: bool) -> void:
 	# When standing use the Character design static; when walking animate the
 	# two original GIF frames at the deck's 80ms cadence.
 	var target_texture: Texture2D = sprite_override
+	if target_texture == null and _character_visuals() != null:
+		var pose := "hurt" if _hurt_pose_seconds > 0.0 else ("run" if moving else "idle")
+		target_texture = _character_visuals().texture_for(pose, _animation_clock)
 	if target_texture == null:
 		if _action_pose_remaining > 0.0:
 			target_texture = MAGE1_ACTION if player_index == 1 else MAGE2_ACTION
@@ -166,7 +229,7 @@ func _update_character_sprite(moving: bool) -> void:
 		_apply_art_size()
 	# The Art Team's original PNG has asymmetric transparent margins. Center
 	# the visible robe while facing either direction; do not crop source art.
-	sprite.position.x = float(facing) * 4.0 if sprite_override == null else 0.0
+	sprite.position.x = float(facing) * 4.0 if sprite_override == null and character_kind == "mage" else 0.0
 	sprite.position.y = -10.0
 
 

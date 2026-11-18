@@ -1,0 +1,26 @@
+{
+  "source": "gameplay/art_team/exported/garden.png",
+  "source_sha256": "1e13865df224fa32d0f89e441dbd9f2fe0e31a7ee463f0005e428f529da6a63a",
+  "original_dimensions": [
+    426,
+    286
+  ],
+  "fence_segments": 8,
+  "hp_per_fence_segment": 4,
+  "source_art_pixels": {
+    "fence_segment_01.png": 1252,
+    "fence_segment_02.png": 943,
+    "fence_segment_03.png": 3299,
+    "fence_segment_04.png": 589,
+    "fence_segment_05.png": 2434,
+    "fence_segment_06.png": 801,
+    "fence_segment_07.png": 212,
+    "fence_segment_08.png": 711,
+    "mushroom_red.png": 611,
+    "mushroom_blue.png": 491,
+    "hose_nozzle.png": 126
+  },
+  "exact_piskel_pixel_reconstruction": true,
+  "added_original_art_pixels": 0,
+  "artwork_created": false
+}
