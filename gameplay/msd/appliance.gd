@@ -5,6 +5,8 @@ extends Node2D
 enum Device { FRIDGE, FAN, AC, COMPUTER }
 signal state_changed(device: int, state: bool, player_index: int)
 
+signal vanished(device: int)
+
 # These pixel sprites were cropped from the Art subteam's furniture sheet in
 # the shared MidSem deck, not generated. Physics and interaction stay as-is.
 const TEAM_FRIDGE: Texture2D = preload("res://gameplay/msd/art/team_fridge.png")
@@ -16,12 +18,12 @@ const TEAM_MONITOR: Texture2D = preload("res://gameplay/msd/art/team_monitor.png
 const FAN_REAR: Texture2D = preload("res://gameplay/props/fan/sprites/rear.png")
 const FAN_FRONT: Texture2D = preload("res://gameplay/props/fan/sprites/front.png")
 const FAN_BLADES: Array[Texture2D] = [
-    preload("res://gameplay/props/fan/sprites/blade_0.png"),
-    preload("res://gameplay/props/fan/sprites/blade_1.png"),
-    preload("res://gameplay/props/fan/sprites/blade_2.png"),
-    preload("res://gameplay/props/fan/sprites/blade_3.png"),
-    preload("res://gameplay/props/fan/sprites/blade_4.png"),
-    preload("res://gameplay/props/fan/sprites/blade_5.png"),
+	preload("res://gameplay/props/fan/sprites/blade_0.png"),
+	preload("res://gameplay/props/fan/sprites/blade_1.png"),
+	preload("res://gameplay/props/fan/sprites/blade_2.png"),
+	preload("res://gameplay/props/fan/sprites/blade_3.png"),
+	preload("res://gameplay/props/fan/sprites/blade_4.png"),
+	preload("res://gameplay/props/fan/sprites/blade_5.png"),
 ]
 const FAN_RECT := Rect2(-24, -31, 48, 56)
 
@@ -54,10 +56,24 @@ const MONITOR_RENDER_RECT := Rect2(-25, -32, 50, 39)
 
 @export_range(0.25, 1.0, 0.05) var cold_speed_scale: float = 0.45  # 开启后区域内速度约为 45%。 / While the AC is on, nearby movement targets 45% of normal speed.
 
+@export var char_vanish_delay: float = 1.5  # computer only
+var gone: bool = false
+var _char_age: float = 0.0
+
 var switched_on: bool = false
 var charred: bool = false
 var _clock: float = 0.0
 
+
+func vanish() -> void:
+	if gone:
+		return
+	gone = true
+	switched_on = false
+	charred = true  # reuses every existing "unusable" check
+	state_changed.emit(int(device), false, -1)
+	vanished.emit(device)
+	queue_redraw()
 
 # The fan is drawn on the table; its node origin is above a standing player's
 # interaction height. Use the base/control point, not the artwork's origin.
@@ -87,12 +103,13 @@ func interact(player: GameplayPlayer) -> bool:
 # when it owns power state; -1 identifies an external rather than player input.
 # Repeated assignments are idempotent and emit no duplicate state signal.
 func set_fan_power(powered: bool, source_player_index: int = -1) -> void:
+	if device != Device.FAN or switched_on == powered or gone:
+		return
 	if device != Device.FAN or switched_on == powered:
 		return
 	switched_on = powered
 	state_changed.emit(int(device), switched_on, source_player_index)
 	queue_redraw()
-
 
 func fan_runtime_state() -> Dictionary:
 	return {"id": simulation_id, "powered": switched_on,
@@ -157,6 +174,8 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
+	if gone:
+		return
 	var gold := Color("e8ba79") if switched_on else Color("8f8985")
 	match device:
 		Device.FRIDGE:
