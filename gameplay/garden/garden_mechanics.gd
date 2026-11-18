@@ -37,6 +37,8 @@ var _portal_cooldown: Dictionary = {}
 var _held_throwables: Dictionary = {}
 var _initial_throwable_positions: Dictionary = {}
 var last_action: String = ""
+## Scene-local round gate; Angela controls when a new round starts.
+var round_active: bool = true
 var _initial_grid_materials: Array[Array] = []
 var _fence_burn_elapsed: Dictionary = {}
 var _fence_occupied_cells: Dictionary = {}
@@ -100,6 +102,8 @@ func _make_rose_contact(spec: Dictionary) -> void:
 
 
 func _on_rose_body_entered(body: Node2D) -> void:
+    if not round_active:
+        return
     var player := body as GameplayPlayer
     if player == null:
         return
@@ -166,6 +170,10 @@ func _seed_source_fuel() -> void:
     for point in [Vector2(188, 359), Vector2(357, 334),
         Vector2(711, 294), Vector2(755, 394), Vector2(665, 195)]:
         _set_wood_at(point)
+    for item in arena.get_node("Throwables").get_children():
+        # Make each of the authored throwable locations flammable without
+        # duplicating Ethan's grid storage or Austin's item implementation.
+        _set_wood_at(item.global_position)
     for segment in arena.get_node("Fences").get_children():
         var fence := segment as GameplayGardenFenceSegment
         var footprint := fence.occupied_fire_cells(grid)
@@ -181,7 +189,7 @@ func _set_wood_at(world: Vector2) -> void:
 
 
 func _on_player_interact(player_index: int, player: GameplayPlayer) -> void:
-    if not is_instance_valid(player):
+    if not round_active or not is_instance_valid(player):
         return
     if _try_tree_hole(player_index, player):
         return
@@ -235,6 +243,8 @@ func _try_tree_hole(index: int, player: GameplayPlayer) -> bool:
 
 
 func _physics_process(delta: float) -> void:
+    if not round_active:
+        return
     for index in _portal_cooldown.keys():
         _portal_cooldown[index] = maxf(0.0, float(_portal_cooldown[index]) - delta)
     _tick_fence_fire(delta)
@@ -249,6 +259,14 @@ func _physics_process(delta: float) -> void:
         _bird_drop_timer += bird_drop_interval
         _drop_apple()
     if _hose_owner != null:
+        # Fire may destroy Austin's newer item while it is carried.
+        # A destroyed hose must never keep spraying after it is gone.
+        var hose_broken := not is_instance_valid(_hose_end) or _hose_end.consumed
+        if not hose_broken and _hose_end.has_method("ignite"):
+            hose_broken = bool(_hose_end.get("destroyed_item"))
+        if hose_broken:
+            _release_hose()
+            return
         hose_seconds_left = maxf(0.0, hose_seconds_left - delta)
         if hose_seconds_left <= 0.0 or not is_instance_valid(_hose_owner):
             _release_hose()
@@ -367,6 +385,7 @@ func reset_garden_for_round() -> void:
         item.flight_velocity = Vector2.ZERO
         item.scorched = false
         item.consumed = false
+        item.restore_garden_fire_state()
         item.visible = true
         item.last_thrower_index = 0
         item._impact_spent = false
@@ -384,6 +403,7 @@ func reset_garden_for_round() -> void:
         _fence_burn_elapsed[idx] = 0.0
     _destroyed_by_player = {1: 0, 2: 0}
     _fractional_damage_by_player = {1: 0.0, 2: 0.0}
+    round_active = true
     _show_status("GARDEN READY • E / SHIFT: INTERACT")
 
 

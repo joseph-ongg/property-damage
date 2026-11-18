@@ -62,11 +62,15 @@ func _physics_process(delta: float) -> void:
         if victim != null:
             var damage := BASE_PLAYER_DAMAGE
             var garden := arena.get_node_or_null("GardenMechanics")
+            var saved_fraction := 0.0
             if garden != null and garden.has_method("damage_for_player_attack"):
+                # Health i-frames can reject a hit. Do not count the 0.5 HP
+                # earned bonus on a projectile that dealt NO damage.
+                saved_fraction = float(garden._fractional_damage_by_player.get(caster_index,0.0))
                 damage = int(garden.damage_for_player_attack(caster_index))
-            # Projectiles stop on all players; Eva's invulnerability decides
-            # whether Health accepts the actual damage.
-            victim.health_component.take_damage(damage)
+            var applied := victim.health_component.take_damage(damage)
+            if not applied and garden != null:
+                garden._fractional_damage_by_player[caster_index] = saved_fraction
             hit.emit("PLAYER %d" % victim.player_index, caster_index)
         queue_free()
         return

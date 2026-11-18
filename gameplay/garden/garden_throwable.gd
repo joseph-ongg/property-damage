@@ -18,11 +18,20 @@ const HOSE_END_ART: Texture2D = preload("res://gameplay/garden/original_art_part
 ## Design tags fragile separately from throwable. Garden's specified
 ## items are throwable but *not* confirmed fragile; do not consume on hit.
 @export var fragile: bool = false
+## The Design specifies a 3-second burn-damage interval, but gives Garden
+## item durability no number. Use 1 HP explicitly as a temporary setting
+## only on main's older item prototype. Austin's newer item HP takes over
+## automatically when his branch is merged.
+@export_range(1, 20, 1) var provisional_burn_hp: int = 1
 signal hit_player(player_index: int, damage: int)
 var mushroom_source_index: int = 0
 var consumed: bool = false
 var last_thrower_index: int = 0
 var _impact_spent: bool = false
+var _fallback_burn_remaining: int = 1
+var _fallback_burn_elapsed: float = 0.0
+var _fallback_burning: bool = false
+var _fallback_ash: bool = false
 
 
 func _ready() -> void:
@@ -32,6 +41,7 @@ func _ready() -> void:
     elif kind == Kind.HOSE_END:
         width = 16.0
     pickup_radius = 62.0
+    _fallback_burn_remaining = provisional_burn_hp
     # Austin's unmerged version inherits an item/tag base with a _ready()
     # implementation; main's prototype has no _ready(). GDScript cannot
     # call an undefined super._ready(), so initialize only the optional
@@ -44,7 +54,10 @@ func _ready() -> void:
             if not item_tags.has(tag):
                 item_tags.append(tag)
         set("tags", item_tags)
-        set("hp", get("max_hp"))
+        # The Garden Design has no durability value for these particular
+        # props. User-approved provisional 1 HP also applies to burning.
+        set("max_hp", float(provisional_burn_hp))
+        set("hp", float(provisional_burn_hp))
         add_to_group("interactable_items")
         if has_signal("destroyed") and has_method("_on_destroyed"):
             if not is_connected("destroyed", Callable(self, "_on_destroyed")):
@@ -124,11 +137,59 @@ func _physics_process(delta: float) -> void:
 
 func _process(delta: float) -> void:
     super._process(delta)
+    if not has_method("ignite") and not consumed:
+        # Current main has no item-durability class. Garden's tiny fallback
+        # samples the SAME MaterialGrid as Simulation; no second fire store.
+        # Austin's item class uses its own HP/ignite/_process when available.
+        var bridge := get_parent().get_parent().get_node_or_null("FireBridge") as GameplayFireBridge
+        var now_burning := bridge != null and bridge.is_burning_world(global_position)
+        _fallback_burning = now_burning
+        if now_burning:
+            _fallback_burn_elapsed += delta
+            while _fallback_burn_elapsed >= 3.0 and not consumed:
+                _fallback_burn_elapsed -= 3.0
+                _fallback_burn_remaining -= 1
+                if _fallback_burn_remaining <= 0:
+                    _fallback_ash = true
+                    consumed = true
+                    carried_by = null
+                    flying = false
+                    flight_velocity = Vector2.ZERO
+                    _reset_resting()
+        else:
+            _fallback_burn_elapsed = 0.0
+        if now_burning or _fallback_ash:
+            queue_redraw()
     if flying or carried_by != null:
         queue_redraw()
 
 
+func restore_garden_fire_state() -> void:
+    _fallback_burn_remaining = provisional_burn_hp
+    _fallback_burn_elapsed = 0.0
+    _fallback_burning = false
+    _fallback_ash = false
+    if has_method("ignite"):
+        # Reset only this Garden item's optional Austin-owned durability
+        # fields, not the base implementation or any Living Room item.
+        for field in ["destroyed_item","burned_to_ash","burning",
+                "_fire_contact_latched","_fire_damage_call"]:
+            set(field,false)
+        for field in ["_burn_age","_burn_damage_age"]:
+            set(field,0.0)
+        set("hp",get("max_hp"))
+    queue_redraw()
+
+
 func _draw() -> void:
+    if _fallback_ash:
+        # Explicit debug ash fallback; no fabricated Art Team asset.
+        draw_rect(Rect2(-11,4,22,5),Color("#5d5855"))
+        draw_rect(Rect2(-7,1,14,3),Color("#81756d"))
+        return
+    if has_method("draw_burn_sprite") and bool(get("burned_to_ash")):
+        call("draw_burn_sprite")
+        return
     if kind == Kind.MUSHROOM:
         # Real Piskel source crop. This is NOT a new/generated mushroom design.
         var texture: Texture2D = MUSHROOM_RED if mushroom_source_index == 0 else MUSHROOM_BLUE
@@ -146,3 +207,7 @@ func _draw() -> void:
         # TEMP placeholder: no standalone gnome sprite in Art Team Drive.
         draw_rect(Rect2(-8, -20, 16, 20), Color("#91a496"), false, 2.0)
         draw_string(ThemeDB.fallback_font, Vector2(-17, -25), "ART?", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color("#17252a"))
+    if has_method("draw_burn_sprite"):
+        call("draw_burn_sprite")
+    elif _fallback_burning:
+        draw_rect(Rect2(-5,-17,4,9),Color("#ee6836"))

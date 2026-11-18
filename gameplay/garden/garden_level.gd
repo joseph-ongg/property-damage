@@ -8,27 +8,37 @@ signal player_defeated(loser_index: int, winner_index: int)
 
 var _legacy_health_last: Dictionary = {}
 var _legacy_health_carry: Dictionary = {}
+var _round_finished: bool = false
+var _initial_player_positions: Dictionary = {}
 
 @export var experimental_books_enabled: bool = false
 @export var experimental_appliances_enabled: bool = false
 
 
 func _ready() -> void:
+    # Austin's optional item base discovers a fire bridge using this
+    # group. The registration belongs to this Garden scene only.
+    $FireBridge.add_to_group("room_fire_bridge")
     for player_index in [1, 2]:
         var player := get_node("Player%d" % player_index) as GameplayPlayer
         player.magic_attacked.connect(_on_magic_attack)
         player.health_component.died.connect(_on_player_died.bind(player_index))
+        player.health_component.changed.connect(_on_health_display_changed)
         # Eva's FireHazard sensor already samples the player's feet, and the
         # Garden carries the upstream Simulation bridge. Enable it only for
         # this arena; do not change the shared player prefab or Living Room.
         player.hazard.enabled = true
         player.hazard.damage_interval = 1.0
         player.hazard.touched_fire.connect(_on_player_fire_contact.bind(player))
+        _initial_player_positions[player_index] = player.global_position
         _attach_optional_eva_fall_damage(player)
         _initialize_optional_legacy_health(player)
+    _update_health_display()
 
 
 func _on_magic_attack(_player_index: int, player: GameplayPlayer) -> void:
+    if _round_finished or not player.health_component.is_alive():
+        return
     var bolt := GameplayGardenMagicBolt.new()
     $Projectiles.add_child(bolt)
     bolt.initialize(player)
@@ -36,6 +46,14 @@ func _on_magic_attack(_player_index: int, player: GameplayPlayer) -> void:
 
 
 func _on_player_died(loser_index: int) -> void:
+    if _round_finished:
+        return
+    _round_finished = true
+    $GardenMechanics.round_active = false
+    # After a round is over, pending projectiles must not inflict late hits.
+    for projectile in $Projectiles.get_children():
+        projectile.set_physics_process(false)
+        projectile.queue_free()
     var winner_index := 3 - loser_index
     var status := get_node_or_null("HUD/Status") as Label
     if status != null:
@@ -44,11 +62,66 @@ func _on_player_died(loser_index: int) -> void:
 
 
 
+## Minimal stand-alone HUD for Garden playtests, not Angela's shared
+## match/win-screen UI. The HP values always come from Eva's Health.
+func _on_health_display_changed(_hp: int, _max_hp: int) -> void:
+    _update_health_display()
+
+
+func _update_health_display() -> void:
+    var label := get_node_or_null("HUD/PlayerHealth") as Label
+    if label == null:
+        return
+    var p1 := $Player1 as GameplayPlayer
+    var p2 := $Player2 as GameplayPlayer
+    label.text = "P1  %d / %d HP     P2  %d / %d HP" % [
+        p1.health_component.hp, p1.health_component.max_hp,
+        p2.health_component.hp, p2.health_component.max_hp]
+
+
+## Single, reusable scene contract for Angela to call at the start of a
+## rematch. Angela still owns the three-round scores and menu/navigation.
+## This restores ALL local gameplay state instead of only Garden props.
+func prepare_new_round() -> void:
+    _round_finished = true  # freeze hit resolution during the reset
+    $GardenMechanics.round_active = false
+    for projectile in $Projectiles.get_children():
+        projectile.set_physics_process(false)
+        projectile.queue_free()
+    $GardenMechanics.reset_garden_for_round()
+    for index in [1, 2]:
+        var player := get_node("Player%d" % index) as GameplayPlayer
+        player.global_position = _initial_player_positions[index]
+        player.velocity = Vector2.ZERO
+        player.facing = 1 if index == 1 else -1
+        player.sprite.flip_h = player.facing < 0
+        player.motor.reset()
+        player.dash.reset()
+        player.platform_drop.reset(player)
+        player.hazard._cooldown = 0.0
+        # A fresh round must also reset the existing Spark emitter,
+        # otherwise an already-lit flash/cooldown leaks between rounds.
+        player.spark._cooldown_remaining = 0.0
+        player.spark._flash_remaining = 0.0
+        player.spark.queue_redraw()
+        player.health_component.reset()
+        player._magic_cooldown = 0.0
+        var sensor := player.get_node_or_null("EvaFallDamageGarden")
+        if sensor != null and sensor.has_method("reset"):
+            sensor.reset(player)
+        _legacy_health_carry[index] = 0.0
+        _on_authoritative_health_changed(
+            player.health_component.hp, player.health_component.max_hp, player)
+    _round_finished = false
+    $GardenMechanics.round_active = true
+    _update_health_display()
+
+
 ## The Design requires 20 HP fire damage over 10 seconds. The existing
 ## sensor ticks once per second; Eva's newer Health offers bypass_invuln
 ## for DOT while main's earlier Health has only a one-argument API.
 func _on_player_fire_contact(player: GameplayPlayer) -> void:
-    if not is_instance_valid(player) or not player.health_component.is_alive():
+    if _round_finished or not is_instance_valid(player) or not player.health_component.is_alive():
         return
     var hit_method_args := 1
     for entry in player.health_component.get_method_list():
@@ -92,7 +165,7 @@ func _physics_process(_delta: float) -> void:
 
 
 func _on_player_fall_damage(amount: int, player: GameplayPlayer) -> void:
-    if amount <= 0 or not is_instance_valid(player):
+    if _round_finished or amount <= 0 or not is_instance_valid(player):
         return
     # All Health components support the one-argument fall callback.
     # Eva's newer component adds optional DOT bypass below.

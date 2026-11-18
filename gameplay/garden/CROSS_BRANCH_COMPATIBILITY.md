@@ -55,7 +55,9 @@ the disposable worktree and were not pushed.
 ## Must still coordinate before marking Ready
 
 1. Angela: correct Garden menu path/startup and wire best-of-three, winner UI
-   and reset_garden_for_round. This PR does not alter her menu files.
+   and call Garden.prepare_new_round() for each new round. That resets
+   players, Health, projectiles and stage, unlike the props-only reset.
+   This PR does not alter her menu files.
 2. Austin + Eva: unify the **entire game's** numeric player.health versus
    Eva Health.hp before merging Austin's global player code. His existing
    take_damage() auto-respawn and the winner signal need a shared decision.
@@ -78,3 +80,58 @@ Then run:
 
 Only Garden-owned code and tests were changed in PR #18; no owner APIs were
 replaced simply to hide a conflict.
+
+
+## Garden round handoff follow-up
+
+The scene now exposes a Garden-only live Eva Health HUD and complete
+prepare_new_round() reset. At 0 HP it blocks late attacks and emits one
+winner signal. Angela remains responsible for the best-of-three
+scoreboard/navigation and for linking the Garden map button.
+
+Ninja's temporary shuriken art still applies only to Garden. Austin's
+open items branch also edits the shared Living Room magic_bolt.gd;
+that cross-owner visual integration needs a coordinated merge.
+
+
+## Attack accounting regression
+
+A real PVP projectile test now verifies that a 10.5 HP boosted Magic
+shot *rejected by Eva's invulnerability frames* does not bank the 0.5 HP
+fraction. Only the next **accepted** two boosted shots apply 10 + 11 HP.
+See gameplay_garden_attack_accounting_test.gd. No Eva Health internals
+were modified to implement this behavior.
+
+
+## Follow-up verification — November 18 afternoon (latest owner changes)
+
+The PR #18 round/lifecycle and Garden throwable-fire fixes were retested
+against the **latest** fetched Jackson PR #20, as well as Angela #16,
+Austin items, Ethan #19 and Eva Health/FireHazard/FallDamage components.
+The combined worktree used **manual, unpublished** resolutions in:
+- gameplay/msd/gameplay_msd.tscn: original main one-way platforms + Austin
+  12 WorldItems + Jackson projectile metadata
+- gameplay/msd/msd_controller.gd: Austin item signals, Ethan wind and
+  Jackson furniture destruction callbacks preserved together
+- gameplay/msd/appliance.gd: Austin item durability lifecycle and Jackson
+  vanish() both preserved
+- gameplay/integration/material_setup.gd: preserved Austin's actual item
+  fuel seeding and Jackson's revised refrigerator exterior cells
+
+**12 / 12 selected real Godot tests passed** after that integration.
+PR #18 itself did NOT change any of those four files. An actual
+cross-team merge must still have the respective owners review these
+resolutions; passing tests does not establish automatic mergeability.
+
+Garden-scoped new contract: `Garden.prepare_new_round()` resets players,
+Eva Health, status HUD, all stage items/fire and projectiles; winner
+signal fires only once. The 10.5 HP bonus now accrues only when Eva
+actually applies the damage, not when invulnerability rejects the hit.
+Garden's burnable throwables turn into ash via Austin's item API if
+available and fall back to the user-approved 1 HP placeholder on old
+main; burned hoses stop spraying and items reset correctly for replay.
+
+Ninja's Living Room shuriken remains an acknowledged owner integration
+because Austin's open items branch modifies shared magic_bolt.gd.
+Angela's menu still points to GardenPlaceholder.tscn, absent from her
+branch: Garden's correct scene is gameplay/garden/garden_level.tscn.

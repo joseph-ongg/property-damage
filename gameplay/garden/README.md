@@ -57,24 +57,28 @@ upstream `MaterialGrid`, Art Team Garden and bird animation load.
   items take priority over a player behind them; empty pixels do not.
   Destroying a fence gives its attacker **+5% attack**. Fractional 0.5
   damage is carried to the next shot because Eva Health stores integer HP.
-- **Flammable fences:** Actual Simulation `MaterialGrid` burning state
-  removes **1 fence HP per 3 seconds** per the Design requirement.
-  Environmental fire with unknown ignition owner does not invent a
-  player reward. The rest of Austin's shared item flammability is not
-  falsely claimed to be implemented.
+- **Flammable Garden props:** Actual Simulation `MaterialGrid` fire
+  removes **1 fence HP per 3 seconds**. Apples, gnomes, mushrooms and the
+  hose-end also take fire damage and turn into unpickupable ash, using
+  Austin's own `GameplayInteractableItem` burn/HP contract when that
+  branch is present. Current main still has an older book prototype,
+  so Garden uses an explicitly temporary **1 HP** local fallback for
+  its own item sprites only. This does **not** copy or replace Austin's
+  general item system. Original Art Team art stays unchanged.
 - **Fragile tags:** Garden apples, gnomes, mushrooms and hose head are
   reusable unless their `fragile` property is explicitly checked.
   An ordinary item can hit once per flight, then fall and be picked up
   again; only a marked fragile item disappears after impact.
-- **Rematches:** Angela can call
-  `$GardenMechanics.reset_garden_for_round()`: resets eight fence
-  sections, movable props, apples, bird timer, 5% bonuses and hose,
-  and restores every original MaterialGrid cell (clearing any stray
-  fire or ash) without
-  changing her separate game loop. Garden also emits
-  `player_defeated(loser_index, winner_index)` when Eva Health reaches
-  zero; Angela still owns the actual winner UI, round progression
-  and best-of-three match controller.
+- **Garden handoff for rematches:** Angela can call the scene-level
+  `Garden.prepare_new_round()`, which resets both fighters, Eva HP,
+  projectiles, positions/momentum, eight fences, movable props, apples,
+  bird timer, earned 5% bonuses, hose, and all original MaterialGrid
+  cells. The lower-level `GardenMechanics.reset_garden_for_round()`
+  restores **props only**; use the scene-level API for complete rounds.
+  Garden emits `player_defeated(loser_index, winner_index)` once when
+  Eva Health reaches zero, suppresses later attacks and shows a
+  temporary live Eva HP HUD. Angela still owns the proper winner UI,
+  scorekeeping, selection and best-of-three match controller.
 
 P1: A/D move, W jump, S crouch, G Magic, F Spark, E interact.
 P2: arrows move/jump/crouch, period Magic, Enter Spark,
@@ -161,3 +165,35 @@ recirculates old unheld apples rather than permanently stopping bird drops.
 This is NOT a claim that Angela's missing Garden menu target, the
 Living Room duplicate HP, or the Ethan/Jackson controller conflict was
 automatically fixed.
+
+
+## Complete Garden round handoff
+
+Angela can call `Garden.prepare_new_round()` once at each new round:
+it restores both player positions, Eva Health, movement state, all Garden
+items/trees, the Simulation fire grid, attack bonuses and any stray
+projectiles, then re-enables actions. Do not use only
+`GardenMechanics.reset_garden_for_round()` for a full match rematch.
+The standalone Garden HUD displays Eva HP for both fighters; it does
+not replace Angela's shared match scoreboard.
+
+At zero HP the scene emits `player_defeated(loser,winner)` once,
+freezes Garden Magic, items and rose damage, and cancels late projectiles.
+The two-round regression is
+`gameplay/tests/gameplay_garden_round_handoff_test.gd`.
+
+
+## Final scoped review (2026-11-18)
+
+- 23/23 Godot tests pass, including Garden complete round handoff,
+  post-round interaction lockout, Eva i-frame attack bonus accounting,
+  and Garden flammable props with ash/reset.
+- A temporary cross-owner merge with the updated Jackson PR #20,
+  Ethan PR #19, Angela PR #16, Austin items and Eva Health components
+  passes 12/12 selected runtime tests after **manual** merge decisions.
+  No other owner's source was pushed or rewritten in PR #18.
+- Latest evidence: evidence/2026-11-18-original-art/qa_results.md
+- Remaining inter-team tasks: Angela menu/startup and best-of-three;
+  Austin/Eva Living Room HP unification; Ethan/Jackson controller and
+  scene conflict sign-off; Design's Garden item HP/damage values; Art
+  placeholders and Ninja's Living Room projectile appearance.
