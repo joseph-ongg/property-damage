@@ -37,7 +37,7 @@ func _ready() -> void:
 		_paint_band(grid, 38, 42, row, MaterialGrid.Materials.STONE)
 	# Fridge spans x734..830. Its visible top, sides and floor footprint are
 	# STONE, preventing an accidental "burning fridge" after art replacement.
-	for row in [19, 20, 21, 29, 30, 31]:
+	for row in [19, 20, 30, 31]:   # was [19, 20, 21, 29, 30, 31]
 		_paint_band(grid, 45, 52, row, MaterialGrid.Materials.STONE)
 	_paint_if_valid(grid, 22, 29, MaterialGrid.Materials.OIL) # 少量实验油格 / A few test oil cells.
 

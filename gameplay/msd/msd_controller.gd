@@ -28,14 +28,6 @@ func _ready() -> void:
 	$Player2.magic_attacked.connect(_on_magic_attack)
 	$MaterialGrid/FurnitureFireLayer.object_destroyed.connect(_on_object_destroyed)
 
-func _on_object_destroyed(id: String) -> void:
-	var platform := get_node_or_null({"BOOKSHELF": "BookshelfTop", "TABLE": "TableTop",
-		"WALLSHELFLEFT": "WallShelfLeft", "WALLSHELFCENTER": "WallShelfCenter",
-		"WALLSHELFRIGHT": "WallShelfRight"}.get(id, ""))
-	if platform != null:
-		platform.set_deferred("collision_layer", 0)
-	_show_status("%s BURNED DOWN" % id)
-
 func _physics_process(_delta: float) -> void:
 	# Optional environmental forces, applied before Player._physics_process.
 	for player: GameplayPlayer in [$Player1, $Player2]:
@@ -192,3 +184,25 @@ func _unhandled_input(event: InputEvent) -> void:
 		# Consume R before reload invalidates this scene's nodes.
 		get_viewport().set_input_as_handled()
 		get_tree().reload_current_scene()
+
+const PLATFORM_FOR := {
+	"BOOKSHELF": "BookshelfTop", "TABLE": "TableTop",
+	"FRIDGE": "FridgeTop", "AC": "ACUpperRim",
+	"PAINTING_LANDSCAPE": "GalleryFrameTop", "PAINTING_RIGHT": "SmallFrameTop",
+	"WALLSHELFLEFT": "WallShelfLeft", "WALLSHELFCENTER": "WallShelfCenter",
+	"WALLSHELFRIGHT": "WallShelfRight",
+}
+const APPLIANCE_FOR := {"FRIDGE": "FridgeDevice", "AC": "ACDevice",
+	"COMPUTER": "ComputerDevice", "FAN": "FanDevice"}
+
+
+func _on_object_destroyed(id: String) -> void:
+	var platform := get_node_or_null(PLATFORM_FOR.get(id, ""))
+	if platform != null:
+		platform.set_deferred("collision_layer", 0)
+	if APPLIANCE_FOR.has(id):
+		($Appliances.get_node(APPLIANCE_FOR[id]) as GameplayAppliance).vanish()
+	if id == "TABLE":  # everything sitting on it goes with it
+		for n in ["FanDevice", "ComputerDevice"]:
+			($Appliances.get_node(n) as GameplayAppliance).vanish()
+	_show_status("%s BURNED DOWN" % id)
