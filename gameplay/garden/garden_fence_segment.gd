@@ -1,0 +1,68 @@
+## Garden-specific fence target, approved Design: exactly 8 segments at 4 HP.
+## Visuals are pixels from Art Team's original garden.piskel (not replacement art).
+class_name GameplayGardenFenceSegment
+extends StaticBody2D
+
+signal damaged(segment: int, remaining_hp: int, attacker: int)
+signal destroyed(segment: int, attacker: int)
+
+const HP_PER_SEGMENT := 4
+const ORIGINAL_WIDTH := 426
+const STAGE_LEFT := 54.0
+const STAGE_CENTER_Y := 270.0
+
+var segment_index: int = 0 # zero-based in source image, one-based in filename
+var hp: int = HP_PER_SEGMENT
+var destroyed_segment: bool = false
+var _visual: Sprite2D
+var _collision: CollisionShape2D
+
+
+func _ready() -> void:
+    assert(segment_index >= 0 and segment_index < 8)
+    collision_layer = 4  # targeted by Garden magic only, not a wall for players
+    collision_mask = 0
+    var x0: int = roundi(segment_index * ORIGINAL_WIDTH / 8.0)
+    var x1: int = roundi((segment_index + 1) * ORIGINAL_WIDTH / 8.0)
+    position = Vector2(STAGE_LEFT + float(x0 + x1), 408.0)
+
+    _visual = Sprite2D.new()
+    _visual.name = "ArtTeamFencePixels"
+    _visual.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+    _visual.texture = load("res://gameplay/garden/original_art_parts/fence_segment_%02d.png" % (segment_index + 1))
+    _visual.position = Vector2(0, STAGE_CENTER_Y - position.y)
+    _visual.scale = Vector2(2, 2)
+    add_child(_visual)
+
+    var hitbox := RectangleShape2D.new()
+    hitbox.size = Vector2(float(x1 - x0) * 2.0, 139.0)
+    _collision = CollisionShape2D.new()
+    _collision.name = "DamageableFenceHitbox"
+    _collision.shape = hitbox
+    add_child(_collision)
+
+
+func take_hit(attacker: int) -> bool:
+    if destroyed_segment:
+        return false
+    hp = maxi(0, hp - 1)
+    damaged.emit(segment_index + 1, hp, attacker)
+    if hp == 0:
+        destroyed_segment = true
+        collision_layer = 0
+        if _collision != null:
+            _collision.set_deferred("disabled", true)
+        if _visual != null:
+            _visual.visible = false
+        destroyed.emit(segment_index + 1, attacker)
+    return true
+
+
+func restore() -> void:
+    hp = HP_PER_SEGMENT
+    destroyed_segment = false
+    collision_layer = 4
+    if _collision != null:
+        _collision.set_deferred("disabled", false)
+    if _visual != null:
+        _visual.visible = true
