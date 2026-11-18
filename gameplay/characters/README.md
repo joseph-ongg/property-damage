@@ -12,11 +12,19 @@ map or character-selection UI**.
 
 All HP uses **Eva's existing Health.gd** component, which is not edited.
 No new damage system or item mechanic is introduced.
-Design says Ninja jumps higher but gives no numerical multiplier; it is
-**intentionally not guessed** in this limited-scope patch. Ninja's
-shuriken, Werewolf's uncertain attack, final jump/action/death animations
-and character-selection UI remain with their respective owners for
-follow-up review. Sprites are sourced from Art Team's original Piskel
-frames without synthetic animations or generated fallback sprites.
+Design requires a higher Ninja jump but does not specify the multiplier.
+For playtesting, `GameplayPlayer.ninja_jump_multiplier` is Inspector-editable
+and currently defaults to **1.10×**, explicitly **not Design-approved**.
+Switching characters restores the original Mage/Werewolf jump speed without
+stacking the Ninja bonus.
+
+The Garden's Magic projectile draws a visibly distinct **temporary shuriken**
+for Ninja, while Wizard uses the existing original fireball. Its base hit
+damage is Design's **10 HP** against another player, through Eva Health.
+This procedural shuriken is a clearly provisional visual, **not Art Team art**
+(and not yet hooked to all arenas). Werewolf's exact attack is still marked
+uncertain in Design and is not fabricated. Final attack sprite sheets,
+action/death animations, and Angela's character-selection UI require separate
+owner review. The idle/walk/hurt sprites use unmodified Art Team Piskel frames.
 
 See INTEGRATION_COMPATIBILITY.md for Eva/Austin integration contracts.

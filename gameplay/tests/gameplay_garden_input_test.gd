@@ -45,23 +45,23 @@ func _run() -> void:
     var first := arena.get_node("Fences/Fence01") as GameplayGardenFenceSegment
     var last := arena.get_node("Fences/Fence08") as GameplayGardenFenceSegment
 
-    p1.global_position = Vector2(35,455)
-    p1.velocity = Vector2.ZERO
+    p1.global_position = Vector2(35,357)
+    p1.velocity = Vector2(0,-90)
     p1.facing = 1
     var first_hp := first.hp
     await _tap(KEY_G)
-    await _frames(5)
+    await _frames(21)
     _check(first.hp == first_hp - 1,
-        "P1 real G key casts Magic and removes 1/4 HP from fence 1")
+        "P1 jumps / fires at visible Piskel fence pixels for 1/4 HP")
 
-    p2.global_position = Vector2(930,455)
-    p2.velocity = Vector2.ZERO
+    p2.global_position = Vector2(930,371)
+    p2.velocity = Vector2(0,-80)
     p2.facing = -1
     var last_hp := last.hp
     await _tap(KEY_PERIOD)
-    await _frames(5)
+    await _frames(23)
     _check(last.hp == last_hp - 1,
-        "P2 real period key casts Magic left and removes 1/4 HP from fence 8")
+        "P2 fires left at visible Piskel fence pixels for 1/4 HP")
 
     p1.global_position = controller.TREE_LOWER
     p1.velocity = Vector2.ZERO

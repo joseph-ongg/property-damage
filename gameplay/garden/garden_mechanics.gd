@@ -37,6 +37,10 @@ var _portal_cooldown: Dictionary = {}
 var _held_throwables: Dictionary = {}
 var _initial_throwable_positions: Dictionary = {}
 var last_action: String = ""
+var _initial_grid_materials: Array[Array] = []
+var _fence_burn_elapsed: Dictionary = {}
+var _destroyed_by_player := {1: 0, 2: 0}
+var _fractional_damage_by_player := {1: 0.0, 2: 0.0}
 
 @onready var arena: Node2D = get_parent() as Node2D
 @onready var grid: MaterialGrid = arena.get_node("MaterialGrid") as MaterialGrid
@@ -50,6 +54,8 @@ func _ready() -> void:
         fence.segment_index = idx
         arena.get_node("Fences").add_child(fence)
         fence.damaged.connect(_on_fence_damaged)
+        fence.destroyed.connect(_on_fence_destroyed)
+        _fence_burn_elapsed[idx] = 0.0
     for index in [1, 2]:
         (arena.get_node("Player%d" % index) as GameplayPlayer).interact_pressed.connect(_on_player_interact)
     for rose in [
@@ -74,6 +80,7 @@ func _ready() -> void:
     _bird.position = Vector2(664, 128)
     add_child(_bird)
     _seed_source_fuel()
+    _capture_original_grid()
 
 
 func _make_rose_contact(spec: Dictionary) -> void:
@@ -102,6 +109,42 @@ func _on_rose_body_entered(body: Node2D) -> void:
 
 func _on_fence_damaged(segment: int, remaining_hp: int, attacker: int) -> void:
     _show_status("P%d • FENCE %d  %d/4 HP" % [attacker, segment, remaining_hp])
+
+
+## Design: destroying a property awards 5% to the attack multiplier.
+## Eva stores integer HP, so retain fractional damage for later attacks:
+## 10.5 + 10.5 applies 10 + 11, not 10 + 10 or 11 + 11.
+func _on_fence_destroyed(_segment: int, attacker: int) -> void:
+    if not _destroyed_by_player.has(attacker):
+        return
+    _destroyed_by_player[attacker] += 1
+    _show_status("P%d • PROPERTY DESTROYED • +5%% ATTACK" % attacker)
+
+
+func damage_for_player_attack(attacker: int) -> int:
+    var bonus: float = float(_destroyed_by_player.get(attacker, 0)) * 0.05
+    var amount: float = 10.0 * (1.0 + bonus) + float(_fractional_damage_by_player.get(attacker, 0.0))
+    var whole := floori(amount + 0.00001)
+    _fractional_damage_by_player[attacker] = amount - float(whole)
+    return whole
+
+
+func _capture_original_grid() -> void:
+    _initial_grid_materials.clear()
+    for x in grid.width:
+        var column: Array = []
+        for y in grid.height:
+            column.append(grid.get_cell_material(x,y))
+        _initial_grid_materials.append(column)
+
+
+func _restore_original_grid() -> void:
+    # Restore every cell, not only the handful of painted wood points.
+    # This clears residual burning/ash after a round even at arbitrary
+    # cells while leaving Ethan's MaterialGrid storage untouched.
+    for x in grid.width:
+        for y in grid.height:
+            grid.set_cell_material(x, y, _initial_grid_materials[x][y])
 
 
 func _make_throwable(kind: GameplayGardenThrowable.Kind, at: Vector2, label: String,
@@ -189,6 +232,7 @@ func _try_tree_hole(index: int, player: GameplayPlayer) -> bool:
 func _physics_process(delta: float) -> void:
     for index in _portal_cooldown.keys():
         _portal_cooldown[index] = maxf(0.0, float(_portal_cooldown[index]) - delta)
+    _tick_fence_fire(delta)
     _bird_time += delta
     if _bird != null:
         _bird.texture = BIRD_FRAMES[int(_bird_time * 7.0) % BIRD_FRAMES.size()]
@@ -206,6 +250,26 @@ func _physics_process(delta: float) -> void:
         else:
             _hose_spray(delta)
             queue_redraw()
+
+
+## Design: all properties are flammable, and sustained fire removes 1 HP
+## every 3 seconds. Reuse the active Ethan cell state; do not invent a
+## second fire simulation. This rule is scoped to Garden-owned fences.
+func _tick_fence_fire(delta: float) -> void:
+    for fence: GameplayGardenFenceSegment in arena.get_node("Fences").get_children():
+        var index := fence.segment_index
+        if fence.destroyed_segment:
+            _fence_burn_elapsed[index] = 0.0
+            continue
+        var cell := grid.world_to_cell(fence.global_position)
+        if not grid.in_bounds(cell.x, cell.y) or not grid.is_burning(cell.x, cell.y):
+            _fence_burn_elapsed[index] = 0.0
+            continue
+        var duration := float(_fence_burn_elapsed.get(index, 0.0)) + delta
+        while duration >= 3.0 and not fence.destroyed_segment:
+            duration -= 3.0
+            fence.take_hit(0)  # ignition owner is unknown: no guessed PVP bonus
+        _fence_burn_elapsed[index] = duration
 
 
 func _drop_apple() -> void:
@@ -286,6 +350,7 @@ func reset_garden_for_round() -> void:
         item.consumed = false
         item.visible = true
         item.last_thrower_index = 0
+        item._impact_spent = false
         item._reset_resting()
         item.global_position = _initial_throwable_positions[item.name]
     _held_throwables.clear()
@@ -294,7 +359,12 @@ func reset_garden_for_round() -> void:
     _bird_time = 0.0
     _bird_drop_timer = bird_drop_interval
     apples_dropped = 0
-    _seed_source_fuel()
+    _restore_original_grid()
+    _fence_burn_elapsed.clear()
+    for idx in 8:
+        _fence_burn_elapsed[idx] = 0.0
+    _destroyed_by_player = {1: 0, 2: 0}
+    _fractional_damage_by_player = {1: 0.0, 2: 0.0}
     _show_status("GARDEN READY • E / SHIFT: INTERACT")
 
 

@@ -16,6 +16,7 @@ var hp: int = HP_PER_SEGMENT
 var destroyed_segment: bool = false
 var _visual: Sprite2D
 var _collision: CollisionShape2D
+var _art_image: Image
 
 
 func _ready() -> void:
@@ -30,6 +31,7 @@ func _ready() -> void:
     _visual.name = "ArtTeamFencePixels"
     _visual.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
     _visual.texture = load("res://gameplay/garden/original_art_parts/fence_segment_%02d.png" % (segment_index + 1))
+    _art_image = _visual.texture.get_image()
     _visual.position = Vector2(0, STAGE_CENTER_Y - position.y)
     _visual.scale = Vector2(2, 2)
     add_child(_visual)
@@ -40,6 +42,28 @@ func _ready() -> void:
     _collision.name = "DamageableFenceHitbox"
     _collision.shape = hitbox
     add_child(_collision)
+
+
+## The rectangle is only a coarse physics candidate. Fence01's actual
+## Piskel pixels end above the normal standing Magic shot: an opaque-pixel
+## check is essential to avoid "hitting" completely empty sky / grass.
+## Sample every world pixel along the ray after the broad-phase raycast.
+## The actual source sprite, NOT an approximation, is authoritative.
+func first_opaque_hit_on_ray(start_world: Vector2, end_world: Vector2) -> Dictionary:
+    if destroyed_segment or collision_layer == 0 or _art_image == null:
+        return {}
+    var distance := start_world.distance_to(end_world)
+    var samples := maxi(1, ceili(distance))
+    for step in range(samples + 1):
+        var world_point := start_world.lerp(end_world, float(step) / float(samples))
+        var local := _visual.to_local(world_point)
+        var pixel := Vector2i(floori(local.x + float(_art_image.get_width()) * 0.5),
+            floori(local.y + float(_art_image.get_height()) * 0.5))
+        if pixel.x < 0 or pixel.y < 0 or pixel.x >= _art_image.get_width() or pixel.y >= _art_image.get_height():
+            continue
+        if _art_image.get_pixelv(pixel).a > 0.1:
+            return {"position":world_point}
+    return {}
 
 
 func take_hit(attacker: int) -> bool:

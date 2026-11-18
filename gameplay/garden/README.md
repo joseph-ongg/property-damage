@@ -1,8 +1,8 @@
-# Garden — Design-specified mechanics (separate Draft PR)
+# Garden — Design-aligned gameplay (Draft PR #18)
 
-This branch adds a **standalone Garden scene** at
-`res://gameplay/garden/garden_level.tscn`. It is stacked on the
-smaller character/art PR #17. It does **not** modify
+PR #18 is the single combined character/art + Garden Draft PR, targeting
+`main`. It includes the standalone Garden scene at
+`res://gameplay/garden/garden_level.tscn`. It does **not** modify
 `gameplay/MapSelection/map_select.gd`, `LevelSelection` or
 the gameplay-loop/round-controller code owned by Angela.
 
@@ -25,8 +25,10 @@ upstream `MaterialGrid`, Art Team Garden and bird animation load.
   This is actual **vertical travel**, not invented invulnerability/cover.
 - **Fence:** Eight independent segments, each exactly **4 HP**. Magic
   bolts hit each section for one HP; after four hits its *original
-  Art Team Piskel pixels* disappear. The fence is a projectile target,
-  not a new solid barrier to local two-player movement.
+  Art Team Piskel pixels* disappear. Shots are tested against the **real
+  opaque Piskel pixels**, not a rectangular phantom collider. This may
+  require jumping to shoot upper fence sections. The fence does not block
+  local player movement.
 - **Roses:** Original thorn arch has contact areas; entering applies
   **5 HP** using Eva's existing Health component and invulnerability.
 - **Bird / apples:** The Art Team bird sprite loops at its authored
@@ -50,10 +52,29 @@ upstream `MaterialGrid`, Art Team Garden and bird animation load.
   `tentative_hose_damage_enabled = true` for this playable draft,
   using the **1 HP/second** already written in Design. It is marked
   tentative and can be disabled via the exported Inspector property.
+- **Garden-only PVP:** Magic projectiles hit the opposing player for
+  Design's base **10 HP** through Eva Health. Visible destructible
+  items take priority over a player behind them; empty pixels do not.
+  Destroying a fence gives its attacker **+5% attack**. Fractional 0.5
+  damage is carried to the next shot because Eva Health stores integer HP.
+- **Flammable fences:** Actual Simulation `MaterialGrid` burning state
+  removes **1 fence HP per 3 seconds** per the Design requirement.
+  Environmental fire with unknown ignition owner does not invent a
+  player reward. The rest of Austin's shared item flammability is not
+  falsely claimed to be implemented.
+- **Fragile tags:** Garden apples, gnomes, mushrooms and hose head are
+  reusable unless their `fragile` property is explicitly checked.
+  An ordinary item can hit once per flight, then fall and be picked up
+  again; only a marked fragile item disappears after impact.
 - **Rematches:** Angela can call
   `$GardenMechanics.reset_garden_for_round()`: resets eight fence
-  sections, movable props, apples, bird timer and hose without
-  changing her separate game loop.
+  sections, movable props, apples, bird timer, 5% bonuses and hose,
+  and restores every original MaterialGrid cell (clearing any stray
+  fire or ash) without
+  changing her separate game loop. Garden also emits
+  `player_defeated(loser_index, winner_index)` when Eva Health reaches
+  zero; Angela still owns the actual winner UI, round progression
+  and best-of-three match controller.
 
 P1: A/D move, W jump, S crouch, G Magic, F Spark, E interact.
 P2: arrows move/jump/crouch, period Magic, Enter Spark,
@@ -96,6 +117,15 @@ match or released, fully approved Garden**.
 
 ## Verification
 
+On a fresh checkout, **import the new PNG resources first**:
+
+```sh
+Godot --headless --editor --path . --import --quit
+```
+
+Only then run the tests. Without initial import, Godot may reject PNG
+preloads before any Garden logic executes.
+
 - `/usr/bin/python3 gameplay/garden/extract_original_fence.py`:
   source SHA and exact Piskel pixel reconstruction.
 - `Godot --headless --path . --script res://gameplay/tests/gameplay_garden_design_contract_test.gd`:
@@ -105,3 +135,16 @@ match or released, fully approved Garden**.
   impacts, and Garden round reset.
 - `Godot --headless --path . --script res://gameplay/tests/gameplay_garden_input_test.gd`:
   **actual P1/P2 key events** and collision/contact testing.
+
+- `Godot --headless --path . --script res://gameplay/tests/gameplay_garden_regression_edges_test.gd`:
+  direct P1/P2 10-HP combat, transparent-vs-visible fence precision,
+  true item/player target priority, 5% break reward, 1-HP-per-3-sec
+  fence burning, complete fire reset, regular vs fragile throwables,
+  provisional Ninja shuriken/jump and Eva death/winner handoff.
+
+**Known review dependencies:** Garden is still not connected to Angela's
+main map-selection/round flow. Austin's separate newer item mechanics
+need an owner-approved interface merge; only Garden fences have the
+new 3-second fire-to-HP adapter. Ninja's higher-jump multiplier and
+vector shuriken art, Werewolf's unspecified attack, Garden gnome/apple
+sprites and hose rule marked `(?)` all require Design/Art confirmation.

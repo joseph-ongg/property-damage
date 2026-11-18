@@ -39,8 +39,11 @@ func _run() -> void:
             "%s uses Eva Health with Design-approved max HP" % data["kind"])
         check(is_equal_approx(p.motor.speed, 245.0 * float(data["move"])),
             "%s has Design-approved movement ratio" % data["kind"])
-        check(is_equal_approx(p.motor.jump_speed, 460.0),
-            "%s retains baseline jump until exact Ninja adjustment approved" % data["kind"])
+        var expected_jump: float = 460.0 * (p.ninja_jump_multiplier
+            if data["kind"] == "ninja" else 1.0)
+        check(is_equal_approx(p.motor.jump_speed, expected_jump)
+            and (p.motor.jump_speed > 460.0 if data["kind"] == "ninja" else true),
+            "%s has baseline or higher provisional Ninja jump, never lower" % data["kind"])
 
     for p in players:
         check(p.health_component == p.get_node("Health") and
@@ -72,8 +75,9 @@ func _run() -> void:
         and is_equal_approx(ninja.motor.speed, 245.0 * 0.85),
         "future Angela selection can change kind using a single Gameplay API")
     ninja.set_character_kind("mage")
-    check(ninja.health_component.max_hp == 120 and is_equal_approx(ninja.motor.speed, 245.0),
-        "switching back to Mage restores baseline without stacking modifiers")
+    check(ninja.health_component.max_hp == 120 and is_equal_approx(ninja.motor.speed, 245.0)
+        and is_equal_approx(ninja.motor.jump_speed, 460.0),
+        "switching back to Mage restores speed and jump without stacked modifiers")
     check(ninja.sprite.texture == load("res://gameplay/art/mage_2.png"),
         "original Mage art remains the unchanged default for P2")
 

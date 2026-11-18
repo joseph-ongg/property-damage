@@ -50,15 +50,15 @@ func _run() -> void:
     # Repeated *real* magic ray collisions on the Garden-only layer.
     p1.set_physics_process(false)
     p2.set_physics_process(false)
-    p1.global_position = Vector2(35, 455)
+    p1.global_position = Vector2(35, 357)
     p1.facing = 1
     for hit_index in 4:
         var bolt := GameplayGardenMagicBolt.new()
         garden.get_node("Projectiles").add_child(bolt)
         bolt.set_physics_process(false)
         bolt.initialize(p1)
-        bolt.global_position = Vector2(45, 439)
-        bolt._physics_process(0.12)
+        bolt.global_position = Vector2(45, 350)
+        bolt._physics_process(0.32)
         await _frames(2)
         check(fence.hp == 3-hit_index,
             "four independent bolt attacks each remove exactly 1 fence HP")
@@ -180,9 +180,9 @@ func _run() -> void:
         item.flying = true
         item.flight_velocity = Vector2(300, 0)
         item._physics_process(0.12)
-        check(item.impact_damage == 1 and item.consumed and not item.visible
-            and p2.health_component.hp == 119,
-            "Garden item kind %d hits for exactly 1 placeholder HP via Eva Health" % kind)
+        check(item.impact_damage == 1 and item._impact_spent and not item.consumed
+            and item.visible and p2.health_component.hp == 119,
+            "Garden non-fragile item %d hits once for 1 HP and remains reusable" % kind)
 
     game.reset_garden_for_round()
     await _frames(2)

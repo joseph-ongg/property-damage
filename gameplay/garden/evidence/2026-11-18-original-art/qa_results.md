@@ -1,11 +1,11 @@
-# Garden design-interaction QA evidence — 2026-11-18
+# Garden PR #18 acceptance recheck — 2026-11-18
 
-Godot 4.7.2 on macOS, all tests executed against the isolated
-suwen/garden-design-mechanics worktree (stacked on PR #17).
+Godot 4.7.2 on macOS; the imported, live PR #18 working tree.
 
-**18 / 18 focused headless regressions passed, 0 failures.**
+**19/19 focused automated Godot tests passed; 0 errors.**
+These are not a substitute for full-team release and gameplay QA.
 
-| Test | Result |
+| Godot test | Result |
 |---|---|
 | gameplay_character_art_scope_test | PASS |
 | gameplay_project_start_test | PASS |
@@ -25,17 +25,23 @@ suwen/garden-design-mechanics worktree (stacked on PR #17).
 | gameplay_interaction_polish_test | PASS |
 | gameplay_garden_design_contract_test | PASS |
 | gameplay_garden_input_test | PASS |
+| gameplay_garden_regression_edges_test | PASS |
 
-Additionally, the original Garden Piskel extraction reconstructs the
-complete supplied 426×286 artwork pixel-for-pixel with no new art.
-A windowed Godot screenshot run produced four 960×540 captures:
-source art, fence damage, upper tree-hole travel and working hose.
-See garden_design_contact_sheet.png.
+Changes verified in the new edge test:
+- No phantom Magic hit through transparent Art Team fence pixels
+- Two-player Magic does 10 base HP and preserves visible item-before-player priority
+- Fence destruction awards +5% with accumulated fractional 0.5 damage
+- Round reset clears ALL upstream MaterialGrid fire and restores original cells
+- Fence burning removes 1 HP each 3 seconds of Simulation fire
+- Nonfragile throwable remains reusable; fragile tagged item is consumed
+- Ninja shuriken has temporary code-drawn icon; higher jump at editable provisional 1.10x
+- Eva Health death emits the Garden-to-Angela winner handoff signal
 
-Explicit design numbers: fence 4 HP/segment ×8, rose 5 HP,
-hose 10 sec and 1 HP/sec (tentative Design text).
-Apple, gnome, mushroom, hose-end projectile impact = **1 HP
-placeholder** per user, **not** a Design-approved balancing value.
+Art provenance: original Piskel exact-pixel reconstruction verified by
+gameplay/garden/extract_original_fence.py. Earlier four windowed Godot
+screenshots are stored beside this report.
 
-Scope disclaimer: these are targeted tests, not full-team
-match-controller, final-art, cross-machine or acceptance sign-off.
+**Important:** Fresh checkouts must run
+`Godot --headless --editor --path . --import --quit` before the tests.
+No global map-selection change, full match acceptance, non-team laptop
+executable, or peer Design/Art sign-off is claimed.

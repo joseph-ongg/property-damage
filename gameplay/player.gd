@@ -40,6 +40,9 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 @export var sprite_override: Texture2D
 @export_enum("mage", "ninja", "werewolf") var character_kind: String = "mage"
 @export var character_art_override: GameplayCharacterVisualSet
+## Design explicitly requires a higher Ninja jump but gives no numerical
+## multiplier. 1.10 is a playtest placeholder, NOT Design-approved; editable.
+@export_range(1.01, 1.5, 0.01) var ninja_jump_multiplier: float = 1.10
 @export_node_path("Node") var fire_bridge_path: NodePath
 @export var reset_height: float = 580.0
 @export var dash_enabled: bool = true  # Optional extra; off in the team MSD demo.
@@ -56,6 +59,7 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 @onready var health_component: Health = $Health
 
 var _base_motor_speed: float = 0.0
+var _base_motor_jump_speed: float = 0.0
 var _hurt_pose_seconds: float = 0.0
 var facing: int = 1
 var _spawn: Vector2
@@ -84,6 +88,7 @@ func _ready() -> void:
 	if player_index == 2:
 		facing = -1
 	_base_motor_speed = motor.speed
+	_base_motor_jump_speed = motor.jump_speed
 	health_component.damaged.connect(_on_character_hurt)
 	set_character_kind(character_kind)
 	sprite.flip_h = facing < 0
@@ -96,7 +101,8 @@ func _ready() -> void:
 
 
 ## Only character appearance and Design-specified HP/move scales change.
-## Projectile variants and Ninja jump magnitude await Design/Gameplay review.
+## The higher Ninja jump uses a clearly labeled, editable provisional factor;
+## final numerical tuning and the Werewolf attack await Design review.
 ## Does not create or replace Angela's selection UI or Eva's Health logic.
 func set_character_kind(kind: String) -> void:
 	if not CHARACTER_HP.has(kind):
@@ -105,6 +111,9 @@ func set_character_kind(kind: String) -> void:
 	character_kind = kind
 	if _base_motor_speed > 0.0:
 		motor.speed = _base_motor_speed * float(CHARACTER_MOVE[kind])
+	if _base_motor_jump_speed > 0.0:
+		motor.jump_speed = _base_motor_jump_speed * (
+			ninja_jump_multiplier if kind == "ninja" else 1.0)
 	if health_component != null:
 		health_component.max_hp = int(CHARACTER_HP[kind])
 		health_component.reset()

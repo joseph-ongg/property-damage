@@ -15,10 +15,14 @@ const HOSE_END_ART: Texture2D = preload("res://gameplay/garden/original_art_part
 ## Missing Garden object impact values: 1 HP placeholder as explicitly
 ## requested. Eva owns invulnerability and the authoritative HP component.
 @export_range(1, 100, 1) var impact_damage: int = 1
+## Design tags fragile separately from throwable. Garden's specified
+## items are throwable but *not* confirmed fragile; do not consume on hit.
+@export var fragile: bool = false
 signal hit_player(player_index: int, damage: int)
 var mushroom_source_index: int = 0
 var consumed: bool = false
 var last_thrower_index: int = 0
+var _impact_spent: bool = false
 
 
 func _ready() -> void:
@@ -40,6 +44,7 @@ func throw_from(player: GameplayPlayer) -> bool:
     if not super.throw_from(player):
         return false
     last_thrower_index = player.player_index
+    _impact_spent = false
     return true
 
 
@@ -49,7 +54,7 @@ func _physics_process(delta: float) -> void:
     var was_flying := flying
     var before := global_position
     super._physics_process(delta)
-    if not was_flying or consumed or carried_by != null:
+    if not was_flying or consumed or _impact_spent or carried_by != null:
         return
     var arena := get_parent().get_parent()
     for index in [1, 2]:
@@ -65,10 +70,17 @@ func _physics_process(delta: float) -> void:
         # An apple/gnome/mushroom/hose head impacts once; invulnerability
         # belongs to Eva and can reject damage without an extra HP store.
         var applied := player.health_component.take_damage(impact_damage)
-        consumed = true
-        flying = false
-        flight_velocity = Vector2.ZERO
-        visible = false
+        _impact_spent = true
+        if fragile:
+            # Only Design-tagged fragile props are destroyed on impact.
+            consumed = true
+            flying = false
+            flight_velocity = Vector2.ZERO
+            visible = false
+        else:
+            # Ordinary throwable: one impact per flight, then fall to the
+            # world and become collectable again after landing.
+            flight_velocity = Vector2.ZERO
         if applied:
             hit_player.emit(index, impact_damage)
         break
