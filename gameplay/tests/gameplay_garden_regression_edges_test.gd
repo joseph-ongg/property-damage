@@ -124,12 +124,13 @@ func _run() -> void:
     var bridge: GameplayFireBridge = stage.get_node("FireBridge") as GameplayFireBridge
     var fire_at := Vector2(325,375)
     var c: Vector2i = grid.world_to_cell(fire_at)
+    var original_material: MaterialGrid.Materials = controller._initial_grid_materials[c.x][c.y]
     grid.set_cell_material(c.x,c.y,MaterialGrid.Materials.WOOD)
     check(bridge.ignite_world(fire_at) and grid.is_burning(c.x,c.y),
         "Unseeded Garden material cell can actually burn")
     controller.reset_garden_for_round()
     check(not grid.is_burning(c.x,c.y)
-        and grid.get_cell_material(c.x,c.y) == MaterialGrid.Materials.AIR,
+        and grid.get_cell_material(c.x,c.y) == original_material,
         "Garden round reset clears stray fire and restores initial materials")
     check(fence.hp == 4 and controller._destroyed_by_player[1] == 0
         and controller.damage_for_player_attack(1) == 10,
@@ -164,8 +165,11 @@ func _run() -> void:
     # removes exactly one fence HP per 3 seconds (explicit Design rule).
     controller.reset_garden_for_round()
     var burning_fence: GameplayGardenFenceSegment = stage.get_node("Fences/Fence02")
-    var fence_cell: Vector2i = grid.world_to_cell(burning_fence.global_position)
-    check(bridge.ignite_world(burning_fence.global_position),
+    var fence_cell: Vector2i = controller._fence_occupied_cells[1][0]
+    var sample_world := grid.to_global(Vector2(
+        (float(fence_cell.x)+0.5)*float(grid.cell_size),
+        (float(fence_cell.y)+0.5)*float(grid.cell_size)))
+    check(bridge.ignite_world(sample_world),
         "Painted Garden fence can ignite in upstream MaterialGrid")
     controller._tick_fence_fire(2.99)
     check(burning_fence.hp == 4, "Flammable fence does not take damage before 3 seconds")

@@ -148,3 +148,16 @@ need an owner-approved interface merge; only Garden fences have the
 new 3-second fire-to-HP adapter. Ninja's higher-jump multiplier and
 vector shuriken art, Werewolf's unspecified attack, Garden gnome/apple
 sprites and hose rule marked `(?)` all require Design/Art confirmation.
+
+
+## November 18 cross-branch compatibility pass
+
+See CROSS_BRANCH_COMPATIBILITY.md for actual individual and all-branch
+runtime tests, the manual conflicts, and explicit owner dependencies.
+This Garden PR now adapts to optional Austin item tags/HP, keeps Eva
+Health authoritative in Garden, enables Eva FireHazard, conditionally
+loads Eva FallDamage, accounts for all visible fence fire pixels and
+recirculates old unheld apples rather than permanently stopping bird drops.
+This is NOT a claim that Angela's missing Garden menu target, the
+Living Room duplicate HP, or the Ethan/Jackson controller conflict was
+automatically fixed.

@@ -1,11 +1,9 @@
-# Garden PR #18 acceptance recheck — 2026-11-18
+# Garden PR #18 QA recheck — 2026-11-18
 
-Godot 4.7.2 on macOS; the imported, live PR #18 working tree.
+**20 / 20 selected headless Godot regressions passed, 0 failures**.
+This is targeted QA, not complete game or other-owners sign-off.
 
-**19/19 focused automated Godot tests passed; 0 errors.**
-These are not a substitute for full-team release and gameplay QA.
-
-| Godot test | Result |
+| Test | Result |
 |---|---|
 | gameplay_character_art_scope_test | PASS |
 | gameplay_project_start_test | PASS |
@@ -26,22 +24,20 @@ These are not a substitute for full-team release and gameplay QA.
 | gameplay_garden_design_contract_test | PASS |
 | gameplay_garden_input_test | PASS |
 | gameplay_garden_regression_edges_test | PASS |
+| gameplay_garden_cross_branch_contract_test | PASS |
 
-Changes verified in the new edge test:
-- No phantom Magic hit through transparent Art Team fence pixels
-- Two-player Magic does 10 base HP and preserves visible item-before-player priority
-- Fence destruction awards +5% with accumulated fractional 0.5 damage
-- Round reset clears ALL upstream MaterialGrid fire and restores original cells
-- Fence burning removes 1 HP each 3 seconds of Simulation fire
-- Nonfragile throwable remains reusable; fragile tagged item is consumed
-- Ninja shuriken has temporary code-drawn icon; higher jump at editable provisional 1.10x
-- Eva Health death emits the Garden-to-Angela winner handoff signal
+## Cross-branch runtime verification
+- Austin items (after temporary scene merge): Austin item test plus Garden/character tests pass.
+- Eva latest Health/FireHazard/FallDamage component substitution: five related tests pass.
+- Angela + Ethan PR19 + Jackson: seven tests pass after temporary controller conflict resolution.
+- All owner changes combined, with Eva component substitution: **8/8 Godot tests pass** after temporary resolution of scene/controller conflicts.
 
-Art provenance: original Piskel exact-pixel reconstruction verified by
-gameplay/garden/extract_original_fence.py. Earlier four windowed Godot
-screenshots are stored beside this report.
+Documented with exact branches, caveats and unresolved integration in:
+gameplay/garden/CROSS_BRANCH_COMPATIBILITY.md.
 
-**Important:** Fresh checkouts must run
-`Godot --headless --editor --path . --import --quit` before the tests.
-No global map-selection change, full match acceptance, non-team laptop
-executable, or peer Design/Art sign-off is claimed.
+New QA includes pixel-accurate fence edge burning, continued apple drops,
+active Eva FireHazard, optional Eva FallDamage, Austin item tags, and
+Garden-local synchronization with Eva authoritative HP.
+
+**Must import on fresh clone:** Godot --headless --editor --path . --import --quit.
+Original Piskel artwork still round-trips pixel-for-pixel.

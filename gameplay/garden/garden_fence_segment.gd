@@ -66,6 +66,42 @@ func first_opaque_hit_on_ray(start_world: Vector2, end_world: Vector2) -> Dictio
     return {}
 
 
+## The fence is painted irregularly over several fire-grid cells.
+## Sampling only its center misses visibly burning edges. This list is
+## computed from the *original* Art Team alpha mask and never fabricates art.
+func occupied_fire_cells(grid: MaterialGrid) -> Array[Vector2i]:
+    var cached: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(
+        "res://gameplay/garden/original_art_parts/fence_fire_cells.json"))
+    # Source-derived exact mask for the default Garden 16px grid.
+    if not cached.is_empty() and is_equal_approx(grid.cell_size,16.0) and grid.global_position == Vector2.ZERO:
+        var results: Array[Vector2i] = []
+        for pair in cached["cells"][str(segment_index+1)]:
+            var cell := Vector2i(int(pair[0]),int(pair[1]))
+            if grid.in_bounds(cell.x,cell.y):
+                results.append(cell)
+        return results
+    # Non-standard grid geometry: fall back to deriving from the sprite.
+
+    var found: Dictionary = {}
+    if _art_image == null:
+        return []
+    for y in range(_art_image.get_height()):
+        for x in range(_art_image.get_width()):
+            if _art_image.get_pixel(x,y).a <= 0.1:
+                continue
+            var local := Vector2(
+                float(x) - float(_art_image.get_width()) * 0.5 + 0.5,
+                float(y) - float(_art_image.get_height()) * 0.5 + 0.5)
+            var world := _visual.to_global(local)
+            var cell := grid.world_to_cell(world)
+            if grid.in_bounds(cell.x,cell.y):
+                found[cell] = true
+    var result: Array[Vector2i] = []
+    for cell: Vector2i in found.keys():
+        result.append(cell)
+    return result
+
+
 func take_hit(attacker: int) -> bool:
     if destroyed_segment:
         return false

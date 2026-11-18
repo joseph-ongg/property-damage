@@ -124,4 +124,21 @@ record={
  "artwork_created":False,
 }
 (OUT/"manifest.json").write_text(json.dumps(record,indent=2)+"\n")
+# Cache the *source-exact* fence fire footprint by 16px Simulation cell.
+# The editable Garden scene displays garden.piskel at 2x scale and offset
+# (54,-16). Each original source pixel center is therefore (55+2*x,-15+2*y).
+# Runtime no longer traverses all 120k image pixels on every arena load.
+fire_footprints={}
+for idx in range(8):
+    f=f"fence_segment_{idx+1:02}.png"
+    occupied={(int((55+2*x)//16),int((-15+2*y)//16)) for x,y in masks[f][1]}
+    fire_footprints[str(idx+1)]=[list(c) for c in sorted(occupied)]
+(OUT/"fence_fire_cells.json").write_text(json.dumps({
+    "source_sha256": record["source_sha256"],
+    "cell_size":16,
+    "stage_offset":[54,-16],
+    "stage_art_scale":2,
+    "cells":fire_footprints
+},indent=2)+"\n")
+print("Fence fire-mask Simulation cells", {k:len(v) for k,v in fire_footprints.items()})
 print("PASS pixel-exact reconstruction: fence 8, red/blue mushrooms, hose nozzle",count)

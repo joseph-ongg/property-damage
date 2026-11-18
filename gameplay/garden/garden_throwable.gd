@@ -32,6 +32,23 @@ func _ready() -> void:
     elif kind == Kind.HOSE_END:
         width = 16.0
     pickup_radius = 62.0
+    # Austin's unmerged version inherits an item/tag base with a _ready()
+    # implementation; main's prototype has no _ready(). GDScript cannot
+    # call an undefined super._ready(), so initialize only the optional
+    # shared item metadata here without changing Austin's source files.
+    if has_method("has_tag"):
+        set("item_name", name.to_upper())
+        set("hit_size", Vector2(width, 34.0))
+        var item_tags: Variant = get("tags")
+        for tag in ["flammable", "throwable"]:
+            if not item_tags.has(tag):
+                item_tags.append(tag)
+        set("tags", item_tags)
+        set("hp", get("max_hp"))
+        add_to_group("interactable_items")
+        if has_signal("destroyed") and has_method("_on_destroyed"):
+            if not is_connected("destroyed", Callable(self, "_on_destroyed")):
+                connect("destroyed", Callable(self, "_on_destroyed"))
     add_to_group("garden_throwables")
     queue_redraw()
 
@@ -53,23 +70,42 @@ func _physics_process(delta: float) -> void:
     # world collisions. Only Garden-specific player hit response is added.
     var was_flying := flying
     var before := global_position
+    # Austin's unmerged base can directly apply damage to its older
+    # numeric player.health field. Capture it, then convert that same
+    # impact into exactly ONE user-approved Garden HP hit via Eva Health.
+    var legacy_before: Dictionary = {}
+    var arena := get_parent().get_parent()
+    for index in [1,2]:
+        var player := arena.get_node_or_null("Player%d" % index) as GameplayPlayer
+        if player != null and player.has_method("take_damage"):
+            legacy_before[index] = float(player.get("health"))
     super._physics_process(delta)
     if not was_flying or consumed or _impact_spent or carried_by != null:
         return
-    var arena := get_parent().get_parent()
     for index in [1, 2]:
-        if index == last_thrower_index:
-            continue
         var player := arena.get_node_or_null("Player%d" % index) as GameplayPlayer
+        if index == last_thrower_index:
+            # If a historical base incorrectly hits the thrower in a
+            # manually constructed test, restore the authoritative HP.
+            if player != null and legacy_before.has(index):
+                player.set("health", float(player.health_component.hp))
+            continue
         if player == null or player.health_component == null:
             continue
+        var legacy_hit := legacy_before.has(index) and (
+            float(player.get("health")) < float(legacy_before[index]) - 0.0001)
         var center := player.global_position + Vector2(0, -12)
         var closest := Geometry2D.get_closest_point_to_segment(center, before, global_position)
-        if center.distance_to(closest) > 27.0:
+        if center.distance_to(closest) > 27.0 and not legacy_hit:
             continue
         # An apple/gnome/mushroom/hose head impacts once; invulnerability
         # belongs to Eva and can reject damage without an extra HP store.
         var applied := player.health_component.take_damage(impact_damage)
+        # Austin's legacy numeric field is just a temporary mirror in the
+        # Garden. Avoid stacking his area-formula hit with the 1 HP Garden
+        # provisional damage; Eva remains the source of truth.
+        if legacy_before.has(index):
+            player.set("health", float(player.health_component.hp))
         _impact_spent = true
         if fragile:
             # Only Design-tagged fragile props are destroyed on impact.

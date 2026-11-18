@@ -39,6 +39,7 @@ var _initial_throwable_positions: Dictionary = {}
 var last_action: String = ""
 var _initial_grid_materials: Array[Array] = []
 var _fence_burn_elapsed: Dictionary = {}
+var _fence_occupied_cells: Dictionary = {}
 var _destroyed_by_player := {1: 0, 2: 0}
 var _fractional_damage_by_player := {1: 0.0, 2: 0.0}
 
@@ -166,7 +167,11 @@ func _seed_source_fuel() -> void:
         Vector2(711, 294), Vector2(755, 394), Vector2(665, 195)]:
         _set_wood_at(point)
     for segment in arena.get_node("Fences").get_children():
-        _set_wood_at((segment as GameplayGardenFenceSegment).global_position)
+        var fence := segment as GameplayGardenFenceSegment
+        var footprint := fence.occupied_fire_cells(grid)
+        _fence_occupied_cells[fence.segment_index] = footprint
+        for cell: Vector2i in footprint:
+            grid.set_cell_material(cell.x, cell.y, MaterialGrid.Materials.WOOD)
 
 
 func _set_wood_at(world: Vector2) -> void:
@@ -261,8 +266,12 @@ func _tick_fence_fire(delta: float) -> void:
         if fence.destroyed_segment:
             _fence_burn_elapsed[index] = 0.0
             continue
-        var cell := grid.world_to_cell(fence.global_position)
-        if not grid.in_bounds(cell.x, cell.y) or not grid.is_burning(cell.x, cell.y):
+        var any_fire := false
+        for cell: Vector2i in _fence_occupied_cells.get(index, []):
+            if grid.is_burning(cell.x, cell.y):
+                any_fire = true
+                break
+        if not any_fire:
             _fence_burn_elapsed[index] = 0.0
             continue
         var duration := float(_fence_burn_elapsed.get(index, 0.0)) + delta
@@ -284,7 +293,17 @@ func _drop_apple() -> void:
                 continue
             apples += 1
     if apples >= 6:
-        return
+        # "Occasionally drops apples" must continue throughout a round.
+        # Recycle the oldest unheld apple instead of letting the bird stop
+        # forever. Never delete an apple currently carried by either player.
+        var recyclable: GameplayGardenThrowable = null
+        for item: GameplayGardenThrowable in arena.get_node("Throwables").get_children():
+            if item.kind == GameplayGardenThrowable.Kind.APPLE and not item.consumed and item.carried_by == null:
+                recyclable = item
+                break
+        if recyclable == null:
+            return  # both players holding apples: preserve ownership
+        recyclable.queue_free()
     var apple := _make_throwable(GameplayGardenThrowable.Kind.APPLE,
         _bird.position + Vector2(0, 26), "Apple%02d" % (apples_dropped + 1))
     apple.flying = true
