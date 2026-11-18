@@ -26,9 +26,30 @@ func _ready() -> void:
 	$Player2.interact_pressed.connect(_on_interact)
 	$Player1.magic_attacked.connect(_on_magic_attack)
 	$Player2.magic_attacked.connect(_on_magic_attack)
+	_sync_fire_wind_sources()
+
+
+func _exit_tree() -> void:
+	for appliance_node in $Appliances.get_children():
+		if appliance_node is GameplayAppliance:
+			WindModel.unregister_wind_source(appliance_node)
+
+
+func _sync_fire_wind_sources() -> void:
+	for appliance_node in $Appliances.get_children():
+		if appliance_node is GameplayAppliance:
+			var appliance := appliance_node as GameplayAppliance
+			if appliance.device in [GameplayAppliance.Device.FAN, GameplayAppliance.Device.AC]:
+				appliance.simulation_fire_wind_enabled = experimental_appliances_enabled
+				WindModel.register_wind_source(appliance)
+			else:
+				WindModel.unregister_wind_source(appliance)
 
 
 func _physics_process(_delta: float) -> void:
+	# Keep the Simulation adapter synchronized for runtime toggles. This also
+	# restores wind immediately when experimental_appliances_enabled is re-enabled.
+	_sync_fire_wind_sources()
 	# Optional environmental forces, applied before Player._physics_process.
 	for player: GameplayPlayer in [$Player1, $Player2]:
 		player.motor.environment_acceleration_x = 0.0
