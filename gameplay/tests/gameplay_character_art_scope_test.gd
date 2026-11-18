@@ -35,12 +35,17 @@ func _run() -> void:
         check(p.character_kind == data["kind"],
             "%s can be selected directly in Godot Inspector" % data["kind"])
         check(p.get_node("Health") is Health
-            and p.health.max_hp == data["hp"] and p.health.hp == data["hp"],
+            and p.health_component.max_hp == data["hp"] and p.health_component.hp == data["hp"],
             "%s uses Eva Health with Design-approved max HP" % data["kind"])
         check(is_equal_approx(p.motor.speed, 245.0 * float(data["move"])),
             "%s has Design-approved movement ratio" % data["kind"])
         check(is_equal_approx(p.motor.jump_speed, 460.0),
             "%s retains baseline jump until exact Ninja adjustment approved" % data["kind"])
+
+    for p in players:
+        check(p.health_component == p.get_node("Health") and
+            p.get_children().filter(func(n: Node) -> bool: return n is Health).size() == 1,
+            "%s has exactly one authoritative Eva Health component" % p.character_kind)
 
     var ninja: GameplayPlayer = players[1]
     var wolf: GameplayPlayer = players[2]
@@ -58,16 +63,16 @@ func _run() -> void:
     check(wolf.sprite.texture == load("res://gameplay/art_team/exported/wolf_walk_1.png"),
         "Werewolf movement uses supplied original walk animation")
     wolf.set_character_kind("werewolf")
-    check(wolf.health.take_damage(1), "Eva's existing Health component handles damage")
+    check(wolf.health_component.take_damage(1), "Eva's existing Health component handles damage")
     check(wolf.sprite.texture == load("res://gameplay/art_team/exported/wolf_damage_1.png"),
         "Werewolf reacts with actual Art Team damage frame")
 
     ninja.set_character_kind("werewolf")
-    check(ninja.health.max_hp == 160 and ninja.health.hp == 160
+    check(ninja.health_component.max_hp == 160 and ninja.health_component.hp == 160
         and is_equal_approx(ninja.motor.speed, 245.0 * 0.85),
         "future Angela selection can change kind using a single Gameplay API")
     ninja.set_character_kind("mage")
-    check(ninja.health.max_hp == 120 and is_equal_approx(ninja.motor.speed, 245.0),
+    check(ninja.health_component.max_hp == 120 and is_equal_approx(ninja.motor.speed, 245.0),
         "switching back to Mage restores baseline without stacking modifiers")
     check(ninja.sprite.texture == load("res://gameplay/art/mage_2.png"),
         "original Mage art remains the unchanged default for P2")

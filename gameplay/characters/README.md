@@ -18,3 +18,5 @@ shuriken, Werewolf's uncertain attack, final jump/action/death animations
 and character-selection UI remain with their respective owners for
 follow-up review. Sprites are sourced from Art Team's original Piskel
 frames without synthetic animations or generated fallback sprites.
+
+See INTEGRATION_COMPATIBILITY.md for Eva/Austin integration contracts.

@@ -53,7 +53,7 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 @onready var spark: GameplaySparkEmitter = $SparkEmitter
 @onready var landing_fx: Node2D = $LandingFX
 @onready var hazard: GameplayFireHazard = $FireHazard
-@onready var health: Health = $Health
+@onready var health_component: Health = $Health
 
 var _base_motor_speed: float = 0.0
 var _hurt_pose_seconds: float = 0.0
@@ -84,7 +84,7 @@ func _ready() -> void:
 	if player_index == 2:
 		facing = -1
 	_base_motor_speed = motor.speed
-	health.damaged.connect(_on_character_hurt)
+	health_component.damaged.connect(_on_character_hurt)
 	set_character_kind(character_kind)
 	sprite.flip_h = facing < 0
 	_apply_art_size()
@@ -105,9 +105,9 @@ func set_character_kind(kind: String) -> void:
 	character_kind = kind
 	if _base_motor_speed > 0.0:
 		motor.speed = _base_motor_speed * float(CHARACTER_MOVE[kind])
-	if health != null:
-		health.max_hp = int(CHARACTER_HP[kind])
-		health.reset()
+	if health_component != null:
+		health_component.max_hp = int(CHARACTER_HP[kind])
+		health_component.reset()
 	_hurt_pose_seconds = 0.0
 	if sprite != null:
 		_update_character_sprite(false)
