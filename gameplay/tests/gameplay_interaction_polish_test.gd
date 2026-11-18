@@ -47,8 +47,8 @@ func _run() -> void:
 		check(not a.intersects(b), "P1 and P2 prompt panels don't overlap")
 		check(a.position.y >= 73.0 and b.position.y >= 73.0 and a.end.y <= 500.0 and b.end.y <= 500.0,
 			"prompts stay between upper/lower HUD bands")
-		check(str(panels[0]["text"]).contains("OPEN FRIDGE") and str(panels[1]["text"]).contains("OPEN FRIDGE"),
-			"both real prompts match the same unopened fridge state")
+		check(str(panels[0]["text"]).contains("OPEN MICROWAVE") and str(panels[1]["text"]).contains("OPEN FRIDGE"),
+			"nearby prompts distinguish the fridge-top microwave from its door")
 	check(not fridge.switched_on, "fridge begins closed")
 	Input.action_press("p2_interact")
 	await frames(2)

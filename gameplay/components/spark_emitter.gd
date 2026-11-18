@@ -12,6 +12,7 @@ var _cooldown_remaining: float = 0.0
 var _flash_remaining: float = 0.0
 var _direction: int = 1
 var _tint: Color = Color.ORANGE
+var _last_target_offset: Vector2 = Vector2.ZERO ## Stores the latest aim offset for drawing
 
 
 func _process(delta: float) -> void:
@@ -32,14 +33,23 @@ func cooldown_ratio() -> float:
 	return clampf(_cooldown_remaining / cooldown, 0.0, 1.0)
 
 
-func cast_spark(world_center: Vector2, facing: int, bridge: GameplayFireBridge, tint: Color) -> bool:
+func cast_spark(world_center: Vector2, facing: int, bridge: GameplayFireBridge, tint: Color, target_override: Vector2 = Vector2.INF) -> bool:
 	if not is_ready():
 		return false
 	_direction = 1 if facing >= 0 else -1
 	_tint = tint
 	_cooldown_remaining = cooldown
 	_flash_remaining = flash_duration
-	var target := world_center + Vector2(float(_direction) * reach, 0)
+
+	# Use target_override if provided, otherwise default to horizontal reach
+	var target: Vector2
+	if target_override != Vector2.INF:
+		target = target_override
+		_last_target_offset = target - world_center
+	else:
+		_last_target_offset = Vector2(float(_direction) * reach, 0)
+		target = world_center + _last_target_offset
+
 	var accepted := bridge != null and bridge.ignite_world(target)
 	spark_cast.emit(target, accepted)
 	queue_redraw()
@@ -53,10 +63,13 @@ func _draw() -> void:
 	# previous antialiased line/circle glow so Spark uses the same visual scale.
 	var alpha := _flash_remaining / flash_duration
 	var pixel_color := Color(_tint.r, _tint.g, _tint.b, alpha)
+
+	# Draw particles interpolating toward the target offset
 	for i in range(6):
-		var distance := roundf(lerpf(13.0, reach, float(i) / 5.0))
-		var center := Vector2(float(_direction) * distance, 0.0)
+		var t := float(i) / 5.0
+		var center := (_last_target_offset * t).round()
 		draw_rect(Rect2(center + Vector2(-2, -2), Vector2(4, 4)), pixel_color)
-	var tip := Vector2(float(_direction) * reach, 0.0).round()
+
+	var tip := _last_target_offset.round()
 	draw_rect(Rect2(tip + Vector2(-5, -3), Vector2(10, 6)), Color(1.0, 0.52, 0.19, alpha))
 	draw_rect(Rect2(tip + Vector2(-2, -1), Vector2(4, 3)), Color(1.0, 0.98, 0.77, alpha))

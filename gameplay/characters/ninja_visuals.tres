@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="GameplayCharacterVisualSet" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://gameplay/characters/character_visual_set.gd" id="1_set"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_side_0.png" id="t1"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_0.png" id="t2"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_1.png" id="t3"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_2.png" id="t4"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_3.png" id="t5"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/generated/ninja_jump.png" id="t6"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/generated/ninja_action.png" id="t7"]
+[ext_resource type="Texture2D" path="res://gameplay/characters/generated/ninja_hurt.png" id="t8"]
+
+[resource]
+script = ExtResource("1_set")
+idle_frames = Array[Texture2D]([ExtResource("t1")])
+run_frames = Array[Texture2D]([ExtResource("t2"), ExtResource("t3"), ExtResource("t4"), ExtResource("t5")])
+jump_texture = ExtResource("t6")
+action_texture = ExtResource("t7")
+hurt_texture = ExtResource("t8")
+run_fps = 12.0
+idle_fps = 3.0

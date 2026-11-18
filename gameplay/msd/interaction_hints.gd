@@ -20,14 +20,21 @@ func _process(delta: float) -> void:
 
 func hint_for(player: GameplayPlayer) -> String:
 	var offer: Dictionary = room.get_interaction_offer(player)
-	if offer.is_empty():
-		return ""
+	var carry: Dictionary = room.get_carry_offer(player)
 	var input_key := "E" if player.player_index == 1 else "SHIFT"
-	return input_key + "  " + str(offer["action"])
+	var carry_key := "C" if player.player_index == 1 else ","
+	var parts: Array[String] = []
+	if not offer.is_empty():
+		parts.append(input_key + " " + str(offer["action"]))
+	if not carry.is_empty():
+		parts.append(carry_key + " " + str(carry["action"]))
+	return "   ".join(parts)
 
 
 func _anchor_for(player: GameplayPlayer, offer: Dictionary) -> Vector2:
 	var target: Node2D = offer["target"]
+	if offer["kind"] == "item":
+		return (target as GameplayWorldItem).interaction_point() + Vector2(0, -55)
 	if offer["kind"] == "throw":
 		return player.global_position + Vector2(0, -73)
 	if offer["kind"] == "pick":
@@ -54,6 +61,8 @@ func prompt_layouts() -> Array[Dictionary]:
 		return layouts
 	for player: GameplayPlayer in [p1, p2]:
 		var offer: Dictionary = room.get_interaction_offer(player)
+		if offer.is_empty():
+			offer = room.get_carry_offer(player)
 		if offer.is_empty():
 			continue
 		var content := hint_for(player)

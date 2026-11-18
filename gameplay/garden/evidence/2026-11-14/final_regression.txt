@@ -1,0 +1,27 @@
+PASS gameplay_garden_destructible_test exit=0 GARDEN_DESTRUCTIBLE_SUMMARY failures=0
+PASS gameplay_keyboard_lobby_test exit=0 KEYBOARD_LOBBY_SUMMARY failures=0
+PASS gameplay_long_session_test exit=0 LONG_SESSION_SUMMARY failures=0 matches=16 rounds=32 elapsed_ms=362
+PASS gameplay_arcane_features_test exit=0 ARCANE_FEATURES_SUMMARY failures=0
+PASS gameplay_project_start_test exit=0 PROJECT_START_SUMMARY failures=0
+PASS gameplay_complete_match_test exit=0 COMPLETE_MATCH_SUMMARY failures=0
+PASS gameplay_art_team_assets_test exit=0 ART_TEAM_INTEGRATION_SUMMARY failures=0
+PASS gameplay_character_selection_health_test exit=0 CHARACTER_SELECT_HEALTH_SUMMARY failures=0
+PASS gameplay_character_art_test exit=0 CHARACTER_ART_SUMMARY failures=0
+PASS gameplay_item_system_test exit=0 ITEM_SYSTEM_SUMMARY failures=0
+PASS gameplay_full_flow_test exit=0 FULL_FLOW_SUMMARY failures=0
+PASS gameplay_furniture_fire_test exit=0 FURNITURE_FIRE_SUMMARY failures=0
+PASS gameplay_simulation_contract_test exit=0 SIMULATION_CONTRACT_SUMMARY upstream_storage=true failures=0
+PASS gameplay_upstream_grid_test exit=0 UPSTREAM_GRID_SUMMARY failures=0
+PASS gameplay_team_integration_test exit=0 TEAM_INTEGRATION_SUMMARY failures=0
+PASS gameplay_magic_test exit=0 GAMEPLAY_MAGIC_SUMMARY failures=0
+PASS gameplay_platform_v2_test exit=0 PLATFORM_V2_SUMMARY failures=0
+PASS gameplay_restart_playtest exit=0 RESTART_PLAYTEST_SUMMARY failures=0
+PASS gameplay_render_layers_test exit=0 RENDER_LAYERS_SUMMARY failures=0
+PASS gameplay_interaction_occlusion_test exit=0 INTERACTION_OCCLUSION_SUMMARY failures=0
+PASS gameplay_interaction_polish_test exit=0 INTERACTION_POLISH_SUMMARY failures=0
+PASS gameplay_art_scene_alignment_test exit=0 ART_SCENE_ALIGNMENT_SUMMARY failures=0
+PASS gameplay_ui_test exit=0 GAMEPLAY_UI_SUMMARY failures=0
+PASS gameplay_fan_playtest exit=0 GAMEPLAY_FAN_PLAYTEST_SUMMARY failures=0
+PASS gameplay_grid_scene_handoff_test exit=0 GRID_SCENE_HANDOFF_SUMMARY grid_script=res://gameplay/integration/ethan_material_grid.gd failures=0
+PASS gameplay_msd_test exit=0 GAMEPLAY_MSD_SUMMARY failures=0
+TOTAL=26 PASS=26

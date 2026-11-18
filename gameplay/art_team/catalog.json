@@ -1,0 +1,209 @@
+[
+  {
+    "original_name": "Living room map.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "936dc92f9948e5be2a4fb8a14dbafd1e52f909d4cebc4c615d5520b3cadf18ca",
+    "frame_count": 1,
+    "frame_size": [
+      575,
+      417
+    ],
+    "fps": 12,
+    "exports": [
+      "living_room_map.png"
+    ]
+  },
+  {
+    "original_name": "Wolf damage sprite.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "6c7057776da7b6cae6e85af76b01bcdbd865679dfeadd3d2fca35acd762d8010",
+    "frame_count": 2,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 2,
+    "exports": [
+      "wolf_damage_0.png",
+      "wolf_damage_1.png"
+    ]
+  },
+  {
+    "original_name": "Wolf walk.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "082f5248fe7ffd6df3c2a5d8da50fa344a829472e01a00c38e58fcc1438d579c",
+    "frame_count": 2,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 7,
+    "exports": [
+      "wolf_walk_0.png",
+      "wolf_walk_1.png"
+    ]
+  },
+  {
+    "original_name": "Ninja_side.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "d77143470aeb28d989891dbd501a2d8fef87de12efadf5bcd7635874cf8e92fd",
+    "frame_count": 1,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "ninja_side_0.png"
+    ]
+  },
+  {
+    "original_name": "Ninja_walk.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "e777d972bd2cf51fad9dfd4d47997ed03da8eb9b80392c8d55654d802d0a85d2",
+    "frame_count": 4,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "ninja_walk_0.png",
+      "ninja_walk_1.png",
+      "ninja_walk_2.png",
+      "ninja_walk_3.png"
+    ]
+  },
+  {
+    "original_name": "Ninja_front.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "3a2f74dd83e692301bbc8654b5e9c6bf7878d251e00a356828547fb020ae573d",
+    "frame_count": 1,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "ninja_front_0.png"
+    ]
+  },
+  {
+    "original_name": "garden.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "2a2246e0148dde64ca5ee6e096c43e2d3aad641fe324898e17fd8f3dd2dfd687",
+    "frame_count": 1,
+    "frame_size": [
+      426,
+      286
+    ],
+    "fps": 12,
+    "exports": [
+      "garden.png"
+    ]
+  },
+  {
+    "original_name": "Bird drop animation.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "dec0e20c9f4eaeab8c7b33a54cd6c708771f051293653391f4ffe459fb577b6a",
+    "frame_count": 3,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 7,
+    "exports": [
+      "bird_drop_0.png",
+      "bird_drop_1.png",
+      "bird_drop_2.png"
+    ]
+  },
+  {
+    "original_name": "fire.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "e2c0bd31341f537e353be1906c76a496f6e787ea53bf031dc7178fbe3a643586",
+    "frame_count": 1,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "fire_0.png"
+    ]
+  },
+  {
+    "original_name": "Regular MC.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "a5662d3950cd2014fea87d52dfe456bf881c0dad4d872c43c9276aedd0bd40b9",
+    "frame_count": 1,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "mage_idle_0.png"
+    ]
+  },
+  {
+    "original_name": "Hit MC.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "b64580e3dffec7ff7fa49abe30f59c7673b2a8d29bdfdb6004ffcacf3a49a95b",
+    "frame_count": 3,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "mage_hit_0.png",
+      "mage_hit_1.png",
+      "mage_hit_2.png"
+    ]
+  },
+  {
+    "original_name": "Dead sprite.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "b64580e3dffec7ff7fa49abe30f59c7673b2a8d29bdfdb6004ffcacf3a49a95b",
+    "frame_count": 3,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "mage_death_0.png",
+      "mage_death_1.png",
+      "mage_death_2.png"
+    ]
+  },
+  {
+    "original_name": "burning.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "de6d9f61a8ef0a19887db76c6db8e8f5f819212142edab088a8668f69d665a61",
+    "frame_count": 1,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "mage_burning_0.png"
+    ]
+  },
+  {
+    "original_name": "Damage MC.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "b59d1468d44f73182425a06a53564823f9b8c178d00fe4fc6000815c990996c2",
+    "frame_count": 1,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "mage_damage_0.png"
+    ]
+  }
+]

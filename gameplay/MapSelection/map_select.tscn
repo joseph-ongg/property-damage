@@ -1,0 +1,55 @@
+[gd_scene load_steps=4 format=3 uid="uid://drtgao1tfad4i"]
+
+[ext_resource type="Script" uid="uid://d2uiqrhxnmkd2" path="res://gameplay/MapSelection/map_select.gd" id="1_original"]
+[ext_resource type="Script" path="res://gameplay/presentation/lobby_decor.gd" id="2_skin"]
+[ext_resource type="Texture2D" path="res://gameplay/presentation/assets/lobby_backdrop.png" id="3_bg"]
+
+[node name="MapSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_original")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.0627, 0.0824, 0.149, 1)
+
+[node name="BackdropArt" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+texture_filter = 1
+texture = ExtResource("3_bg")
+expand_mode = 1
+stretch_mode = 0
+
+[node name="LobbyDecor" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("2_skin")
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 0
+offset_left = 62.0
+offset_top = 207.0
+offset_right = 456.0
+offset_bottom = 421.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "SELECT MAP"
+horizontal_alignment = 1

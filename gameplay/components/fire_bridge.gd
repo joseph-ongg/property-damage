@@ -14,6 +14,10 @@ signal cell_ignited(cell: Vector2i)
 @export_node_path("Node2D") var grid_path: NodePath
 
 
+func _ready() -> void:
+	add_to_group("room_fire_bridge")
+
+
 func grid() -> Node:
 	return get_node_or_null(grid_path)
 

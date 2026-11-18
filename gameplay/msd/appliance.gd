@@ -1,6 +1,6 @@
-## Optional, self-contained interaction prototype; not approved Simulation mechanics.
+## Appliance controls and visuals; durability comes from the shared item base.
 class_name GameplayAppliance
-extends Node2D
+extends GameplayInteractableItem
 
 enum Device { FRIDGE, FAN, AC, COMPUTER }
 signal state_changed(device: int, state: bool, player_index: int)
@@ -33,6 +33,7 @@ const AC_RENDER_RECT := Rect2(-54, -146, 108, 33)
 const MONITOR_RENDER_RECT := Rect2(-25, -32, 50, 39)
 
 @export var device: Device = Device.FRIDGE
+@export var use_device_defaults: bool = true
 @export var interaction_radius: float = 78.0
 @export var effect_radius: float = 130.0
 @export var wind_acceleration: float = -420.0
@@ -43,9 +44,14 @@ const MONITOR_RENDER_RECT := Rect2(-25, -32, 50, 39)
 @export_range(1.0, 200.0, 1.0) var fan_wind_height_below: float = 112.0
 # Team handoff: scene placement/Art assets are Inspector overrides; the
 # Simulation team may use the stable id and explicit power setter below.
-# No Simulation storage or fire/damage rules are implemented here.
+# Simulation still owns grid fire state; item HP is local Gameplay state.
 @export var simulation_id: String = "living_room_fan_01"
 @export var fan_facing_left: bool = true
+# Public Simulation handoff. Both devices produce local airflow; the room
+# converts their active, fire-adjacent regions into upstream grid wind fields.
+@export_range(0.0, 1.0, 0.05) var fan_fire_wind_strength: float = 0.7
+@export var ac_facing_left: bool = true
+@export_range(0.0, 1.0, 0.05) var ac_fire_wind_strength: float = 0.45
 @export_range(1.0, 20.0, 0.5) var fan_animation_fps: float = 10.0
 @export var fan_sprite_offset: Vector2 = Vector2.ZERO
 @export var fan_rear_override: Texture2D
@@ -59,6 +65,43 @@ var charred: bool = false
 var _clock: float = 0.0
 
 
+func _ready() -> void:
+	item_name = device_name()
+	if use_device_defaults:
+		_apply_device_defaults()
+	super._ready()
+	destroyed.connect(_on_destroyed)
+
+
+func _apply_device_defaults() -> void:
+	match device:
+		Device.FRIDGE:
+			max_hp = INF
+			hit_size = FRIDGE_RENDER_RECT.size
+			hit_offset = FRIDGE_RENDER_RECT.get_center()
+		Device.FAN:
+			max_hp = 20.0
+			hit_size = FAN_RECT.size
+			hit_offset = FAN_RECT.get_center()
+		Device.AC:
+			max_hp = 20.0
+			hit_size = AC_RENDER_RECT.size
+			hit_offset = AC_RENDER_RECT.get_center()
+		Device.COMPUTER:
+			max_hp = 15.0
+			hit_size = MONITOR_RENDER_RECT.size
+			hit_offset = MONITOR_RENDER_RECT.get_center()
+
+
+func _on_destroyed(_source_player: int) -> void:
+	var was_powered := switched_on
+	charred = true
+	switched_on = false
+	if was_powered:
+		state_changed.emit(int(device), false, -1)
+	queue_redraw()
+
+
 # The fan is drawn on the table; its node origin is above a standing player's
 # interaction height. Use the base/control point, not the artwork's origin.
 func interaction_point() -> Vector2:
@@ -68,7 +111,7 @@ func interaction_point() -> Vector2:
 
 
 func can_interact(player: GameplayPlayer) -> bool:
-	return not charred and is_instance_valid(player) and interaction_point().distance_to(player.global_position) <= interaction_radius and GameplayInteractionLOS.has_path(player, interaction_point())
+	return not destroyed_item and is_instance_valid(player) and interaction_point().distance_to(player.global_position) <= interaction_radius and GameplayInteractionLOS.has_path(player, interaction_point())
 
 
 func interact(player: GameplayPlayer) -> bool:
@@ -76,6 +119,8 @@ func interact(player: GameplayPlayer) -> bool:
 		return false
 	if device == Device.FAN:
 		set_fan_power(not switched_on, player.player_index)
+	elif device == Device.AC:
+		set_ac_power(not switched_on, player.player_index)
 	else:
 		switched_on = not switched_on
 		state_changed.emit(int(device), switched_on, player.player_index)
@@ -94,6 +139,54 @@ func set_fan_power(powered: bool, source_player_index: int = -1) -> void:
 	queue_redraw()
 
 
+## Stable external control: AC is now as accessible as Fan to Simulation.
+func set_ac_power(powered: bool, source_player_index: int = -1) -> void:
+	if device != Device.AC or switched_on == powered or (powered and (charred or destroyed_item)):
+		return
+	switched_on = powered
+	state_changed.emit(int(device), switched_on, source_player_index)
+	queue_redraw()
+
+
+## Source-of-truth runtime API for Simulation. No second fire/wind store.
+## In Godot grid coordinates +X is right, +Y is down. AC defaults left.
+func simulation_wind_direction() -> Vector2:
+	if device == Device.FAN:
+		return Vector2.LEFT if fan_facing_left else Vector2.RIGHT
+	if device == Device.AC:
+		return Vector2.LEFT if ac_facing_left else Vector2.RIGHT
+	return Vector2.ZERO
+
+
+func simulation_wind_strength() -> float:
+	if not switched_on or charred or destroyed_item:
+		return 0.0
+	match device:
+		Device.FAN: return fan_fire_wind_strength
+		Device.AC: return ac_fire_wind_strength
+	return 0.0
+
+
+func simulation_wind_contains(world_position: Vector2) -> bool:
+	if device == Device.FAN:
+		return fan_wind_contains(world_position)
+	if device == Device.AC:
+		return global_position.distance_to(world_position) <= effect_radius
+	return false
+
+
+func simulation_wind_state() -> Dictionary:
+	return {
+		"id": simulation_id,
+		"device": device_name(),
+		"powered": switched_on,
+		"operational": not (charred or destroyed_item),
+		"direction": simulation_wind_direction(),
+		"strength": simulation_wind_strength(),
+		"effect_radius": effect_radius,
+	}
+
+
 func fan_runtime_state() -> Dictionary:
 	return {"id": simulation_id, "powered": switched_on,
 		"operational": not charred, "facing_left": fan_facing_left,
@@ -106,10 +199,11 @@ func get_fan_force_x() -> float:
 
 
 func receive_spark(target: Vector2, player_index: int) -> bool:
-	if device != Device.COMPUTER or charred or target.distance_to(global_position) > 49.0:
+	if device != Device.COMPUTER or destroyed_item or target.distance_to(global_position) > 49.0:
 		return false
 	charred = true
 	switched_on = false
+	take_damage(1.0, player_index)
 	state_changed.emit(int(device), false, player_index)
 	queue_redraw()
 	return true
@@ -151,6 +245,7 @@ func device_name() -> String:
 
 
 func _process(delta: float) -> void:
+	super._process(delta)
 	_clock += delta
 	if switched_on and device in [Device.FAN, Device.AC]:
 		queue_redraw()
@@ -249,3 +344,11 @@ func _draw() -> void:
 				draw_rect(Rect2(-15, -27, 28, 3), Color("87dad1"))
 	# Colored notch signals interactivity without an extra giant HUD.
 	draw_rect(Rect2(-4, 24, 8, 3), gold)
+	if burned_to_ash:
+		var ash_rect := Rect2(hit_offset - hit_size * 0.5, hit_size)
+		draw_rect(ash_rect, Color("39383b", 0.94))
+		draw_rect(Rect2(ash_rect.position.x, ash_rect.end.y - 5, ash_rect.size.x, 5), Color("77706a"))
+	if burning:
+		draw_rect(Rect2(-18, -40, 36, 5), Color("ec683b", 0.72))
+	draw_condition_bar(Vector2(-16, -49))
+	draw_burn_sprite()

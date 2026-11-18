@@ -20,8 +20,22 @@ const P2_RUN: Array[Texture2D] = [
 	preload("res://gameplay/art/mage_2_run_1.png"),
 ]
 
+# Ninja and Werewolf use layered 32px art and independent animation resources.
+# Art Team assets can be substituted without editing the player controller.
+const NINJA_VISUALS: GameplayCharacterVisualSet = preload("res://gameplay/characters/ninja_visuals.tres")
+const WEREWOLF_VISUALS: GameplayCharacterVisualSet = preload("res://gameplay/characters/werewolf_visuals.tres")
+const CHARACTER_TYPES: Array[String] = ["mage", "ninja", "werewolf"]
+const Selection = preload("res://gameplay/characters/character_selection_state.gd")
+const RULES: GameplayTuning = preload("res://gameplay/tuning/gameplay_balance.tres")
+const CHARACTER_DESIGN: Dictionary = {
+	"mage": {"move_scale": 1.0, "jump_scale": 1.0, "design_hp": 120, "projectile": "fireball"},
+	"ninja": {"move_scale": 1.2, "jump_scale": 1.12, "design_hp": 100, "projectile": "shuriken"},
+	"werewolf": {"move_scale": 0.85, "jump_scale": 1.0, "design_hp": 160, "projectile": "TBD"},
+}
+
 signal sparked(player_index: int, target: Vector2, accepted: bool)
 signal interact_pressed(player_index: int, player: GameplayPlayer)
+signal carry_pressed(player_index: int, player: GameplayPlayer)
 signal magic_attacked(player_index: int, player: GameplayPlayer)
 
 @export_range(1, 2) var player_index: int = 1
@@ -29,6 +43,13 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 # Art can replace either mage via the Inspector without editing Gameplay code.
 # Leaving this unset keeps the original local P1/P2 prototype sprites.
 @export var sprite_override: Texture2D
+# Character-select handoff: call set_character_kind("ninja") or
+# set_character_kind("werewolf"). P1/P2 controls do not change.
+@export_enum("mage", "ninja", "werewolf") var character_kind: String = "mage"
+@export var character_art_override: GameplayCharacterVisualSet
+# Enabled only on the team arena's two player instances. Independent demos
+# and direct prefab instantiation keep the Inspector-selected kind.
+@export var use_menu_character_selection: bool = false
 @export_node_path("Node") var fire_bridge_path: NodePath
 @export var reset_height: float = 580.0
 @export var dash_enabled: bool = true  # Optional extra; off in the team MSD demo.
@@ -42,6 +63,9 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 @onready var spark: GameplaySparkEmitter = $SparkEmitter
 @onready var landing_fx: Node2D = $LandingFX
 @onready var hazard: GameplayFireHazard = $FireHazard
+@onready var fall_damage: GameplayFallDamage = $FallDamage
+@onready var health: Health = $Health
+@onready var health_label: Label = $HealthLabel
 
 var facing: int = 1
 var _spawn: Vector2
@@ -50,6 +74,17 @@ var _animation_clock: float = 0.0
 var _action_pose_remaining: float = 0.0
 var _dash_was_active: bool = false
 var _magic_cooldown: float = 0.0
+var _hurt_pose_remaining: float = 0.0
+var _original_motor_speed: float = 0.0
+var _original_jump_speed: float = 0.0
+# Austin's item-destruction damage progression; Health remains Eva's single HP source.
+var attack_damage: float = 10.0
+var destroyed_objects: int = 0
+var knocked_out: bool = false
+var in_cover: bool = false
+# Only the polished menu-driven match uses a pre-round input lock; direct
+# prefab / headless Gameplay tests keep their existing independent controls.
+var input_locked: bool = false
 
 
 func _enter_tree() -> void:
@@ -58,6 +93,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	add_to_group("player_%d" % player_index)
 	collision_layer = 2  # players
 	collision_mask = 1   # only world; players pass through each other
 	_spawn = global_position
@@ -69,7 +105,24 @@ func _ready() -> void:
 	_bridge = get_node_or_null(fire_bridge_path) as GameplayFireBridge
 	if player_index == 2:
 		facing = -1
-	sprite.texture = sprite_override if sprite_override != null else (MAGE1 if player_index == 1 else MAGE2)
+	_original_motor_speed = motor.speed
+	_original_jump_speed = motor.jump_speed
+	# Eva owns Health.take_damage()/heal()/invulnerability; Gameplay only
+	# chooses starting/max HP and listens to its existing signals.
+	health.changed.connect(_on_health_changed)
+	health.damaged.connect(_on_health_damaged)
+	health.died.connect(_on_health_died)
+	hazard.enabled = true
+	hazard.damage_interval = RULES.fire_tick_seconds
+	hazard.touched_fire.connect(_on_fire_contact)
+	fall_damage.safe_distance = RULES.fall_safe_distance
+	fall_damage.damage_per_pixel = RULES.fall_damage_per_pixel
+	fall_damage.hard_landing.connect(_on_hard_landing)
+	fall_damage.reset(self)
+	attack_damage = RULES.base_attack_damage
+	if use_menu_character_selection and Selection.has_selection:
+		character_kind = Selection.for_player(player_index)
+	set_character_kind(character_kind)
 	sprite.flip_h = facing < 0
 	_apply_art_size()
 	$NameTag.text = "P%d" % player_index
@@ -80,6 +133,9 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if input_locked:
+		velocity = Vector2.ZERO
+		return
 	var prefix := "p%d_" % player_index
 	# 输入名以 p1_/p2_ 区分，两名玩家互不抢按键。
 	# Prefix each action with p1_ or p2_ so the controls stay independent.
@@ -109,6 +165,7 @@ func _physics_process(delta: float) -> void:
 	var forced_x := float(dash.direction) * dash.dash_speed if dash.active() else INF
 	var was_grounded := is_on_floor()
 	motor.step(self, delta, horizontal, jump, forced_x, Input.is_action_just_released(prefix + "jump"), platform_drop.is_dropping())
+	fall_damage.tick(self)
 	platform_drop.tick(self, delta)  # 离开单向平台后立即恢复原碰撞。 / Restore normal collision after dropping through a one-way platform.
 	if not was_grounded and is_on_floor():
 		landing_fx.trigger()
@@ -120,6 +177,7 @@ func _physics_process(delta: float) -> void:
 	dash.tick(delta)
 	_animation_clock += delta
 	_action_pose_remaining = maxf(0.0, _action_pose_remaining - delta)
+	_hurt_pose_remaining = maxf(0.0, _hurt_pose_remaining - delta)
 	var moving := absf(velocity.x) > 18.0
 	if dash.active() or _dash_was_active:
 		queue_redraw()
@@ -132,10 +190,16 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed(prefix + "interact"):
 		_action_pose_remaining = 0.26
 		interact_pressed.emit(player_index, self)
+	if Input.is_action_just_pressed(prefix + "carry"):
+		_action_pose_remaining = 0.26
+		carry_pressed.emit(player_index, self)
 	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
 		_action_pose_remaining = 0.26
-		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
-		sparked.emit(player_index, global_position + Vector2(facing * spark.reach, 0), accepted)
+		# Eva's aim marker is the source of truth for both the visual reticle
+		# and actual Simulation ignition; ranged Magic remains a separate action.
+		var target: Vector2 = $SparkAim.target_world_position()
+		var accepted := spark.cast_spark(global_position, facing, _bridge, tint, target)
+		sparked.emit(player_index, target, accepted)
 	# Process the input events first so the alternate Art Team action pose is
 	# visible on the exact same physics tick as the Spark/interaction/magic.
 	_update_character_sprite(moving)
@@ -148,13 +212,127 @@ func _physics_process(delta: float) -> void:
 		platform_drop.reset(self)
 
 
+func _visual_profile() -> GameplayCharacterVisualSet:
+	if character_art_override != null:
+		return character_art_override
+	match character_kind:
+		"ninja":
+			return NINJA_VISUALS
+		"werewolf":
+			return WEREWOLF_VISUALS
+	return null
+
+
+# Called by character selection or the Inspector. No changes to input,
+# collision layers, the Health component, or damage attribution.
+func set_character_kind(kind: String) -> bool:
+	if not CHARACTER_TYPES.has(kind):
+		return false
+	character_kind = kind
+	if is_node_ready():
+		var spec: Dictionary = CHARACTER_DESIGN[kind]
+		motor.speed = _original_motor_speed * float(spec["move_scale"])
+		motor.jump_speed = _original_jump_speed * float(spec["jump_scale"])
+		# A character-choice transition starts that character at full HP.
+		# Damage/healing rules and invulnerability remain in Eva's Health.
+		health.max_hp = int(spec["design_hp"])
+		health.reset()
+		_update_character_sprite(absf(velocity.x) > 18.0)
+	return true
+
+
+func _on_health_changed(current_hp: int, maximum_hp: int) -> void:
+	# A numeric indicator avoids drawing 160 hearts when a Werewolf is used.
+	health_label.text = "HP %d/%d" % [current_hp, maximum_hp]
+
+
+func _on_health_damaged(_amount: int) -> void:
+	show_hurt_pose()
+
+
+func _on_health_died() -> void:
+	# Immediately change the defeated fighter's visual state before
+	# MatchManager freezes physics. No second HP or AnimationTree is created.
+	knocked_out = true
+	_hurt_pose_remaining = 999.0
+	_action_pose_remaining = 0.0
+	sprite.modulate = Color(0.86, 0.76, 0.93, 0.80)
+	sprite.rotation = 0.72 * float(facing)
+	$NameTag.text = "KO"
+	_update_character_sprite(false)
+
+
+## Item and combat adapters: don't create a second HP store.
+func take_damage(amount: float, _auto_respawn: bool = true) -> bool:
+	return health.take_damage(maxi(1, roundi(amount)))
+
+
+func heal(amount: float) -> void:
+	health.heal(roundi(amount))
+
+
+func _on_fire_contact() -> void:
+	take_damage(RULES.fire_damage_per_tick)
+
+
+func _on_hard_landing(amount: int) -> void:
+	take_damage(float(amount))
+
+
+func reward_destruction() -> void:
+	destroyed_objects += 1
+	attack_damage = RULES.base_attack_damage * (1.0 + RULES.bonus_per_destroyed_item * float(destroyed_objects))
+
+
+func respawn(reset_health: bool = true) -> void:
+	knocked_out = false
+	in_cover = false
+	_hurt_pose_remaining = 0.0
+	_action_pose_remaining = 0.0
+	sprite.rotation = 0.0
+	sprite.modulate = Color.WHITE
+	$NameTag.text = "P%d" % player_index
+	global_position = _spawn
+	velocity = Vector2.ZERO
+	motor.reset()
+	dash.reset()
+	platform_drop.reset(self)
+	if reset_health:
+		health.reset()
+	_update_character_sprite(false)
+
+
+func character_design_info() -> Dictionary:
+	# Informational Design values; Eva's Health component owns actual HP.
+	return CHARACTER_DESIGN.get(character_kind, CHARACTER_DESIGN["mage"]).duplicate()
+
+
+func show_hurt_pose(duration: float = 0.24) -> void:
+	# A Health adapter can request this without owning the sprite node.
+	_hurt_pose_remaining = maxf(_hurt_pose_remaining, duration)
+	_update_character_sprite(absf(velocity.x) > 18.0)
+
+
 func _update_character_sprite(moving: bool) -> void:
-	# An Inspector override always takes priority over the PPT-derived frames.
-	# When standing use the Character design static; when walking animate the
-	# two original GIF frames at the deck's 80ms cadence.
+	# The Inspector's one-frame override remains highest priority.
 	var target_texture: Texture2D = sprite_override
+	var visuals := _visual_profile()
+	if target_texture == null and visuals != null:
+		var pose := "idle"
+		if knocked_out:
+			pose = "hurt"
+		elif _hurt_pose_remaining > 0.0:
+			pose = "hurt"
+		elif _action_pose_remaining > 0.0:
+			pose = "action"
+		elif not is_on_floor() and absf(velocity.y) > 40.0:
+			pose = "jump"
+		elif moving:
+			pose = "run"
+		target_texture = visuals.texture_for(pose, _animation_clock)
 	if target_texture == null:
-		if _action_pose_remaining > 0.0:
+		# Preserve the original two PPT-derived mage art paths unchanged.
+		if _action_pose_remaining > 0.0 or knocked_out:
 			target_texture = MAGE1_ACTION if player_index == 1 else MAGE2_ACTION
 		elif moving:
 			var run_frames: Array[Texture2D] = P1_RUN if player_index == 1 else P2_RUN
@@ -164,9 +342,9 @@ func _update_character_sprite(moving: bool) -> void:
 	if sprite.texture != target_texture:
 		sprite.texture = target_texture
 		_apply_art_size()
-	# The Art Team's original PNG has asymmetric transparent margins. Center
-	# the visible robe while facing either direction; do not crop source art.
-	sprite.position.x = float(facing) * 4.0 if sprite_override == null else 0.0
+	# The original mage has uneven transparent margins. The new 32x32
+	# frames are already registered to a common center.
+	sprite.position.x = float(facing) * 4.0 if visuals == null and sprite_override == null else 0.0
 	sprite.position.y = -10.0
 
 

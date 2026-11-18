@@ -1,0 +1,27 @@
+Godot 4.7.2 · Angela 55fe753 first-parent UI/Garden regression
+PASS gameplay_project_start_test 1.2s exit=0 PROJECT_START_SUMMARY failures=0
+PASS gameplay_arcane_features_test 0.6s exit=0 ARCANE_FEATURES_SUMMARY failures=0
+PASS gameplay_complete_match_test 0.6s exit=0 COMPLETE_MATCH_SUMMARY failures=0
+PASS gameplay_character_selection_health_test 1.0s exit=0 CHARACTER_SELECT_HEALTH_SUMMARY failures=0
+PASS gameplay_garden_destructible_test 0.5s exit=0 GARDEN_DESTRUCTIBLE_SUMMARY failures=0
+PASS gameplay_long_session_test 0.7s exit=0 LONG_SESSION_SUMMARY failures=0 matches=16 rounds=32 elapsed_ms=331
+PASS gameplay_item_system_test 2.4s exit=0 ITEM_SYSTEM_SUMMARY failures=0
+PASS gameplay_art_team_assets_test (retest after updating obsolete preview assertion) ART_TEAM_INTEGRATION_SUMMARY failures=0
+PASS gameplay_character_art_test 4.5s exit=0 CHARACTER_ART_SUMMARY failures=0
+PASS gameplay_magic_test 2.5s exit=0 GAMEPLAY_MAGIC_SUMMARY failures=0
+PASS gameplay_furniture_fire_test 0.5s exit=0 FURNITURE_FIRE_SUMMARY failures=0
+PASS gameplay_simulation_contract_test 0.4s exit=0 SIMULATION_CONTRACT_SUMMARY upstream_storage=true failures=0
+PASS gameplay_upstream_grid_test 0.3s exit=0 UPSTREAM_GRID_SUMMARY failures=0
+PASS gameplay_team_integration_test 2.0s exit=0 TEAM_INTEGRATION_SUMMARY failures=0
+PASS gameplay_grid_scene_handoff_test 0.6s exit=0 GRID_SCENE_HANDOFF_SUMMARY grid_script=res://gameplay/integration/ethan_material_grid.gd failures=0
+PASS gameplay_ui_test 1.7s exit=0 GAMEPLAY_UI_SUMMARY failures=0
+PASS gameplay_render_layers_test 1.2s exit=0 RENDER_LAYERS_SUMMARY failures=0
+PASS gameplay_interaction_occlusion_test 2.1s exit=0 INTERACTION_OCCLUSION_SUMMARY failures=0
+PASS gameplay_interaction_polish_test 1.6s exit=0 INTERACTION_POLISH_SUMMARY failures=0
+PASS gameplay_platform_v2_test 12.9s exit=0 PLATFORM_V2_SUMMARY failures=0
+PASS gameplay_full_flow_test 14.5s exit=0 FULL_FLOW_SUMMARY failures=0
+PASS gameplay_msd_test 2.2s exit=0 GAMEPLAY_MSD_SUMMARY failures=0
+PASS gameplay_restart_playtest 0.9s exit=0 RESTART_PLAYTEST_SUMMARY failures=0
+PASS gameplay_art_scene_alignment_test 1.5s exit=0 ART_SCENE_ALIGNMENT_SUMMARY failures=0
+TOTAL=24 PASS=24 OTHER=0
+Note: the original Art integration test timed out due to checking a removed placeholder node; after checking the real Garden adapter, the retest returned 0 errors and failures=0.

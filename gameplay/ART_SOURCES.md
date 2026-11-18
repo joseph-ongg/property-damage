@@ -100,3 +100,12 @@ the original scene art; the added one-way platform colliders are invisible
 on those existing objects. The reusable collision script was adapted from
 Suwen's earlier local platform work (`suwen/arena-platforms-20261021`, based
 on `suwen/platforms` commit `7c96bdd`).
+
+## Ninja and Werewolf characters (November 2026)
+
+New Ninja and Werewolf 32×32 RGBA character sprites in
+`gameplay/characters/sprites/` are original work added in Suwen's character
+branch. Frames include idle, run, jump, attack and hurt. The editable source
+recipe is `gameplay/characters/generate_characters.py`; the sprite sets and
+Godot scene integration are documented in `gameplay/characters/README.md`.
+The previously imported Mage PNG/GIF originals are preserved unchanged.
