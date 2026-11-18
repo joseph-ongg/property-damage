@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GameplayCharacterVisualSet" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://gameplay/characters/character_visual_set.gd" id="set"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/wolf_walk_0.png" id="idle"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/wolf_walk_1.png" id="r1"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/wolf_damage_0.png" id="hurt0"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/wolf_damage_1.png" id="hurt1"]
+
+[resource]
+script = ExtResource("set")
+idle_frames = Array[Texture2D]([ExtResource("idle")])
+run_frames = Array[Texture2D]([ExtResource("idle"), ExtResource("r1")])
+hurt_texture = ExtResource("hurt1")
+run_fps = 7.0
+idle_fps = 3.0
