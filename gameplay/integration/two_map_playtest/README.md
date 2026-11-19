@@ -30,8 +30,11 @@ is implemented. Final rules and production UI are owned by Design and Angela.
 ## Ownership and implementation boundaries
 
 - Existing Garden/Living Room scene files and GameplayPlayer are unchanged.
-- Existing GardenMagicBolt is used as a *temporary session-local* PvP adapter
-  for Living Room; Austin's MagicBolt and MSD controller are unchanged.
+- An isolated \`GameplayLivingRoomPvPBolt\` subclass adds **only** player
+  collision and Eva Health to the original Living Room \`GameplayMagicBolt\`;
+  world/furniture/item collision and \`MaterialGrid\` ignition continue through
+  the unchanged base projectile. Austin's MagicBolt and MSD controller
+  are unchanged. Verified by the separate furniture-ignition/PvP regression.
 - Eva Health is the only HP store; no duplicate health.
 - Each new round instantiates a fresh existing arena, clearing transient state.
 - Existing character art and stats are used, with no new characters/attacks.
@@ -42,6 +45,7 @@ is implemented. Final rules and production UI are owned by Design and Angela.
 ## Reproducible tests
 
     ../Godot.app/Contents/MacOS/Godot --headless --path . --script res://gameplay/tests/gameplay_two_map_full_playtest_test.gd
+    ../Godot.app/Contents/MacOS/Godot --headless --path . --script res://gameplay/tests/gameplay_two_map_furniture_pvp_test.gd
     ./gameplay/garden/verify_pr18.sh --local
 
 The test drives real Godot button signals and physical input events,

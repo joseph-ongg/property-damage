@@ -141,9 +141,6 @@ func _start_round() -> void:
     if selected_map == LIVING:
         # Temporary hit adapter only: do NOT edit Austin's projectile or room
         # script. Existing room visual/VFX and owner features remain intact.
-        var empty_fences := Node2D.new()
-        empty_fences.name = "Fences"
-        arena.add_child(empty_fences)
         var legacy := Callable(arena, "_on_magic_attack")
         for idx in [1, 2]:
             var p := arena.get_node("Player%d" % idx) as GameplayPlayer
@@ -160,11 +157,12 @@ func _start_round() -> void:
 func _living_room_attack(_idx: int, player: GameplayPlayer) -> void:
     if round_over or not player.health_component.is_alive():
         return
-    # Reuse already tested design-aligned 10-damage PvP projectile.
-    # The room's native original bolt has been disconnected only here.
-    var bolt := GameplayGardenMagicBolt.new()
+    # Local adapter preserves the original Living Room projectile's fire
+    # and item interactions while resolving player hits through Eva Health.
+    var bolt := GameplayLivingRoomPvPBolt.new()
     arena.get_node("Projectiles").add_child(bolt)
     bolt.initialize(player)
+    bolt.hit.connect(arena._on_magic_hit)
 
 func _on_fighter_died(loser_index: int) -> void:
     if round_over:
