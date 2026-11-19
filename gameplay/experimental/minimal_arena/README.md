@@ -1,6 +1,8 @@
 # Minimal Arena 3 — EXPERIMENTAL, NOT DESIGN APPROVED
 
 Standalone integration/smoke-test scene. **Not** an approved Design Team arena.
+The same experimental PR also has a separate **F5 two-map playtest**; this
+Arena 3 test stays **F6-only** and is not reachable from its map selector.
 The official game remains Living Room / Bedroom + Garden. This prototype is
 not linked from the main game, menu, or PR #18.
 

@@ -21,11 +21,11 @@ This experimental branch changes the main-scene setting **only here**.
    intercept spells according to existing world logic.
 4. An actual Eva Health death ends the round, freezes both controllers,
    removes projectiles, shows KO, increments a **provisional** score.
-5. Next Round continues; two wins trigger a temporary match result and
-   Rematch or return to map and characters.
+5. Next Round continues as long as testers choose. Finish Playtest
+   explicitly ends the session with a round-history summary, not a match winner.
 
-The two-win score rule and temporary selection/result UI are a playtest
-assumption, NOT an approved final Design rule or Angela's final UI.
+No best-of-three threshold, automatic match winner, or final match format
+is implemented. Final rules and production UI are owned by Design and Angela.
 
 ## Ownership and implementation boundaries
 
@@ -36,7 +36,8 @@ assumption, NOT an approved final Design rule or Angela's final UI.
 - Each new round instantiates a fresh existing arena, clearing transient state.
 - Existing character art and stats are used, with no new characters/attacks.
 - The experimental F5 launch path is a scoped change to project.godot only.
-- Neither experimental Arena 3 nor a third-map menu option is included.
+- The existing Arena 3 smoke scene remains in this PR only as a separate
+  **F6-only experiment**; it never appears in the F5 flow or map menu.
 
 ## Reproducible tests
 
@@ -44,18 +45,18 @@ assumption, NOT an approved final Design rule or Angela's final UI.
     ./gameplay/garden/verify_pr18.sh --local
 
 The test drives real Godot button signals and physical input events,
-projectiles, collision, Eva Health KO, round/match result and rematch.
+projectiles, collision, Eva Health KO, per-round results, explicit finish and playtest restart.
 To be deterministic it places fighters into **known unobstructed lanes**;
 this is not proof that all human navigation, props or fire simulations are
 free of bugs. Test windowed behavior and visually inspect the scenes.
 
 ## Release gate beyond this experiment
 
-- Angela: real character/map selection, rule approval, match score and win UI.
+- Angela: real character/map selection, approved match rules and win UI.
 - Austin: shared Living Room player/item projectile hit routing.
 - Eva: Health, fall damage and invulnerability integration.
 - Ethan/Jackson: live fire, wind, object HP and environmental interactions.
-- Design/Joseph: approve playtest experience and any provisional rule.
+- Design/Joseph: approve playtest experience and specify final match rules.
 
 Design source:
 https://docs.google.com/document/d/1iVnXhmA9XLGX5hUUSrxCrNm4u9ljC8tZb10seZF4FE8/edit

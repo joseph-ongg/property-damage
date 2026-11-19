@@ -1,11 +1,11 @@
 ## EXPERIMENTAL PLAYTEST ADAPTER — not a change to Angela/Austin/Eva modules.
 ## Reuses Angela's two-map buttons, PR18 Garden, existing Living Room, Eva's
-## Health, and Garden PvP collider. Provisional best-of-three awaiting owner.
+## Health, and Garden PvP collider. No match win condition is assumed.
 extends Node2D
 
 signal scene_started(arena_name: String)
 signal round_ended(winner_index: int)
-signal match_ended(winner_index: int)
+signal playtest_ended(rounds_played: int)
 
 const ADAPTER_SCRIPT: GDScript = preload("res://gameplay/integration/two_map_playtest/angela_map_adapter.gd")
 const MAP_SELECT: PackedScene = preload("res://gameplay/LevelSelection/map_select.tscn")
@@ -13,7 +13,6 @@ const GARDEN := "res://gameplay/garden/garden_level.tscn"
 const LIVING := "res://gameplay/msd/gameplay_msd.tscn"
 const KINDS := ["mage", "ninja", "werewolf"]
 const PRETTY := ["Wizard", "Ninja", "Werewolf"]
-const TWO_WINS := 2  # Provisional integration flow; Angela owns final rule/UX.
 
 var selected_kinds: Array[String] = ["mage", "mage"]
 var selected_map: String = ""
@@ -21,7 +20,6 @@ var arena: Node2D
 var scores: Dictionary = {1: 0, 2: 0}
 var round_number := 0
 var round_over := false
-var match_over := false
 var screen_mode := "character"
 
 @onready var arena_host: Node2D = $ArenaHost
@@ -74,7 +72,7 @@ func _show_characters() -> void:
     screen_mode = "character"
     var box := _panel_stack()
     _label("PROPERTY DAMAGE", box, 37)
-    _label("Two-map integration playtest | provisional match flow", box, 17)
+    _label("EXPERIMENTAL | NOT DESIGN APPROVED | match rules pending", box, 17)
     _label("P1 character", box, 17)
     var p1 := OptionButton.new()
     p1.name = "P1Choice"
@@ -124,7 +122,6 @@ func _on_map_selected(path: String) -> void:
     selected_map = GARDEN if path == GARDEN else LIVING
     scores = {1: 0, 2: 0}
     round_number = 0
-    match_over = false
     _start_round()
 
 func _release_arena() -> void:
@@ -187,9 +184,6 @@ func _on_fighter_died(loser_index: int) -> void:
         bullet.set_physics_process(false)
         bullet.queue_free()
     round_ended.emit(winner)
-    match_over = scores[winner] >= TWO_WINS
-    if match_over:
-        match_ended.emit(winner)
     _show_result(winner)
 
 func _show_fight_hud() -> void:
@@ -231,7 +225,7 @@ func _process(_delta: float) -> void:
     _refresh_health()
 
 func _show_result(winner: int) -> void:
-    # Temporary UI: Angela owns final best-of-three scoring and winner screen.
+    # This is a round result only. There is NO automatic match winner.
     var shade := ColorRect.new()
     shade.name = "RoundShade"
     shade.color = Color(0.02, 0.03, 0.08, 0.88)
@@ -244,19 +238,33 @@ func _show_result(winner: int) -> void:
     v.custom_minimum_size = Vector2(455, 275)
     v.add_theme_constant_override("separation", 14)
     screen.add_child(v)
-    _label("P%d %s" % [winner, "WINS MATCH" if match_over else "WINS ROUND"], v, 30)
-    _label("Score: P1 %d - P2 %d | provisional two-win flow" % [scores[1], scores[2]], v, 17)
-    if not match_over:
-        _button("Next round", v, _start_round)
-    else:
-        _button("Rematch (reset score)", v, _rematch)
+    _label("P%d WINS THIS ROUND" % winner, v, 27)
+    _label("Round wins: P1 %d - P2 %d (not match scoring)" % [scores[1], scores[2]], v, 15)
+    _button("Next round", v, _start_round)
+    _button("Finish playtest (no match winner)", v, _finish_playtest)
+    _button("Back to map selection", v, _back_to_maps)
+
+## Explicit user-driven end of this test session; never decides a match winner.
+func _finish_playtest() -> void:
+    var total_rounds := round_number
+    _release_arena()
+    _clear_screen()
+    screen_mode = "summary"
+    var v := _panel_stack()
+    _label("PLAYTEST SESSION COMPLETE", v, 27)
+    _label("EXPERIMENTAL / NOT DESIGN APPROVED", v, 17)
+    _label("No official match winner: waiting for Design specs", v, 17)
+    _label("Rounds: %d | P1 round wins: %d | P2 round wins: %d" % [
+        total_rounds, scores[1], scores[2]], v, 17)
+    _button("Restart playtest", v, _rematch)
     _button("Back to map selection", v, _back_to_maps)
     _button("Back to character selection", v, _show_characters)
+    playtest_ended.emit(total_rounds)
+
 
 func _rematch() -> void:
     scores = {1: 0, 2: 0}
     round_number = 0
-    match_over = false
     _start_round()
 
 func _back_to_maps() -> void:

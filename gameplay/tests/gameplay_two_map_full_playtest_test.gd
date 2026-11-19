@@ -1,11 +1,11 @@
 ## The playtest adapter is deliberately not the team's release branch.
 ## Real menus, real key inputs, both existing arenas, actual Health and KO,
-## round handoff, match result, rematch, and map switching.
+## round handoff, user-driven playtest completion, and map switching.
 extends SceneTree
 
 var failures: Array[String] = []
 var observed_round_winners: Array[int] = []
-var observed_match_winners: Array[int] = []
+var observed_completed_sessions: Array[int] = []
 
 func _initialize() -> void:
     call_deferred("_run")
@@ -86,9 +86,9 @@ func start_map(app: Node2D, map_name: String) -> void:
     check(app.arena.name == ("GameplayMSD" if map_name == "Living Room" else "Garden"),
         map_name + ": correct real arena loaded")
 
-func end_match(app: Node2D, winner: int, map_name: String) -> void:
+func play_two_rounds(app: Node2D, winner: int, map_name: String) -> void:
     await play_round(app, winner, map_name + " round 1")
-    check(app.scores[winner] == 1 and not app.match_over, map_name + ": first round score")
+    check(app.scores[winner] == 1, map_name + ": first round recorded (not final match score)")
     if not app.screen.has_node("ResultPanel"):
         check(false, map_name + ": missing KO/round result panel after real PvP")
         quit(2)
@@ -102,10 +102,20 @@ func end_match(app: Node2D, winner: int, map_name: String) -> void:
         app.arena.get_node("Player2").health_component.is_alive(),
         map_name + ": both players revived after next round")
     await play_round(app, winner, map_name + " round 2")
-    check(app.match_over and app.scores[winner] == 2,
-        map_name + ": second win ends provisional best-of-three")
-    check(get_button(app.screen.get_node("ResultPanel"), "Rematch") != null,
-        map_name + ": final result exposes Rematch")
+    check(app.scores[winner] == 2 and not app.screen_mode == "summary",
+        map_name + ": two won rounds DO NOT auto-decide a final match winner")
+    var finish: Button = get_button(app.screen.get_node("ResultPanel"), "Finish playtest")
+    check(finish != null, map_name + ": user may finish without a match winner rule")
+    finish.pressed.emit()
+    await frames(4)
+    check(app.screen_mode == "summary" and app.arena == null,
+        map_name + ": explicit Finish button opens session summary")
+    var summary: VBoxContainer = app.screen.get_node("MenuStack") as VBoxContainer
+    var has_disclaimer := false
+    for child in summary.get_children():
+        if child is Label and child.text.contains("waiting for Design specs"):
+            has_disclaimer = true
+    check(has_disclaimer, map_name + ": completion states no official match winner")
 
 func _run() -> void:
     var app := (load("res://gameplay/integration/two_map_playtest/two_map_playtest.tscn") as PackedScene).instantiate()
@@ -114,8 +124,8 @@ func _run() -> void:
     await frames(7)
     app.round_ended.connect(func(index: int) -> void:
         observed_round_winners.append(index))
-    app.match_ended.connect(func(index: int) -> void:
-        observed_match_winners.append(index))
+    app.playtest_ended.connect(func(rounds_played: int) -> void:
+        observed_completed_sessions.append(rounds_played))
     check(app.screen_mode == "character", "F5 entry starts at character selection")
     var stack: VBoxContainer = app.screen.get_node("MenuStack") as VBoxContainer
     var one := stack.get_node("P1Choice") as OptionButton
@@ -128,18 +138,18 @@ func _run() -> void:
     await frames(5)
 
     await start_map(app,"Living Room")
-    await end_match(app,1,"Living Room")
-    check(observed_round_winners == [1,1] and observed_match_winners == [1],
-        "Living Room emits two winners and one match result")
-    if not app.screen.has_node("ResultPanel"):
-        print("E2E_ABORT: no Living Room match result")
+    await play_two_rounds(app,1,"Living Room")
+    check(observed_round_winners == [1,1] and observed_completed_sessions == [2],
+        "Living Room records rounds and only ends session when user requests")
+    if not app.screen.has_node("MenuStack"):
+        print("E2E_ABORT: no Living Room session summary")
         quit(2)
         return
-    var rematch := get_button(app.screen.get_node("ResultPanel"),"Rematch")
+    var rematch := get_button(app.screen.get_node("MenuStack"),"Restart playtest")
     rematch.pressed.emit()
     await frames(7)
     check(app.round_number == 1 and app.scores[1] == 0 and app.scores[2] == 0,
-        "Real Rematch button resets score and round")
+        "Real Restart Playtest button resets round records and positions")
     await combat_lane(app)
     await shoot(KEY_G)
     check(app.arena.get_node("Player2").health_component.hp == 110,
@@ -151,10 +161,10 @@ func _run() -> void:
     leave.pressed.emit()
     await frames(7)
     await start_map(app,"Garden")
-    await end_match(app,2,"Garden")
-    check(observed_round_winners == [1,1,2,2] and observed_match_winners == [1,2],
-        "Both maps produce independent round and final match results")
-    var go_back := get_button(app.screen.get_node("ResultPanel"),"Back to map")
+    await play_two_rounds(app,2,"Garden")
+    check(observed_round_winners == [1,1,2,2] and observed_completed_sessions == [2,2],
+        "Both arenas finish only when user requests, without a match winner rule")
+    var go_back := get_button(app.screen.get_node("MenuStack"),"Back to map")
     go_back.pressed.emit()
     await frames(5)
     check(app.screen_mode == "map" and app.arena == null,
@@ -184,5 +194,5 @@ func _run() -> void:
     for issue in failures:
         print("PLAYTEST_KNOWN_ISSUE: " + issue)
     print("TWO_MAP_FULL_PLAYTEST_SUMMARY failures=%d winners=%s" % [
-        failures.size(),str(observed_match_winners)])
+        failures.size(),str(observed_round_winners)])
     quit(0 if failures.is_empty() else 2)
