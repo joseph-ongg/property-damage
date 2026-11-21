@@ -49,6 +49,18 @@ func _physics_process(delta: float) -> void:
 
     global_position = first_hit["position"]
     _resolved = true
-    player.health_component.take_damage(BASE_PLAYER_DAMAGE)
+    # Austin awards +5% per destroyed item; Eva Health stores integer HP.
+    # Carry the remaining 0.5 damage across hits rather than truncating or
+    # rounding every single projectile. Rejecting an invulnerable target
+    # must NOT consume the damage fraction.
+    var attack := BASE_PLAYER_DAMAGE
+    if is_instance_valid(_caster):
+        var previous_fraction := float(_caster.get_meta("living_room_attack_fraction", 0.0))
+        var scaled := _caster.attack_damage + previous_fraction
+        attack = floori(scaled + 0.00001)
+        if player.health_component.take_damage(attack):
+            _caster.set_meta("living_room_attack_fraction", scaled - float(attack))
+    else:
+        player.health_component.take_damage(attack)
     hit.emit("PLAYER %d" % player.player_index, caster_index)
     queue_free()
