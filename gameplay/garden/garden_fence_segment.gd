@@ -17,6 +17,13 @@ var destroyed_segment: bool = false
 var _visual: Sprite2D
 var _collision: CollisionShape2D
 var _art_image: Image
+var _rail_platforms: StaticBody2D
+
+# Rail top rows measured from the untouched Art Team Piskel source PNGs.
+# Only opaque horizontal runs become one-way ledges; the transparent gaps
+# stay passable. These ledges are NOT full solid fence walls.
+const RAIL_SCAN_ROWS := [135, 187]
+const MIN_RAIL_RUN_PIXELS := 12
 
 
 func _ready() -> void:
@@ -42,6 +49,61 @@ func _ready() -> void:
     _collision.name = "DamageableFenceHitbox"
     _collision.shape = hitbox
     add_child(_collision)
+
+    _make_one_way_rail_platforms()
+
+
+func _rail_alpha(x: int, y: int) -> bool:
+    if x < 0 or x >= _art_image.get_width() or y < 0 or y >= _art_image.get_height():
+        return false
+    return _art_image.get_pixel(x, y).a > 0.1
+
+
+func _make_one_way_rail_platforms() -> void:
+    # Fence art belongs to layer 4 for its damage/ownership contract.
+    # Separate child bodies on world layer 1 supply standing collisions
+    # without turning posts, transparent fence holes or roses into walls.
+    _rail_platforms = StaticBody2D.new()
+    _rail_platforms.name = "RailPlatforms"
+    _rail_platforms.collision_layer = 1
+    _rail_platforms.collision_mask = 0
+    add_child(_rail_platforms)
+    for row in RAIL_SCAN_ROWS:
+        var x := 0
+        while x < _art_image.get_width():
+            if not _rail_alpha(x, row):
+                x += 1
+                continue
+            var start := x
+            while x < _art_image.get_width() and _rail_alpha(x, row):
+                x += 1
+            var end := x
+            if end - start < MIN_RAIL_RUN_PIXELS:
+                continue
+            if row == 187:
+                # A vertical fence post is opaque at every height; its
+                # middle MUST NOT become an imaginary shelf. Most of a
+                # horizontal lower rail has open space 6px above its top.
+                var clear_above := 0
+                for px in range(start, end):
+                    if not _rail_alpha(px, row - 6):
+                        clear_above += 1
+                if float(clear_above) / float(end - start) < 0.45:
+                    continue
+            var ledge := CollisionShape2D.new()
+            ledge.name = "Rail_%d_%d_%d" % [row, start, end]
+            var rail_shape := RectangleShape2D.new()
+            rail_shape.size = Vector2(float(end - start) * 2.0, 4.0)
+            ledge.shape = rail_shape
+            ledge.one_way_collision = true
+            ledge.one_way_collision_margin = 3.0
+            # Original source sprite: centered, 2x scale, y=270 in world.
+            # Pixel runs are expressed in the same local coordinates as art.
+            ledge.position = Vector2(
+                float(start + end - _art_image.get_width()),
+                _visual.position.y + (float(row) + 0.5
+                    - float(_art_image.get_height()) * 0.5) * 2.0)
+            _rail_platforms.add_child(ledge)
 
 
 ## The rectangle is only a coarse physics candidate. Fence01's actual
@@ -114,6 +176,10 @@ func take_hit(attacker: int) -> bool:
             _collision.set_deferred("disabled", true)
         if _visual != null:
             _visual.visible = false
+        if _rail_platforms != null:
+            _rail_platforms.collision_layer = 0
+            for ledge in _rail_platforms.get_children():
+                (ledge as CollisionShape2D).set_deferred("disabled", true)
         destroyed.emit(segment_index + 1, attacker)
     return true
 
@@ -126,3 +192,7 @@ func restore() -> void:
         _collision.set_deferred("disabled", false)
     if _visual != null:
         _visual.visible = true
+    if _rail_platforms != null:
+        _rail_platforms.collision_layer = 1
+        for ledge in _rail_platforms.get_children():
+            (ledge as CollisionShape2D).set_deferred("disabled", false)

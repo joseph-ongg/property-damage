@@ -11,6 +11,10 @@ const ADAPTER_SCRIPT: GDScript = preload("res://gameplay/integration/two_map_pla
 const MAP_SELECT: PackedScene = preload("res://gameplay/MapSelection/map_select.tscn")
 const GARDEN := "res://gameplay/garden/garden_level.tscn"
 const LIVING := "res://gameplay/msd/gameplay_msd.tscn"
+# The shared Eva Health remains authoritative. An i-frame shorter than the
+# real attack cadence avoids dropping a clean second PvP hit. This is
+# playtest-local; Eva's reusable Health default remains unchanged at 0.8s.
+const PLAYTEST_PVP_IFRAMES := 0.24
 const KINDS := ["mage", "ninja", "werewolf"]
 const PRETTY := ["Wizard", "Ninja", "Werewolf"]
 
@@ -150,6 +154,7 @@ func _start_round() -> void:
     for idx in [1, 2]:
         var player := arena.get_node("Player%d" % idx) as GameplayPlayer
         player.set_character_kind(selected_kinds[idx - 1])
+        player.health_component.invulnerable_time = PLAYTEST_PVP_IFRAMES
         player.health_component.died.connect(_on_fighter_died.bind(idx))
     _show_fight_hud()
     scene_started.emit("Garden" if selected_map == GARDEN else "Living Room")
@@ -200,7 +205,7 @@ func _show_fight_hud() -> void:
     screen.add_child(quit_button)
     quit_button.pressed.connect(_back_to_maps)
     var instruction := Label.new()
-    instruction.text = "P1: A/D + G | P2: arrows + period | 10 HP base"
+    instruction.text = "P1: A/D, W×2, G | P2: arrows, ↑×2, . | 10 HP base"
     instruction.position = Vector2(22, 515)
     instruction.add_theme_font_size_override("font_size", 13)
     screen.add_child(instruction)

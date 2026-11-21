@@ -23,6 +23,15 @@ func _physics_process(delta: float) -> void:
     var excluded: Array[RID] = []
     if is_instance_valid(_caster):
         excluded.append(_caster.get_rid())
+    # One-way rail platforms are now real world colliders for players.
+    # Bullets must still use the *exact original fence alpha mask* rather
+    # than the ledge rectangle: don't let the physics broad phase steal
+    # a fence hit or block a shot through a transparent art opening.
+    var arena := get_parent().get_parent()
+    for child in arena.get_node("Fences").get_children():
+        var rail_body := child.get_node_or_null("RailPlatforms") as StaticBody2D
+        if rail_body != null:
+            excluded.append(rail_body.get_rid())
     var physical_query := PhysicsRayQueryParameters2D.create(
         start, finish, 1 | 2, excluded)
     physical_query.hit_from_inside = true
@@ -35,7 +44,6 @@ func _physics_process(delta: float) -> void:
     # Fence hitboxes are intentionally *coarse* for physics querying. Compare
     # the actual authored Piskel pixels against players/world by distance,
     # so a player in front of the visible fence is not incorrectly blocked.
-    var arena := get_parent().get_parent()
     for child in arena.get_node("Fences").get_children():
         var fence := child as GameplayGardenFenceSegment
         var art_hit := fence.first_opaque_hit_on_ray(start, finish)

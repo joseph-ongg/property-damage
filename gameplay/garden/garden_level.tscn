@@ -7,13 +7,12 @@
 [ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="5_bridge"]
 [ext_resource type="Script" path="res://gameplay/garden/garden_mechanics.gd" id="6_mechanics"]
 [ext_resource type="Script" path="res://gameplay/demo/fire_visuals.gd" id="7_flames"]
+[ext_resource type="Script" path="res://gameplay/garden/garden_tree_branch.gd" id="8_tree"]
 
 [sub_resource type="RectangleShape2D" id="floor"]
 size = Vector2(960, 40)
 [sub_resource type="RectangleShape2D" id="wall"]
 size = Vector2(32, 600)
-[sub_resource type="RectangleShape2D" id="branch"]
-size = Vector2(300, 12)
 
 [node name="Garden" type="Node2D"]
 script = ExtResource("1_level")
@@ -74,13 +73,9 @@ collision_mask = 0
 shape = SubResource("wall")
 
 [node name="TreeBranch" type="StaticBody2D" parent="."]
-position = Vector2(653, 261)
+script = ExtResource("8_tree")
 collision_layer = 1
 collision_mask = 0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="TreeBranch"]
-shape = SubResource("branch")
-one_way_collision = true
 
 [node name="Player1" parent="." instance=ExtResource("3_player")]
 position = Vector2(200, 455)
@@ -88,6 +83,7 @@ player_index = 1
 fire_bridge_path = NodePath("../FireBridge")
 reset_height = 600.0
 dash_enabled = false
+enhanced_jumping = true
 platform_drop_enabled = true
 z_index = 10
 
@@ -97,6 +93,7 @@ player_index = 2
 fire_bridge_path = NodePath("../FireBridge")
 reset_height = 600.0
 dash_enabled = false
+enhanced_jumping = true
 platform_drop_enabled = true
 z_index = 10
 

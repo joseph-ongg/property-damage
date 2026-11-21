@@ -48,6 +48,9 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 @export var reset_height: float = 580.0
 @export var dash_enabled: bool = true  # Optional extra; off in the team MSD demo.
 @export var enhanced_jumping: bool = false  # Opt in to two fixed-height jumps + airborne momentum.
+## Buffer an attack pressed during its rate limit; do not discard the tap.
+## One slot prevents accidental auto-repeat and still honors 0.32s fire cadence.
+@export_range(0.05, 0.5, 0.01) var attack_buffer_seconds: float = 0.36
 @export var platform_drop_enabled: bool = false  # Austin a529274: 可选的单向平台下穿。 / Optional one-way platform drop-through, adapted from Austin a529274.
 
 @onready var motor: GameplayMotor = $Motor
@@ -70,6 +73,7 @@ var _animation_clock: float = 0.0
 var _action_pose_remaining: float = 0.0
 var _dash_was_active: bool = false
 var _magic_cooldown: float = 0.0
+var _attack_buffer_left: float = 0.0
 var max_health: float = 100.0
 var health: float = 100.0
 var attack_damage: float = 10.0
@@ -217,10 +221,15 @@ func _physics_process(delta: float) -> void:
 		queue_redraw()
 	_dash_was_active = dash.active()
 	_magic_cooldown = maxf(0.0, _magic_cooldown - delta)
-	if Input.is_action_just_pressed(prefix + "attack") and _magic_cooldown <= 0.0:
+	if Input.is_action_just_pressed(prefix + "attack"):
+		_attack_buffer_left = attack_buffer_seconds
+	if _attack_buffer_left > 0.0 and _magic_cooldown <= 0.0:
 		_action_pose_remaining = 0.26
 		_magic_cooldown = 0.32
+		_attack_buffer_left = 0.0
 		magic_attacked.emit(player_index, self)
+	else:
+		_attack_buffer_left = maxf(0.0, _attack_buffer_left - delta)
 	if Input.is_action_just_pressed(prefix + "interact"):
 		_action_pose_remaining = 0.26
 		interact_pressed.emit(player_index, self)
@@ -244,6 +253,7 @@ func _physics_process(delta: float) -> void:
 		platform_drop.reset(self)
 		fall_damage.reset(self)
 		hazard.reset()
+		_attack_buffer_left = 0.0
 
 
 # Austin item compatibility: Eva Health remains the authoritative HP store.
@@ -270,6 +280,7 @@ func respawn(reset_health: bool = true) -> void:
 	motor.reset()
 	fall_damage.reset(self)
 	hazard.reset()
+	_attack_buffer_left = 0.0
 
 
 func _update_health_label() -> void:

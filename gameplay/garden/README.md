@@ -27,8 +27,13 @@ upstream `MaterialGrid`, Art Team Garden and bird animation load.
   bolts hit each section for one HP; after four hits its *original
   Art Team Piskel pixels* disappear. Shots are tested against the **real
   opaque Piskel pixels**, not a rectangular phantom collider. This may
-  require jumping to shoot upper fence sections. The fence does not block
-  local player movement.
+  require jumping to shoot upper fence sections. Painted top/lower
+  **horizontal rail pixels are now real one-way platforms** (you can land
+  on top or pass upward from below), built per segment from original Piskel
+  alpha; transparent gaps and vertical posts do not create invisible walls.
+  Four damage hits remove both a segment's pixels and its landing surfaces.
+  The tree branch uses sloped one-way supports on the visible wood rather
+  than a floating 300px rectangle. Both Garden players have two jumps.
 - **Roses:** Original thorn arch has contact areas; entering applies
   **5 HP** using Eva's existing Health component and invulnerability.
 - **Bird / apples:** The Art Team bird sprite loops at its authored

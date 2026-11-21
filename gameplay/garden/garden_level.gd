@@ -21,6 +21,10 @@ func _ready() -> void:
     $FireBridge.add_to_group("room_fire_bridge")
     for player_index in [1, 2]:
         var player := get_node("Player%d" % player_index) as GameplayPlayer
+        # The standalone native Garden scene must share the F5 combat rate:
+        # 0.8s Health prefab default otherwise discards every second 0.32s
+        # magic projectile. Only the Garden game instance is tuned here.
+        player.health_component.invulnerable_time = 0.24
         player.magic_attacked.connect(_on_magic_attack)
         player.health_component.died.connect(_on_player_died.bind(player_index))
         player.health_component.changed.connect(_on_health_display_changed)
