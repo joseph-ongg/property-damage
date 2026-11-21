@@ -3,7 +3,7 @@ extends Control
 # Add a new map here and a button appears automatically.
 const MAPS := [
 	{"name": "Living Room", "path": "res://gameplay/playtest_main.tscn"},
-	{"name": "Garden", "path": "res://gameplay/LevelSelection/GardenPlaceholder.tscn"},
+	{"name": "Garden", "path": "res://gameplay/garden/garden_level.tscn"},
 ]
 
 @onready var list: VBoxContainer = $CenterContainer/VBoxContainer
