@@ -20,7 +20,9 @@
 | Drop through a one-way platform | `S` + `W` | Down + Up arrows |
 | Spark: attempt to ignite the cell ahead | `F` | `Enter` |
 | Ranged magic projectile (experimental) | `G` | `.` (period) |
-| Pick up / throw a book; interact with furniture | `E` | `Shift` |
+| Pick up / throw a throwable item | `C` | `,` (comma) |
+| Use furniture or eat food | `E` | `Shift` |
+| Start / stop microwave, or close its door | Down + `E` | Down + `Shift` |
 | Pause / resume | `P` or `Esc` | Shared |
 | Restart the currently played Gameplay scene when unpaused | `R` | Shared |
 
@@ -39,17 +41,20 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 ### Optional visual and interaction prototypes
 
 - Art-team-inspired pixel-art living room with clear platform edges, original uncropped Art-team Character design 736×736 blue/red mage stills and moving frames, scaled in Godot, split P1/P2 control panels, landing and Spark feedback, and nearby interaction prompts.
-- Books can be picked up, carried, thrown, and visually scorched by Spark or magic.
-- A fridge with an opening door; a fan that pushes nearby players; an AC that slows nearby movement; and a computer with switch/shorted states.
+- Books, the clock, painting, plushie, plant, food, and fan cable can be picked up and thrown. Fragile objects break on impact; thrown damage uses their pixel width × height / 10,000.
+- Room objects share flammable, throwable, and fragile tags plus HP. Fire from the existing grid burns items for 1 HP every 3 seconds and self extinguishes after 10 seconds. Attacks remove 1 item HP each; the destroying player gains 5% of base attack damage.
+- Players have 100 HP. Grid fire deals 2 HP per second. Damageable objects block shots before the player behind them.
+- The fridge opens to reveal throwable healing food. Its existing top-mounted microwave holds three nuggets: open and eat for 20 HP, or hold Down and press Use to cook for 10 seconds, then eat for 50 HP. The fan cable plugs in automatically near the outlet, leaves the player's hand, and stays locked until unplugged with Use. The AC can disperse its fire when turned on. The bookshelf can be climbed; falling through the trashcan opening hurts and respawns a player after two seconds; broken plant shards hurt players who step on them.
+- Characters render in front of room items. Burning and burned-out objects show placeholder flame and ash sprites.
 - When the AC is on, its **130-pixel** effect radius applies a **0.45** movement-speed multiplier. Inherited airborne momentum also slows toward the adjusted speed cap; `SLOW` and cool-colored particles indicate the effect. Movement returns to normal outside its range.
-- A separate ranged magic projectile can scorch books or short the computer. It has no mana cost or health damage.
+- A separate ranged magic projectile damages the first item or player along its path. It has no mana cost.
 - The optional prop interactions can be disabled via `experimental_books_enabled` and `experimental_appliances_enabled` on the MSD controller.
+- Designers can adjust a world item's exported tags, HP, hit size, and burn timing in the scene; set `use_kind_defaults` to `false` to retain Inspector values instead of the prototype presets. Appliances have the corresponding `use_device_defaults` switch.
 - The fridge interior and wall-mounted AC are deliberately rendered **behind** player sprites; interaction and status overlays remain above players.
 
 ### Not implemented or not yet approved
 
-- Real fire propagation, burnout, full material destruction, or final physics-based furniture damage.
-- Mana, player health, scaling damage based on property destruction, official scoring, rounds, or win/loss rules.
+- Final art and physics for the added room props, mana, official scoring, rounds, or win/loss rules.
 - Final integration of the team's Art and Simulation scenes and gameplay approval.
 
 ## Code map
@@ -67,6 +72,7 @@ Down+Jump only drops through one-way platforms; it does not jump from solid floo
 | `gameplay/integration/demo_material_grid.gd` | Legacy lightweight grid, retained only for the separate fantasy experiment |
 | `gameplay/msd/msd_controller.gd` | Living-room controller for players, Spark, props, and appliances |
 | `gameplay/msd/burnable_prop.gd` | Book carrying, throwing, and scorch visuals |
+| `gameplay/msd/interactable_item.gd` / `gameplay/msd/world_item.gd` | Shared tags, HP, grid fire response, and configurable room props |
 | `gameplay/msd/appliance.gd` | Fridge, fan, AC, and computer |
 | `gameplay/msd/magic_bolt.gd` | Experimental ranged attack |
 | `gameplay/msd/interaction_hints.gd` / `gameplay/msd/player_conditions.gd` | Contextual prompts and `SLOW` / `WIND` indicators |

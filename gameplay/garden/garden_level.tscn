@@ -1,0 +1,136 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://gameplay/garden/garden_level.gd" id="1_level"]
+[ext_resource type="Texture2D" path="res://gameplay/garden/original_art_parts/garden_without_dynamic_props.png" id="2_original"]
+[ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="3_player"]
+[ext_resource type="Script" path="res://gameplay/integration/ethan_material_grid.gd" id="4_grid"]
+[ext_resource type="Script" path="res://gameplay/components/fire_bridge.gd" id="5_bridge"]
+[ext_resource type="Script" path="res://gameplay/garden/garden_mechanics.gd" id="6_mechanics"]
+[ext_resource type="Script" path="res://gameplay/demo/fire_visuals.gd" id="7_flames"]
+[ext_resource type="Script" path="res://gameplay/garden/garden_tree_branch.gd" id="8_tree"]
+
+[sub_resource type="RectangleShape2D" id="floor"]
+size = Vector2(852, 40)
+[sub_resource type="RectangleShape2D" id="tree_trunk_core"]
+size = Vector2(84, 132)
+
+[node name="Garden" type="Node2D"]
+script = ExtResource("1_level")
+
+[node name="Sky" type="ColorRect" parent="."]
+z_index = -12
+offset_right = 960.0
+offset_bottom = 540.0
+color = Color(0.765, 0.803, 0.871, 1)
+
+[node name="ArtTeamGardenBackground" type="Sprite2D" parent="."]
+z_index = -5
+position = Vector2(480, 270)
+scale = Vector2(2, 2)
+texture_filter = 1
+texture = ExtResource("2_original")
+
+[node name="MaterialGrid" type="Node2D" parent="."]
+script = ExtResource("4_grid")
+width = 60
+height = 34
+wood_burn_time = 10.0
+oil_burn_time = 10.0
+
+[node name="TickTimer" type="Timer" parent="MaterialGrid"]
+
+[node name="FireBridge" type="Node" parent="."]
+script = ExtResource("5_bridge")
+grid_path = NodePath("../MaterialGrid")
+
+[node name="FireVisuals" type="Node2D" parent="."]
+z_index = 7
+script = ExtResource("7_flames")
+grid_path = NodePath("../MaterialGrid")
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(480, 496)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("floor")
+
+[node name="TreeTrunk" type="StaticBody2D" parent="."]
+position = Vector2(774, 296)
+collision_layer = 1
+collision_mask = 0
+
+[node name="BarkCore" type="CollisionShape2D" parent="TreeTrunk"]
+shape = SubResource("tree_trunk_core")
+
+[node name="TreeBranch" type="StaticBody2D" parent="."]
+script = ExtResource("8_tree")
+collision_layer = 1
+collision_mask = 0
+
+[node name="Player1" parent="." instance=ExtResource("3_player")]
+position = Vector2(200, 455)
+player_index = 1
+fire_bridge_path = NodePath("../FireBridge")
+reset_height = 600.0
+dash_enabled = false
+enhanced_jumping = true
+platform_drop_enabled = true
+z_index = 10
+
+[node name="Player2" parent="." instance=ExtResource("3_player")]
+position = Vector2(871, 455)
+player_index = 2
+fire_bridge_path = NodePath("../FireBridge")
+reset_height = 600.0
+dash_enabled = false
+enhanced_jumping = true
+platform_drop_enabled = true
+z_index = 10
+
+[node name="Fences" type="Node2D" parent="."]
+z_index = -4
+
+[node name="RoseThorns" type="Node2D" parent="."]
+
+[node name="Throwables" type="Node2D" parent="."]
+z_index = 12
+
+[node name="Projectiles" type="Node2D" parent="."]
+z_index = 13
+
+[node name="GardenMechanics" type="Node2D" parent="."]
+z_index = 14
+script = ExtResource("6_mechanics")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Status" type="Label" parent="HUD"]
+offset_left = 20.0
+offset_top = 10.0
+offset_right = 790.0
+offset_bottom = 35.0
+theme_override_colors/font_color = Color(0.11, 0.18, 0.14, 1)
+theme_override_font_sizes/font_size = 15
+text = "GARDEN • E / SHIFT: TREE / PICK / THROW / HOSE"
+
+[node name="Note" type="Label" parent="HUD"]
+offset_left = 20.0
+offset_top = 37.0
+offset_right = 900.0
+offset_bottom = 56.0
+theme_override_colors/font_color = Color(0.14, 0.24, 0.18, 1)
+theme_override_font_sizes/font_size = 11
+text = "G / . MAGIC: FENCE 4 HP    •    ROSES: 5 HP CONTACT    •    HOSE: 10 SEC"
+
+
+[node name="PlayerHealth" type="Label" parent="HUD"]
+offset_left = 20.0
+offset_top = 58.0
+offset_right = 520.0
+offset_bottom = 80.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.12, 0.21, 0.15, 1)
+theme_override_font_sizes/font_size = 14
+text = "P1 120 / 120 HP     P2 120 / 120 HP"

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://gameplay/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/components/player_motor.gd" id="2_motor"]
@@ -8,6 +8,8 @@
 [ext_resource type="Script" path="res://gameplay/components/spark_aim.gd" id="6_aim"]
 [ext_resource type="Script" path="res://gameplay/components/landing_fx.gd" id="7_landing"]
 [ext_resource type="Script" path="res://gameplay/components/platform_drop.gd" id="8_platform_drop"]
+[ext_resource type="Script" path="res://gameplay/components/health.gd" id="9_health"]
+[ext_resource type="Script" path="res://gameplay/components/fall_damage.gd" id="10_fall"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(32, 64)
@@ -47,6 +49,13 @@ script = ExtResource("7_landing")
 
 [node name="FireHazard" type="Node" parent="."]
 script = ExtResource("4_hazard")
+
+[node name="FallDamage" type="Node" parent="."]
+script = ExtResource("10_fall")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("9_health")
+max_hp = 120
 
 [node name="NameTag" type="Label" parent="."]
 offset_left = -12.0

@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/garden.png" id="garden"]
+
+[node name="GardenArtPreview" type="Node2D"]
+
+[node name="OriginalArtTeamGarden" type="Sprite2D" parent="."]
+position = Vector2(480, 270)
+scale = Vector2(2, 2)
+texture_filter = 1
+texture = ExtResource("garden")
