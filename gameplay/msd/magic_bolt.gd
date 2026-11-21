@@ -104,6 +104,13 @@ func _hit_combat_target(room: Node, start: Vector2, finish: Vector2) -> String:
 			nearest_distance = start.distance_to(point)
 			target = player
 	if target is GameplayInteractableItem:
+		# Preserve the original Living Room books' scorch art/signal when a
+		# direct item hit is introduced by Austin's more general hit system.
+		# try_scorch already consumes 1 HP; don't apply damage a second time.
+		if target is GameplayBurnableProp and (target as GameplayBurnableProp).item_name == "BOOKS":
+			var book: GameplayBurnableProp = target as GameplayBurnableProp
+			if book.try_scorch(book.global_position, caster_index):
+				return book.item_name
 		(target as GameplayInteractableItem).take_damage(1.0, caster_index)
 		return (target as GameplayInteractableItem).item_name
 	if target is GameplayPlayer:

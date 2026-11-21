@@ -43,8 +43,11 @@ func combat_lane(app: Node2D) -> void:
     var p1 := app.arena.get_node("Player1") as GameplayPlayer
     var p2 := app.arena.get_node("Player2") as GameplayPlayer
     if app.selected_map == "res://gameplay/garden/garden_level.tscn":
-        p1.global_position = Vector2(550,455)
-        p2.global_position = Vector2(640,455)
+        # This lane leaves the Garden hose nozzle (at x580) untouched.
+        # Austin's newly merged item hitboxes correctly block spells, so
+        # deterministic pure-PvP assertions use the unobstructed right side.
+        p1.global_position = Vector2(710,455)
+        p2.global_position = Vector2(800,455)
     else:
         p1.global_position = Vector2(430,468)
         p2.global_position = Vector2(520,468)
