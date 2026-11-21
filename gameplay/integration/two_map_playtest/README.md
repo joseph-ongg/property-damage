@@ -1,7 +1,7 @@
 # Property Damage — Two-Map Playtest Integration (EXPERIMENTAL)
 
-**Isolated, unapproved integration test branch. Do not merge into PR #18 or
-main without Angela / Austin / Eva / Design / Joseph review.**
+**Integrated two-map Design delivery candidate. Design / PM must review
+outstanding match-rule decisions before approving a production merge.**
 
 This branch validates the minimum gameplay loop against the Design-approved
 arenas **Living Room / Bedroom** and **Garden**. No Arena 3, speculative
@@ -39,8 +39,9 @@ is implemented. Final rules and production UI are owned by Design and Angela.
 - Each new round instantiates a fresh existing arena, clearing transient state.
 - Existing character art and stats are used, with no new characters/attacks.
 - The experimental F5 launch path is a scoped change to project.godot only.
-- The existing Arena 3 smoke scene remains in this PR only as a separate
-  **F6-only experiment**; it never appears in the F5 flow or map menu.
+- The Design delivery branch contains only Living Room/Bedroom and Garden.
+  Earlier experimental Arena3 contents remain in Git commit history only,
+  not in the deliverable code or map selector.
 
 ## Reproducible tests
 
