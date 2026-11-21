@@ -54,6 +54,10 @@ func _run() -> void:
     var loose_book := standalone.get_node("Books/FloorBooks") as GameplayBurnableProp
     var computer := standalone.get_node("Appliances/ComputerDevice") as GameplayAppliance
     var book_caster := standalone.get_node("Player1") as GameplayPlayer
+    # Austin's newly integrated PLUSHIE sits ahead of the book by default,
+    # so move it out of this isolated book-specific regression lane. In the
+    # actual arena it must continue to intercept projectiles.
+    (standalone.get_node("WorldItems/Plushie") as GameplayWorldItem).global_position = Vector2(850, 480)
     book_caster.global_position = Vector2(249, 478)
     book_caster.velocity = Vector2.ZERO
     book_caster.facing = 1

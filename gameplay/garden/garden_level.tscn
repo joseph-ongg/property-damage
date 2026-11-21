@@ -35,6 +35,8 @@ texture = ExtResource("2_original")
 script = ExtResource("4_grid")
 width = 60
 height = 34
+wood_burn_time = 10.0
+oil_burn_time = 10.0
 
 [node name="TickTimer" type="Timer" parent="MaterialGrid"]
 
