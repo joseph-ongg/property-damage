@@ -24,14 +24,9 @@ func _ready() -> void:
         player.magic_attacked.connect(_on_magic_attack)
         player.health_component.died.connect(_on_player_died.bind(player_index))
         player.health_component.changed.connect(_on_health_display_changed)
-        # Eva's FireHazard sensor already samples the player's feet, and the
-        # Garden carries the upstream Simulation bridge. Enable it only for
-        # this arena; do not change the shared player prefab or Living Room.
-        player.hazard.enabled = true
-        player.hazard.damage_interval = 1.0
-        player.hazard.touched_fire.connect(_on_player_fire_contact.bind(player))
+        # The shared GameplayPlayer now owns Eva's single FireHazard and
+        # FallDamage. Never attach a duplicate sensor or second DoT callback.
         _initial_player_positions[player_index] = player.global_position
-        _attach_optional_eva_fall_damage(player)
         _initialize_optional_legacy_health(player)
     _update_health_display()
 
@@ -98,7 +93,8 @@ func prepare_new_round() -> void:
         player.motor.reset()
         player.dash.reset()
         player.platform_drop.reset(player)
-        player.hazard._cooldown = 0.0
+        player.hazard.reset()
+        player.fall_damage.reset(player)
         # A fresh round must also reset the existing Spark emitter,
         # otherwise an already-lit flash/cooldown leaks between rounds.
         player.spark._cooldown_remaining = 0.0
@@ -106,9 +102,6 @@ func prepare_new_round() -> void:
         player.spark.queue_redraw()
         player.health_component.reset()
         player._magic_cooldown = 0.0
-        var sensor := player.get_node_or_null("EvaFallDamageGarden")
-        if sensor != null and sensor.has_method("reset"):
-            sensor.reset(player)
         _legacy_health_carry[index] = 0.0
         _on_authoritative_health_changed(
             player.health_component.hp, player.health_component.max_hp, player)
@@ -117,68 +110,13 @@ func prepare_new_round() -> void:
     _update_health_display()
 
 
-## The Design requires 20 HP fire damage over 10 seconds. The existing
-## sensor ticks once per second; Eva's newer Health offers bypass_invuln
-## for DOT while main's earlier Health has only a one-argument API.
-func _on_player_fire_contact(player: GameplayPlayer) -> void:
-    if _round_finished or not is_instance_valid(player) or not player.health_component.is_alive():
-        return
-    var hit_method_args := 1
-    for entry in player.health_component.get_method_list():
-        if entry.get("name", "") == "take_damage":
-            hit_method_args = (entry.get("args", []) as Array).size()
-            break
-    if hit_method_args >= 2:
-        player.health_component.callv("take_damage", [2, true])
-    else:
-        player.health_component.take_damage(2)
-
-
-## Load Eva's unmerged fall damage component only when it exists. The
-## implementation stays Eva-owned; no copy-paste of its calculations.
-func _attach_optional_eva_fall_damage(player: GameplayPlayer) -> void:
-    var path := "res://gameplay/components/fall_damage.gd"
-    if not ResourceLoader.exists(path):
-        return
-    var source := load(path) as GDScript
-    if source == null:
-        return
-    var sensor := source.new() as Node
-    sensor.name = "EvaFallDamageGarden"
-    player.add_child(sensor)
-    sensor.hard_landing.connect(_on_player_fall_damage.bind(player))
-    sensor.reset(player)
-
-
+## Eva player-owned fire and fall sensors are active in both approved arenas.
+## Older Garden-only adapters were intentionally removed to prevent applying
+## DoT twice or registering two independent landing sensors.
 func _physics_process(_delta: float) -> void:
-    # Austin's legacy numeric HP must never become an independent second
-    # life meter in the Garden. Convert any external change into Eva Health.
+    # Keep the Austin numeric alias in sync if old item code modifies it.
     for idx in [1, 2]:
         _sync_optional_legacy_damage(get_node("Player%d" % idx) as GameplayPlayer)
-    # Sensor is attached only when Eva's class has actually been merged.
-    # Update after Player movement by using its last completed transform.
-    for idx in [1, 2]:
-        var player := get_node("Player%d" % idx) as GameplayPlayer
-        var sensor := player.get_node_or_null("EvaFallDamageGarden")
-        if sensor != null and sensor.has_method("tick"):
-            sensor.tick(player)
-
-
-func _on_player_fall_damage(amount: int, player: GameplayPlayer) -> void:
-    if _round_finished or amount <= 0 or not is_instance_valid(player):
-        return
-    # All Health components support the one-argument fall callback.
-    # Eva's newer component adds optional DOT bypass below.
-    var can_bypass := false
-    for entry in player.health_component.get_method_list():
-        if entry.get("name", "") == "take_damage":
-            can_bypass = (entry.get("args", []) as Array).size() >= 2
-            break
-    if can_bypass:
-        player.health_component.callv("take_damage", [amount, true])
-    else:
-        player.health_component.take_damage(amount)
-
 
 
 func _has_legacy_numeric_hp(player: GameplayPlayer) -> bool:

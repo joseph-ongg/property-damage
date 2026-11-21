@@ -96,10 +96,11 @@ func _run() -> void:
         "Sustained fire contact applies 2 HP each second, not just first hit")
     gm.reset_garden_for_round()
 
-    # Eva owns the fall algorithm; invoke it only if the branch supplies it.
+    # The shared prefab owns ONE Eva FallDamage instance; Garden must not
+    # create a duplicate, which would apply landing damage twice.
     var fall_available := ResourceLoader.exists("res://gameplay/components/fall_damage.gd")
-    check(p1.has_node("EvaFallDamageGarden") == fall_available,
-        "Optional Eva FallDamage module is wired when its branch is present")
+    check(p1.has_node("FallDamage") == fall_available and not p1.has_node("EvaFallDamageGarden"),
+        "Single shared Eva FallDamage is wired without Garden duplicate sensor")
 
     if p1.has_method("take_damage"):
         # Eva's intentional 0.8s invulnerability applies to later
