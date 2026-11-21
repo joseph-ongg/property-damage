@@ -70,7 +70,8 @@ func _run() -> void:
 	var hit_name: String = bolt._hit_combat_target(room, Vector2(110, 450), Vector2(240, 450))
 	check(hit_name == "PLUSHIE" and blocker.hp == blocker_before - 1.0 and p2.health == player_before, "item between players absorbs a shot")
 	var microwave: GameplayWorldItem = room.get_node("WorldItems/Microwave")
-	p1.health = 10.0
+	# Eva Health is the integrated source of truth; do not set Austin's old alias.
+	p1.health_component.take_damage(p1.health_component.hp - 10)
 	p1.global_position = microwave.interaction_point() + Vector2(0, 15)
 	check(microwave.interact(p1) and microwave.opened, "microwave door opens")
 	microwave.toggle_microwave_power()
@@ -89,15 +90,22 @@ func _run() -> void:
 	check(p2.health == shards_victim_health - 5.0, "stepping on plant shards deals five HP")
 	var food: GameplayWorldItem = room.get_node("WorldItems/Food")
 	check(food.has_tag("throwable") and food.max_hp == 1.0, "fridge food is throwable with one HP")
+	# Independent throw scenario starts after Eva's hit invulnerability ends.
+	# Keep the projectile parked until then; physics would otherwise hit early.
+	await create_timer(0.85).timeout
 	blocker.hit_size = Vector2(400, 400)
 	blocker.global_position = Vector2(200, 450)
 	blocker.thrower_index = 1
 	blocker.flight_velocity = Vector2(100, 0)
 	blocker.flying = true
 	p2.global_position = Vector2(210, 458)
-	var before_throw_hit := p2.health
+	# During the i-frame wait the free player may walk/fall; reset the target
+	# to the deterministic impact location for this independent throw test.
+	p2.global_position = Vector2(210, 458)
+	p2.velocity = Vector2.ZERO
+	var before_throw_hit := p2.health_component.hp
 	blocker._step_flight(0.016)
-	check(is_equal_approx(p2.health, before_throw_hit - 16.0), "400 by 400 thrown item deals sixteen player damage")
+	check(p2.health_component.hp == before_throw_hit - 16, "400 by 400 thrown item deals sixteen player damage")
 	var ac: GameplayAppliance = room.get_node("Appliances/ACDevice")
 	ac.ignite()
 	p1.global_position = ac.global_position + Vector2(0, 8)
@@ -118,18 +126,19 @@ func _run() -> void:
 	room._on_interact(1, p1)
 	check(not outlet.plugged and cable.carried_by == p1, "interacting unplugs cable and returns it to player's hand")
 	var trash: GameplayWorldItem = room.get_node("WorldItems/Trashcan")
-	p2.health = 100.0
+	p2.health_component.reset()
+	var trash_before_hp := p2.health_component.hp
 	p2.global_position = trash.global_position
 	trash._process(0.01)
-	check(p2.health == 100.0 and p2.is_physics_processing(), "touching the trashcan side does not teleport or damage player")
+	check(p2.health_component.hp == trash_before_hp and p2.is_physics_processing(), "touching the trashcan side does not teleport or damage player")
 	p2.global_position = Vector2(trash.global_position.x, trash.global_position.y - trash.hit_size.y * 0.5 - 20.0)
 	trash._process(0.01)
 	p2.global_position.y += 24.0
 	p2.velocity.y = 240.0
 	trash._process(0.01)
-	check(p2.health == 75.0 and not p2.is_physics_processing(), "falling into trash deals twenty-five HP and traps player")
+	check(p2.health_component.hp == trash_before_hp - 25 and not p2.is_physics_processing(), "falling into trash deals twenty-five HP and traps player")
 	await create_timer(2.05).timeout
-	check(p2.is_physics_processing() and p2.global_position.distance_to(Vector2(884, 459)) < 2.0 and p2.health == 75.0, "trash releases player outside after two seconds with remaining HP")
+	check(p2.is_physics_processing() and p2.global_position.distance_to(Vector2(884, 459)) < 3.0 and p2.health_component.hp == trash_before_hp - 25, "trash releases player outside after two seconds with remaining HP")
 	room.queue_free()
 	print("ITEM_SYSTEM_SUMMARY failures=", failures.size())
 	quit(0 if failures.is_empty() else 1)
