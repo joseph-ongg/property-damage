@@ -31,6 +31,7 @@ const CHARACTER_MOVE := {"mage": 1.0, "ninja": 1.2, "werewolf": 0.85}
 
 signal sparked(player_index: int, target: Vector2, accepted: bool)
 signal interact_pressed(player_index: int, player: GameplayPlayer)
+signal carry_pressed(player_index: int, player: GameplayPlayer)
 signal magic_attacked(player_index: int, player: GameplayPlayer)
 
 @export_range(1, 2) var player_index: int = 1
@@ -68,6 +69,10 @@ var _animation_clock: float = 0.0
 var _action_pose_remaining: float = 0.0
 var _dash_was_active: bool = false
 var _magic_cooldown: float = 0.0
+var max_health: float = 100.0
+var health: float = 100.0
+var attack_damage: float = 10.0
+var destroyed_objects: int = 0
 
 
 func _enter_tree() -> void:
@@ -76,6 +81,7 @@ func _enter_tree() -> void:
 
 
 func _ready() -> void:
+	add_to_group("player_%d" % player_index)
 	collision_layer = 2  # players
 	collision_mask = 1   # only world; players pass through each other
 	_spawn = global_position
@@ -90,6 +96,7 @@ func _ready() -> void:
 	_base_motor_speed = motor.speed
 	_base_motor_jump_speed = motor.jump_speed
 	health_component.damaged.connect(_on_character_hurt)
+	health_component.changed.connect(_sync_austin_health_compat)
 	set_character_kind(character_kind)
 	sprite.flip_h = facing < 0
 	_apply_art_size()
@@ -117,9 +124,17 @@ func set_character_kind(kind: String) -> void:
 	if health_component != null:
 		health_component.max_hp = int(CHARACTER_HP[kind])
 		health_component.reset()
+		_sync_austin_health_compat(health_component.hp, health_component.max_hp)
 	_hurt_pose_seconds = 0.0
 	if sprite != null:
 		_update_character_sprite(false)
+
+
+# Compatibility views for older Austin items; do not store separate HP state.
+func _sync_austin_health_compat(new_hp: int, new_max_hp: int) -> void:
+	health = float(new_hp)
+	max_health = float(new_max_hp)
+	_update_health_label()
 
 
 func _on_character_hurt(_amount: int) -> void:
@@ -192,6 +207,9 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed(prefix + "interact"):
 		_action_pose_remaining = 0.26
 		interact_pressed.emit(player_index, self)
+	if Input.is_action_just_pressed(prefix + "carry"):
+		_action_pose_remaining = 0.26
+		carry_pressed.emit(player_index, self)
 	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
 		_action_pose_remaining = 0.26
 		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
@@ -200,12 +218,43 @@ func _physics_process(delta: float) -> void:
 	# visible on the exact same physics tick as the Spark/interaction/magic.
 	_update_character_sprite(moving)
 	hazard.tick(delta, _bridge, self)
+	# Eva FireHazard already handles player fire damage; never double-count it.
 	if global_position.y > reset_height:
 		global_position = _spawn
 		velocity = Vector2.ZERO
 		motor.reset()
 		dash.reset()
 		platform_drop.reset(self)
+
+
+# Austin item compatibility: Eva Health remains the authoritative HP store.
+# KO is handled by the round controller, never by an automatic respawn here.
+func take_damage(amount: float, _auto_respawn: bool = true) -> void:
+	health_component.take_damage(ceili(amount))
+
+
+func heal(amount: float) -> void:
+	health_component.heal(ceili(amount))
+
+
+func reward_destruction() -> void:
+	destroyed_objects += 1
+	attack_damage = 10.0 * (1.0 + 0.05 * destroyed_objects)
+
+
+func respawn(reset_health: bool = true) -> void:
+	global_position = _spawn
+	velocity = Vector2.ZERO
+	if reset_health:
+		health_component.reset()
+	_sync_austin_health_compat(health_component.hp, health_component.max_hp)
+	motor.reset()
+
+
+func _update_health_label() -> void:
+	if has_node("NameTag"):
+		$NameTag.text = "P%d  %d" % [player_index, ceili(health)]
+	queue_redraw()
 
 
 func _update_character_sprite(moving: bool) -> void:
@@ -246,6 +295,8 @@ func _apply_art_size() -> void:
 func _draw() -> void:
 	# Procedural contact shadow under the interchangeable pixel-art mage.
 	draw_circle(Vector2(0, 18), 12.0, Color(0.04, 0.04, 0.08, 0.38))
+	draw_rect(Rect2(-16, -69, 32, 4), Color("25313b"))
+	draw_rect(Rect2(-15, -68, 30.0 * health / max_health, 2), tint)
 	if dash.active():
 		var trail_color := Color(tint.r, tint.g, tint.b, 0.38)
 		for distance: float in [19.0, 29.0, 39.0]:

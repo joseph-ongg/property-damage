@@ -25,7 +25,7 @@ func _run() -> void:
 	var fridge: GameplayAppliance = room.get_node("Appliances/FridgeDevice")
 	var transitions: Array[bool] = []
 	fridge.state_changed.connect(func(_device: int, state: bool, _index: int): transitions.append(state))
-	move_player(p1, Vector2(761, 478))
+	move_player(p1, Vector2(780, 478))
 	move_player(p2, Vector2(792, 478))
 	await frames(4)
 	check(room.get_interaction_offer(p1).get("target") == fridge and room.get_interaction_offer(p2).get("target") == fridge,

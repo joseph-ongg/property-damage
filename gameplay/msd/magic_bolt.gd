@@ -1,4 +1,4 @@
-## Directional prototype magic attack. No health, mana or damage scores.
+## Directional magic attack with swept first-hit item/player damage.
 ## Furniture ignition uses the same bridge and MaterialGrid as Spark.
 class_name GameplayMagicBolt
 extends Node2D
@@ -46,6 +46,12 @@ func _physics_process(delta: float) -> void:
 	var obstruction := get_world_2d().direct_space_state.intersect_ray(ray)
 	global_position = after if obstruction.is_empty() else obstruction.position
 	var room := get_parent().get_parent()
+	var combat_hit := _hit_combat_target(room, before, global_position)
+	if not combat_hit.is_empty():
+		_resolved = true
+		hit.emit(combat_hit, caster_index)
+		queue_free()
+		return
 	var furniture_hit := _ignite_furniture(room, before, global_position)
 	if not furniture_hit.is_empty():
 		_resolved = true
@@ -77,6 +83,46 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 	else:
 		queue_redraw()
+
+
+func _hit_combat_target(room: Node, start: Vector2, finish: Vector2) -> String:
+	var nearest_distance := INF
+	var target: Node = null
+	for item: GameplayInteractableItem in get_tree().get_nodes_in_group("interactable_items"):
+		if not room.is_ancestor_of(item) or item.destroyed_item or is_inf(item.max_hp):
+			continue
+		var point: Variant = _segment_rect_hit(start, finish, item.hit_rect())
+		if point != null and start.distance_to(point) < nearest_distance:
+			nearest_distance = start.distance_to(point)
+			target = item
+	for player: GameplayPlayer in [room.get_node("Player1"), room.get_node("Player2")]:
+		if player.player_index == caster_index:
+			continue
+		var player_rect := Rect2(player.global_position + Vector2(-16, -45), Vector2(32, 60))
+		var point: Variant = _segment_rect_hit(start, finish, player_rect)
+		if point != null and start.distance_to(point) < nearest_distance:
+			nearest_distance = start.distance_to(point)
+			target = player
+	if target is GameplayInteractableItem:
+		(target as GameplayInteractableItem).take_damage(1.0, caster_index)
+		return (target as GameplayInteractableItem).item_name
+	if target is GameplayPlayer:
+		var attacker: GameplayPlayer = room.get_node("Player%d" % caster_index)
+		(target as GameplayPlayer).take_damage(attacker.attack_damage)
+		return "P%d" % (target as GameplayPlayer).player_index
+	return ""
+
+
+func _segment_rect_hit(start: Vector2, finish: Vector2, rect: Rect2) -> Variant:
+	if rect.has_point(start):
+		return start
+	var corners: Array[Vector2] = [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]
+	var closest: Variant = null
+	for i in 4:
+		var point: Variant = Geometry2D.segment_intersects_segment(start, finish, corners[i], corners[(i + 1) % 4])
+		if point != null and (closest == null or start.distance_to(point) < start.distance_to(closest)):
+			closest = point
+	return closest
 
 
 func _ignite_furniture(room: Node, start: Vector2, finish: Vector2) -> String:

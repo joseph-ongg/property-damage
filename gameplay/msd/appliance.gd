@@ -1,6 +1,6 @@
-## Optional, self-contained interaction prototype; not approved Simulation mechanics.
+## Appliance controls and visuals; durability comes from the shared item base.
 class_name GameplayAppliance
-extends Node2D
+extends GameplayInteractableItem
 
 enum Device { FRIDGE, FAN, AC, COMPUTER }
 signal state_changed(device: int, state: bool, player_index: int)
@@ -33,6 +33,7 @@ const AC_RENDER_RECT := Rect2(-54, -146, 108, 33)
 const MONITOR_RENDER_RECT := Rect2(-25, -32, 50, 39)
 
 @export var device: Device = Device.FRIDGE
+@export var use_device_defaults: bool = true
 @export var interaction_radius: float = 78.0
 @export var effect_radius: float = 130.0
 @export var wind_acceleration: float = -420.0
@@ -43,7 +44,7 @@ const MONITOR_RENDER_RECT := Rect2(-25, -32, 50, 39)
 @export_range(1.0, 200.0, 1.0) var fan_wind_height_below: float = 112.0
 # Team handoff: scene placement/Art assets are Inspector overrides; the
 # Simulation team may use the stable id and explicit power setter below.
-# No Simulation storage or fire/damage rules are implemented here.
+# Simulation still owns grid fire state; item HP is local Gameplay state.
 @export var simulation_id: String = "living_room_fan_01"
 @export var fan_facing_left: bool = true
 @export_range(1.0, 20.0, 0.5) var fan_animation_fps: float = 10.0
@@ -66,6 +67,40 @@ var charred: bool = false
 var _clock: float = 0.0
 
 
+func _ready() -> void:
+	item_name = device_name()
+	if use_device_defaults:
+		_apply_device_defaults()
+	super._ready()
+	destroyed.connect(_on_destroyed)
+
+
+func _apply_device_defaults() -> void:
+	match device:
+		Device.FRIDGE:
+			max_hp = INF
+			hit_size = FRIDGE_RENDER_RECT.size
+			hit_offset = FRIDGE_RENDER_RECT.get_center()
+		Device.FAN:
+			max_hp = 20.0
+			hit_size = FAN_RECT.size
+			hit_offset = FAN_RECT.get_center()
+		Device.AC:
+			max_hp = 20.0
+			hit_size = AC_RENDER_RECT.size
+			hit_offset = AC_RENDER_RECT.get_center()
+		Device.COMPUTER:
+			max_hp = 15.0
+			hit_size = MONITOR_RENDER_RECT.size
+			hit_offset = MONITOR_RENDER_RECT.get_center()
+
+
+func _on_destroyed(_source_player: int) -> void:
+	charred = true
+	switched_on = false
+	queue_redraw()
+
+
 # The fan is drawn on the table; its node origin is above a standing player's
 # interaction height. Use the base/control point, not the artwork's origin.
 func interaction_point() -> Vector2:
@@ -75,7 +110,7 @@ func interaction_point() -> Vector2:
 
 
 func can_interact(player: GameplayPlayer) -> bool:
-	return not charred and is_instance_valid(player) and interaction_point().distance_to(player.global_position) <= interaction_radius and GameplayInteractionLOS.has_path(player, interaction_point())
+	return not destroyed_item and is_instance_valid(player) and interaction_point().distance_to(player.global_position) <= interaction_radius and GameplayInteractionLOS.has_path(player, interaction_point())
 
 
 func interact(player: GameplayPlayer) -> bool:
@@ -143,10 +178,11 @@ func get_fan_force_x() -> float:
 
 
 func receive_spark(target: Vector2, player_index: int) -> bool:
-	if device != Device.COMPUTER or charred or target.distance_to(global_position) > 49.0:
+	if device != Device.COMPUTER or destroyed_item or target.distance_to(global_position) > 49.0:
 		return false
 	charred = true
 	switched_on = false
+	take_damage(1.0, player_index)
 	state_changed.emit(int(device), false, player_index)
 	queue_redraw()
 	return true
@@ -188,6 +224,7 @@ func device_name() -> String:
 
 
 func _process(delta: float) -> void:
+	super._process(delta)
 	_clock += delta
 	if switched_on and device in [Device.FAN, Device.AC]:
 		queue_redraw()
@@ -286,3 +323,11 @@ func _draw() -> void:
 				draw_rect(Rect2(-15, -27, 28, 3), Color("87dad1"))
 	# Colored notch signals interactivity without an extra giant HUD.
 	draw_rect(Rect2(-4, 24, 8, 3), gold)
+	if burned_to_ash:
+		var ash_rect := Rect2(hit_offset - hit_size * 0.5, hit_size)
+		draw_rect(ash_rect, Color("39383b", 0.94))
+		draw_rect(Rect2(ash_rect.position.x, ash_rect.end.y - 5, ash_rect.size.x, 5), Color("77706a"))
+	if burning:
+		draw_rect(Rect2(-18, -40, 36, 5), Color("ec683b", 0.72))
+	draw_condition_bar(Vector2(-16, -49))
+	draw_burn_sprite()
