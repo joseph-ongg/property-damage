@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3]
+[gd_scene load_steps=29 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
@@ -19,6 +19,7 @@
 [ext_resource type="Script" path="res://gameplay/msd/room_lighting_fx.gd" id="15_fx"]
 [ext_resource type="PackedScene" path="res://gameplay/props/fan/fan_device.tscn" id="16_fan"]
 [ext_resource type="Script" path="res://gameplay/msd/world_item.gd" id="22_world_item"]
+[ext_resource type="Script" path="res://sim/ash_overlay.gd" id="23_ash"]
 [ext_resource type="PackedScene" path="res://gameplay/platforms/one_way_ledge.tscn" id="18_ledge"]
 [ext_resource type="Texture2D" path="res://gameplay/platforms/sprites/wall_bookshelf_oak.png" id="19_oak"]
 [ext_resource type="Texture2D" path="res://gameplay/platforms/sprites/wall_bookshelf_teal.png" id="20_teal"]
@@ -331,6 +332,10 @@ script = ExtResource("11_hints")
 [node name="PlayerConditions" type="Node2D" parent="."]
 z_index = 31
 script = ExtResource("12_conditions")
+
+[node name="AshOverlay" type="Node2D" parent="."]
+z_index = 5
+script = ExtResource("23_ash")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
