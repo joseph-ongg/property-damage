@@ -53,6 +53,13 @@ const MONITOR_RENDER_RECT := Rect2(-25, -32, 50, 39)
 @export var fan_blade_override: SpriteFrames
 
 @export_range(0.25, 1.0, 0.05) var cold_speed_scale: float = 0.45  # 开启后区域内速度约为 45%。 / While the AC is on, nearby movement targets 45% of normal speed.
+# Fan plug state is not yet exposed by Gameplay interaction. This remains an
+# explicit adapter limitation; fire wind stays off while plug state is false.
+@export var fan_plugged_in: bool = false
+# AC fire wind currently uses switched_on, a downward direction, and the
+# existing circular effect_radius. Its direction/range are adapter defaults.
+@export var ac_fire_wind_enabled: bool = true
+var simulation_fire_wind_enabled: bool = true
 
 var switched_on: bool = false
 var charred: bool = false
@@ -96,9 +103,39 @@ func set_fan_power(powered: bool, source_player_index: int = -1) -> void:
 
 func fan_runtime_state() -> Dictionary:
 	return {"id": simulation_id, "powered": switched_on,
-		"operational": not charred, "facing_left": fan_facing_left,
+		"plugged_in": fan_plugged_in, "operational": not charred, "facing_left": fan_facing_left,
 		"effect_radius": effect_radius, "force_x": get_fan_force_x(),
 		"wind_local_rect": fan_wind_local_rect()}
+
+
+## Gameplay-to-Simulation wind adapter. The Simulation core only sees the
+## stable three-method source contract in WindModel and never references this class.
+func simulation_wind_is_active() -> bool:
+	if not simulation_fire_wind_enabled:
+		return false
+	if charred or not switched_on:
+		return false
+	if device == Device.FAN:
+		return fan_plugged_in
+	if device == Device.AC:
+		return ac_fire_wind_enabled
+	return false
+
+
+func simulation_wind_direction() -> Vector2:
+	if device == Device.FAN:
+		return Vector2.LEFT if fan_facing_left else Vector2.RIGHT
+	if device == Device.AC:
+		return Vector2.DOWN
+	return Vector2.ZERO
+
+
+func simulation_wind_contains(world_point: Vector2) -> bool:
+	if device == Device.FAN:
+		return fan_wind_contains(world_point)
+	if device == Device.AC:
+		return global_position.distance_to(world_point) <= effect_radius
+	return false
 
 
 func get_fan_force_x() -> float:

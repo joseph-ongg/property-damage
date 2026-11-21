@@ -40,6 +40,10 @@ const WindModelScript = preload("res://onboarding/burn-box/wind_model.gd")
 ## values increase downwind and decrease upwind spread.
 @export_range(0.0, 1.0) var wind_strength: float = 0.0
 
+## Independent fire-spread strength for registered local wind sources.
+## This is not the Gameplay player's force_x.
+@export_range(0.0, 1.0) var local_fire_wind_strength: float = 0.35
+
 # Cell data is indexed as [x][y]: column first, then row.
 # Material and fire state are separate, so burning Wood is still Wood.
 # Other systems should use the public API instead of modifying these arrays.
@@ -151,9 +155,8 @@ func _spread_fire() -> void:
 				if near_water:
 					continue
 
-				var spread_direction := Vector2(target.x - x, target.y - y)
-				chance = WindModelScript.adjusted_spread_chance(
-					chance, wind_direction, wind_strength, spread_direction
+				chance = adjusted_fire_spread_chance(
+					chance, x, y, target.x, target.y
 				)
 				if randf() < chance:
 					if not cells_to_ignite.has(target):
@@ -165,6 +168,44 @@ func _spread_fire() -> void:
 
 
 # ---------- Public API: other teams call these ----------
+
+## Returns the effective fire spread chance for one existing neighbor to a
+## candidate target. Water and ignition guards are handled by _spread_fire;
+## this method is deterministic and useful for Gameplay/Simulation validation.
+func adjusted_fire_spread_chance(
+	base_chance: float,
+	source_x: int,
+	source_y: int,
+	target_x: int,
+	target_y: int
+) -> float:
+	var chance := base_chance
+	var grid_spread_direction := Vector2(target_x - source_x, target_y - source_y)
+	chance = WindModelScript.adjusted_spread_chance(
+		chance, wind_direction, wind_strength, grid_spread_direction
+	)
+
+	var target_world_center := to_global(
+		Vector2(
+			(float(target_x) + 0.5) * cell_size,
+			(float(target_y) + 0.5) * cell_size
+		)
+	)
+	var local_wind := WindModelScript.wind_at(target_world_center)
+	if bool(local_wind.active):
+		var source_world_center := to_global(
+			Vector2(
+				(float(source_x) + 0.5) * cell_size,
+				(float(source_y) + 0.5) * cell_size
+			)
+		)
+		chance = WindModelScript.adjusted_spread_chance(
+			chance,
+			local_wind.direction as Vector2,
+			local_fire_wind_strength,
+			target_world_center - source_world_center
+		)
+	return clampf(chance, 0.0, 1.0)
 
 ## Materials a cell can contain. Fire is a separate state.
 enum Materials { AIR, WOOD, STONE, OIL, ASH, WATER }
