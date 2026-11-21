@@ -55,6 +55,21 @@ func _run() -> void:
     check(p2.motor.jumps_remaining() == 0 and p2.velocity.y < -100,
         "P2: second Up in the air launches a real double jump")
 
+    # Full traversal: double jump from ground onto the painted lower rail.
+    app._start_round()
+    await frames(13)
+    var climber := app.arena.get_node("Player1") as GameplayPlayer
+    climber.global_position=Vector2(500,455)
+    climber.velocity=Vector2.ZERO
+    await frames(9)
+    await tap(KEY_W)
+    await frames(7)
+    await tap(KEY_W)
+    await frames(82)
+    check(climber.is_on_floor() and climber.global_position.y < 365
+        and climber.motor.jumps_remaining() == 2,
+        "Real double jump climbs onto original lower railing and recharges")
+
     app._start_round()
     await frames(13)
     p1=app.arena.get_node("Player1") as GameplayPlayer
