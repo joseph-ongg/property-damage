@@ -8,7 +8,7 @@ signal round_ended(winner_index: int)
 signal playtest_ended(rounds_played: int)
 
 const ADAPTER_SCRIPT: GDScript = preload("res://gameplay/integration/two_map_playtest/angela_map_adapter.gd")
-const MAP_SELECT: PackedScene = preload("res://gameplay/LevelSelection/map_select.tscn")
+const MAP_SELECT: PackedScene = preload("res://gameplay/MapSelection/map_select.tscn")
 const GARDEN := "res://gameplay/garden/garden_level.tscn"
 const LIVING := "res://gameplay/msd/gameplay_msd.tscn"
 const KINDS := ["mage", "ninja", "werewolf"]

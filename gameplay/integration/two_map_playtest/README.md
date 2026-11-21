@@ -13,7 +13,7 @@ Import this worktree's project.godot into Godot 4.7.2, then press F5.
 This experimental branch changes the main-scene setting **only here**.
 
 1. Choose P1 and P2 from Wizard, Ninja, Werewolf.
-2. Use Angela's original two-map selector scene and buttons. The adapter
+2. Use Angela's original, authored MapSelection two-map selector scene and buttons. The adapter
    remaps GardenPlaceholder to the real PR #18 Garden, without modifying
    her files.
 3. P1: A/D move, W jump, G attack. P2: arrows move/jump, period attack.

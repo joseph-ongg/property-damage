@@ -78,7 +78,12 @@ func play_round(app: Node2D, attacker: int, label: String) -> void:
 func start_map(app: Node2D, map_name: String) -> void:
     check(app.screen_mode == "map", map_name + ": selector displayed")
     var menu: Control = app.screen.get_node("AngelasMapSelect") as Control
-    var buttons: Array[Node] = menu.get_node("CenterContainer/VBoxContainer").get_children()
+    # Angela's authored selector now includes a title label; count only
+    # actual map buttons, not ornamental or navigation controls.
+    var buttons: Array[Node] = []
+    for candidate in menu.get_node("CenterContainer/VBoxContainer").get_children():
+        if candidate is Button and candidate.text in ["Living Room", "Garden"]:
+            buttons.append(candidate)
     check(buttons.size() == 2, map_name + ": Angela selector has exactly two maps")
     var chosen: Button = buttons[0] if map_name == "Living Room" else buttons[1]
     check(chosen.text == map_name, map_name + ": correct source button")

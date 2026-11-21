@@ -1,6 +1,6 @@
 ## Playtest-only adapter: reuse Angela's actual two-button map selector scene.
 ## The owner's original script and scene remain unchanged.
-extends "res://gameplay/LevelSelection/map_select.gd"
+extends "res://gameplay/MapSelection/map_select.gd"
 
 signal playtest_map_selected(scene_path: String)
 
