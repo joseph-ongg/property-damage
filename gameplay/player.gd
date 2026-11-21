@@ -273,8 +273,9 @@ func respawn(reset_health: bool = true) -> void:
 
 
 func _update_health_label() -> void:
-	if has_node("NameTag"):
-		$NameTag.text = "P%d  %d" % [player_index, ceili(health)]
+	# Health and current HP are already displayed by the arena HUD/health bar.
+	# Never override the NameTag: the KO round controller owns that visual,
+	# and resets it to P1/P2 on restart (Eva's Health remains authoritative).
 	queue_redraw()
 
 
