@@ -82,11 +82,16 @@ func _run() -> void:
     grid.set_cell_material(feet_cell.x,feet_cell.y,MaterialGrid.Materials.WOOD)
     check(bridge.ignite_world(fire_feet),"Fire under player feet ignites on Simulation grid")
     var initial_hp := p1.health_component.hp
-    p1.hazard.tick(1.01,bridge,p1)
+    # The integrated Eva FireHazard sends one tick per 0.5 s (1 HP each).
+    # Drive both scheduled ticks rather than collapsing one second into a
+    # single manual tick; Health DoT bypasses projectile invulnerability.
+    p1.hazard.tick(0.51,bridge,p1)
+    p1.hazard.tick(0.51,bridge,p1)
     check(p1.health_component.hp == initial_hp-2,
         "One second of fire contact inflicts 2 HP via Eva Health")
     p1.health_component._process(0.9)
-    p1.hazard.tick(1.01,bridge,p1)
+    p1.hazard.tick(0.51,bridge,p1)
+    p1.hazard.tick(0.51,bridge,p1)
     check(p1.health_component.hp == initial_hp-4,
         "Sustained fire contact applies 2 HP each second, not just first hit")
     gm.reset_garden_for_round()
