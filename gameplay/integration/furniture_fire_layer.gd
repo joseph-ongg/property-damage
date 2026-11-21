@@ -14,11 +14,16 @@ var _objects: Dictionary = {}  # id -> {"cells": Array[Vector2i], "hp": float, "
 var _grid: MaterialGrid
 
 const ITEM_HP := {
-	"COMPUTER": 15.0, "AC": 20.0, "FAN": 20.0, "CLOCK": 10.0, "PAINTING": 5.0,
-	"BOOKS": 5.0, "TRASHCAN": 10.0, "MICROWAVE": 17.0, "PLUSHIE": 7.0, "PLANT": 10.0,
+	"COMPUTER": 7.0, "AC": 10.0, "FAN": 10.0, "CLOCK": 5.0, "PAINTING": 3.0,
+	"BOOKS": 3.0, "TRASHCAN": 5.0, "MICROWAVE": 8.0, "PLUSHIE": 3.0, "PLANT": 5.0,
+	"BOOKSHELF": INF, "FRIDGE": INF, "OUTLET": INF,
+
 }
 
 func hp_for(id: String) -> float:
+	# BOOKSHELF must not accidentally match the shorter BOOKS prefix.
+	if id.begins_with("BOOKSHELF"):
+		return INF
 	for prefix: String in ITEM_HP:
 		if id.begins_with(prefix):
 			return ITEM_HP[prefix]

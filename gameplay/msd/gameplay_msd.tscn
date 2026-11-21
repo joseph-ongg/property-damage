@@ -229,14 +229,17 @@ z_index = 12
 [node name="FloorBooks" type="Node2D" parent="Books"]
 position = Vector2(343, 485)
 script = ExtResource("7_books")
+max_hp = 3.0
 
 [node name="TableBooks" type="Node2D" parent="Books"]
 position = Vector2(473, 400)
 script = ExtResource("7_books")
+max_hp = 3.0
 
 [node name="ShelfBooks" type="Node2D" parent="Books"]
 position = Vector2(237, 332)
 script = ExtResource("7_books")
+max_hp = 3.0
 
 [node name="WorldItems" type="Node2D" parent="."]
 z_index = 9

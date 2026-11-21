@@ -88,15 +88,15 @@ func _apply_device_defaults() -> void:
 			hit_size = FRIDGE_RENDER_RECT.size
 			hit_offset = FRIDGE_RENDER_RECT.get_center()
 		Device.FAN:
-			max_hp = 20.0
+			max_hp = 10.0
 			hit_size = FAN_RECT.size
 			hit_offset = FAN_RECT.get_center()
 		Device.AC:
-			max_hp = 20.0
+			max_hp = 10.0
 			hit_size = AC_RENDER_RECT.size
 			hit_offset = AC_RENDER_RECT.get_center()
 		Device.COMPUTER:
-			max_hp = 15.0
+			max_hp = 7.0
 			hit_size = MONITOR_RENDER_RECT.size
 			hit_offset = MONITOR_RENDER_RECT.get_center()
 

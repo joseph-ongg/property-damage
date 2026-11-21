@@ -33,19 +33,19 @@ func _ready() -> void:
 func _apply_kind_defaults() -> void:
 	match kind:
 		Kind.CLOCK:
-			item_name = "CLOCK"; max_hp = 10; hit_size = Vector2(44, 44); tags = ["flammable", "throwable", "fragile"]
+			item_name = "CLOCK"; max_hp = 5; hit_size = Vector2(44, 44); tags = ["flammable", "throwable", "fragile"]
 		Kind.PAINTING:
-			item_name = "PAINTING"; max_hp = 5; hit_size = Vector2(66, 48); tags = ["flammable", "throwable", "fragile"]
+			item_name = "PAINTING"; max_hp = 3; hit_size = Vector2(66, 48); tags = ["flammable", "throwable", "fragile"]
 		Kind.MICROWAVE:
-			item_name = "MICROWAVE"; max_hp = 17; hit_size = Vector2(62, 44); tags = ["flammable"]
+			item_name = "MICROWAVE"; max_hp = 8; hit_size = Vector2(62, 44); tags = ["flammable"]
 		Kind.OUTLET:
 			item_name = "OUTLET"; max_hp = INF; hit_size = Vector2(18, 22); tags = ["flammable"]
 		Kind.TRASHCAN:
-			item_name = "TRASHCAN"; max_hp = 10; hit_size = Vector2(38, 52); tags = ["flammable"]
+			item_name = "TRASHCAN"; max_hp = 5; hit_size = Vector2(38, 52); tags = ["flammable"]
 		Kind.PLUSHIE:
-			item_name = "PLUSHIE"; max_hp = 7; hit_size = Vector2(32, 30); tags = ["flammable", "throwable"]
+			item_name = "PLUSHIE"; max_hp = 3; hit_size = Vector2(32, 30); tags = ["flammable", "throwable"]
 		Kind.PLANT:
-			item_name = "PLANT"; max_hp = 10; hit_size = Vector2(32, 48); tags = ["flammable", "throwable", "fragile"]
+			item_name = "PLANT"; max_hp = 5; hit_size = Vector2(32, 48); tags = ["flammable", "throwable", "fragile"]
 		Kind.BOOKSHELF:
 			item_name = "BOOKSHELF"; max_hp = INF; hit_size = Vector2(184, 138); tags = ["flammable"]
 		Kind.FOOD:
