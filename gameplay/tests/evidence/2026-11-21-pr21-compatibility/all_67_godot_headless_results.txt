@@ -1,0 +1,88 @@
+PR #21 — FULL 67 GODOT TEST REPORT — 2026-11-21
+====================================================
+Base feature SHA for this additive integration fix: 97372d6
+All tests run with the three compatibility regression adjustments applied.
+Godot 4.7.2.stable.official.ed1daf0bf, Mac M1 Pro.
+67 of 67 GDScript SceneTree test programs passed; 0 errors.
+Each test ran as an independent headless Godot process in a 3-worker batch.
+The existing full two-map gameplay E2E is included and passed.
+
+Separate real Mac OpenGL/Metal viewport run:
+gameplay_fan_visual_capture_test.gd PASS, four 960x540 PNG screenshots.
+Previously failed tests passed after scoped adjustments:
+gameplay_fan_visual_capture_test, gameplay_furniture_fire_test, gameplay_item_system_test
+Actual gameplay-owner files unchanged in this follow-up.
+
+TEST PROGRAM RESULTS
+gameplay_advanced_test                                      PASS   8.27s
+gameplay_all_character_art_skill_visual_test                PASS   6.81s
+gameplay_animatable_platform_test                           PASS   8.21s
+gameplay_art_handoff_test                                   PASS   0.64s
+gameplay_art_scene_alignment_test                           PASS   1.51s
+gameplay_book_collision_test                                PASS  15.65s
+gameplay_book_support_test                                  PASS  18.06s
+gameplay_character_art_scope_test                           PASS   0.37s
+gameplay_collider_handoff_test                              PASS   6.55s
+gameplay_controls_test                                      PASS   4.07s
+gameplay_crush_speed_test                                   PASS   4.66s
+gameplay_design_burn_time_integration_test                  PASS   0.66s
+gameplay_design_item_hp_integration_test                    PASS   0.56s
+gameplay_edge_test                                          PASS   3.49s
+gameplay_fan_art_handoff_test                               PASS   1.66s
+gameplay_fan_direction_test                                 PASS   2.17s
+gameplay_fan_playtest                                       PASS   2.50s
+gameplay_fan_visual_capture_test                            PASS   2.34s
+gameplay_full_flow_test                                     PASS  14.53s
+gameplay_furniture_fire_test                                PASS   0.53s
+gameplay_garden_attack_accounting_test                      PASS   0.47s
+gameplay_garden_cross_branch_contract_test                  PASS   0.63s
+gameplay_garden_design_contract_test                        PASS   0.65s
+gameplay_garden_ground_tree_interaction_visual_test         PASS   1.31s
+gameplay_garden_input_test                                  PASS   1.58s
+gameplay_garden_menu_e2e_integration_test                   PASS   1.10s
+gameplay_garden_physical_platform_test                      PASS   3.14s
+gameplay_garden_regression_edges_test                       PASS   0.74s
+gameplay_garden_round_handoff_test                          PASS   0.57s
+gameplay_garden_throwable_fire_test                         PASS   0.57s
+gameplay_grid_scene_handoff_test                            PASS   0.53s
+gameplay_guidance_test                                      PASS   0.50s
+gameplay_input_layout_test                                  PASS   1.63s
+gameplay_integration_merge_safety_test                      PASS   2.13s
+gameplay_interaction_occlusion_test                         PASS   1.99s
+gameplay_interaction_polish_test                            PASS   1.58s
+gameplay_item_system_test                                   PASS   3.30s
+gameplay_keyboard_chords_test                               PASS   1.94s
+gameplay_layout_feedback_test                               PASS   3.08s
+gameplay_living_room_keyboard_interaction_test              PASS   1.56s
+gameplay_living_room_property_multiplier_test               PASS   3.28s
+gameplay_local_wind_test                                    PASS   0.57s
+gameplay_magic_occlusion_test                               PASS   3.13s
+gameplay_magic_test                                         PASS   2.37s
+gameplay_map_select_delivery_test                           PASS   0.32s
+gameplay_midsem_art_test                                    PASS   2.26s
+gameplay_msd_test                                           PASS   2.06s
+gameplay_ninja_cross_arena_test                             PASS   0.65s
+gameplay_platform_v2_test                                   PASS  12.89s
+gameplay_project_start_test                                 PASS   2.38s
+gameplay_props_test                                         PASS   3.10s
+gameplay_quest_test                                         PASS   2.68s
+gameplay_render_layers_test                                 PASS   0.48s
+gameplay_restart_playtest                                   PASS   0.83s
+gameplay_room_depth_test                                    PASS   0.67s
+gameplay_simulation_contract_test                           PASS   0.44s
+gameplay_simultaneous_use_test                              PASS   2.04s
+gameplay_smoke_test                                         PASS   6.91s
+gameplay_spark_status_test                                  PASS   0.48s
+gameplay_team_integration_test                              PASS   1.84s
+gameplay_two_map_double_jump_rapid_attack_test              PASS   5.85s
+gameplay_two_map_full_playtest_test                         PASS  65.56s
+gameplay_two_map_furniture_pvp_test                         PASS   3.43s
+gameplay_ui_test                                            PASS   1.52s
+gameplay_upstream_drop_test                                 PASS   5.19s
+gameplay_upstream_grid_test                                 PASS   0.35s
+gameplay_visual_design_test                                 PASS   0.61s
+
+PASS 67/67, FAIL 0
+
+A passing deterministic suite is not Design/Art sign-off and does not
+prove absence of unidentified visual or human-playtest defects.

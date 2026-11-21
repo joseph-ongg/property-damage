@@ -91,16 +91,21 @@ func _run() -> void:
 	var food: GameplayWorldItem = room.get_node("WorldItems/Food")
 	check(food.has_tag("throwable") and food.max_hp == 1.0, "fridge food is throwable with one HP")
 	# Independent throw scenario starts after Eva's hit invulnerability ends.
-	# Keep the projectile parked until then; physics would otherwise hit early.
-	await create_timer(0.85).timeout
+	# Move P2 AWAY from the burning plant BEFORE waiting. Otherwise Ethan's
+	# ongoing fire + Eva's periodic hit resets invulnerability during the
+	# 0.85s wait, making a valid throw appear to deal 0 HP intermittently.
+	p2.global_position = Vector2(710, 458)
+	p2.velocity = Vector2.ZERO
+	await create_timer(0.95).timeout
+	check(not p2.health_component.is_invulnerable(),
+		"throw target has no fire-refreshed invulnerability at test start")
 	blocker.hit_size = Vector2(400, 400)
 	blocker.global_position = Vector2(200, 450)
 	blocker.thrower_index = 1
 	blocker.flight_velocity = Vector2(100, 0)
 	blocker.flying = true
-	p2.global_position = Vector2(210, 458)
-	# During the i-frame wait the free player may walk/fall; reset the target
-	# to the deterministic impact location for this independent throw test.
+	# Teleport only after all burn damage i-frames have expired; this tests
+	# the existing Austin formula through Eva Health, not fire timing.
 	p2.global_position = Vector2(210, 458)
 	p2.velocity = Vector2.ZERO
 	var before_throw_hit := p2.health_component.hp

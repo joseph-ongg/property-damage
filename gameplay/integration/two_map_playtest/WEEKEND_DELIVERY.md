@@ -5,6 +5,16 @@
 **GitHub:** existing PR #21, targeted for review against main.
 **Final merge:** PM/team approval required; never push directly to main.
 
+## Additive contributor-preserving integration policy
+
+PR #21 must preserve the original contributor commits (not squash them).
+A read-only audit at gameplay/tests/verify_pr21_contributor_history.sh
+checks 10 original source commits and all five exact, native two-parent
+merges for the Austin, Eva, Jackson, Angela and original main/Ethan lanes.
+Future conflicts are handled with new, separately authored commits on top
+of those merges. The later map-select-v2 branch head 6181700 contains
+unapproved Observatory files and is deliberately not merged wholesale.
+
 ## Original contributors and Git history
 
 All entries below are real two-parent merge commits, not squashed work.
