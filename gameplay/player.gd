@@ -57,6 +57,7 @@ signal magic_attacked(player_index: int, player: GameplayPlayer)
 @onready var spark: GameplaySparkEmitter = $SparkEmitter
 @onready var landing_fx: Node2D = $LandingFX
 @onready var hazard: GameplayFireHazard = $FireHazard
+@onready var fall_damage: GameplayFallDamage = $FallDamage
 @onready var health_component: Health = $Health
 
 var _base_motor_speed: float = 0.0
@@ -97,6 +98,13 @@ func _ready() -> void:
 	_base_motor_jump_speed = motor.jump_speed
 	health_component.damaged.connect(_on_character_hurt)
 	health_component.changed.connect(_sync_austin_health_compat)
+	# Eva's individual fire and landing sensors share one authoritative Health.
+	# 20 HP / 10 seconds means 1 HP per 0.5 seconds when standing in fire.
+	hazard.enabled = true
+	hazard.damage_interval = 0.5
+	hazard.touched_fire.connect(_on_fire_contact)
+	fall_damage.hard_landing.connect(_on_hard_landing)
+	fall_damage.reset(self)
 	set_character_kind(character_kind)
 	sprite.flip_h = facing < 0
 	_apply_art_size()
@@ -135,6 +143,14 @@ func _sync_austin_health_compat(new_hp: int, new_max_hp: int) -> void:
 	health = float(new_hp)
 	max_health = float(new_max_hp)
 	_update_health_label()
+
+
+func _on_fire_contact() -> void:
+	health_component.take_damage(1, true)
+
+
+func _on_hard_landing(damage: int) -> void:
+	health_component.take_damage(damage, true)
 
 
 func _on_character_hurt(_amount: int) -> void:
@@ -183,6 +199,7 @@ func _physics_process(delta: float) -> void:
 	var forced_x := float(dash.direction) * dash.dash_speed if dash.active() else INF
 	var was_grounded := is_on_floor()
 	motor.step(self, delta, horizontal, jump, forced_x, Input.is_action_just_released(prefix + "jump"), platform_drop.is_dropping())
+	fall_damage.tick(self)  # Eva: must observe landing after move_and_slide().
 	platform_drop.tick(self, delta)  # 离开单向平台后立即恢复原碰撞。 / Restore normal collision after dropping through a one-way platform.
 	if not was_grounded and is_on_floor():
 		landing_fx.trigger()
@@ -225,6 +242,8 @@ func _physics_process(delta: float) -> void:
 		motor.reset()
 		dash.reset()
 		platform_drop.reset(self)
+		fall_damage.reset(self)
+		hazard.reset()
 
 
 # Austin item compatibility: Eva Health remains the authoritative HP store.
@@ -249,6 +268,8 @@ func respawn(reset_health: bool = true) -> void:
 		health_component.reset()
 	_sync_austin_health_compat(health_component.hp, health_component.max_hp)
 	motor.reset()
+	fall_damage.reset(self)
+	hazard.reset()
 
 
 func _update_health_label() -> void:
