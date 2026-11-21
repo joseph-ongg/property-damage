@@ -309,6 +309,9 @@ func _update_character_sprite(moving: bool) -> void:
 	if sprite.texture != target_texture:
 		sprite.texture = target_texture
 		_apply_art_size()
+	# Art Team idle/run/hurt sprites must flip consistently with facing,
+	# including the frames loaded while already moving in a new direction.
+	sprite.flip_h = facing < 0
 	# The Art Team's original PNG has asymmetric transparent margins. Center
 	# the visible robe while facing either direction; do not crop source art.
 	sprite.position.x = float(facing) * 4.0 if sprite_override == null and character_kind == "mage" else 0.0

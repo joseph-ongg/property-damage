@@ -199,14 +199,14 @@ func _draw() -> void:
         # The nozzle texture is copied unmodified from garden.piskel.
         var art_size := HOSE_END_ART.get_size() * 2.0
         draw_texture_rect(HOSE_END_ART, Rect2(-art_size * 0.5, art_size), false)
-    elif kind == Kind.APPLE:
-        # TEMP placeholder: no standalone apple sprite in Art Team Drive.
-        draw_rect(Rect2(-5, -5, 10, 10), Color("#d82927"))
-        draw_rect(Rect2(-1, -9, 3, 5), Color("#2b7240"))
     else:
-        # TEMP placeholder: no standalone gnome sprite in Art Team Drive.
-        draw_rect(Rect2(-8, -20, 16, 20), Color("#91a496"), false, 2.0)
-        draw_string(ThemeDB.fallback_font, Vector2(-17, -25), "ART?", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color("#17252a"))
+        # Apple and gnome lack a supplied standalone Art sprite. Use the
+        # requested small '?' token instead of inventing object artwork.
+        var block_color := Color("#ae5650") if kind == Kind.APPLE else Color("#82938c")
+        draw_rect(Rect2(-10, -12, 20, 20), block_color)
+        draw_rect(Rect2(-10, -12, 20, 20), Color("#f2efe5"), false, 1.5)
+        draw_string(ThemeDB.fallback_font, Vector2(-4.5, 3), "?",
+            HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("#fff6e7"))
     if has_method("draw_burn_sprite"):
         call("draw_burn_sprite")
     elif _fallback_burning:

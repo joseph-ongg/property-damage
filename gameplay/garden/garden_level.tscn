@@ -10,9 +10,9 @@
 [ext_resource type="Script" path="res://gameplay/garden/garden_tree_branch.gd" id="8_tree"]
 
 [sub_resource type="RectangleShape2D" id="floor"]
-size = Vector2(960, 40)
-[sub_resource type="RectangleShape2D" id="wall"]
-size = Vector2(32, 600)
+size = Vector2(852, 40)
+[sub_resource type="RectangleShape2D" id="tree_trunk_core"]
+size = Vector2(84, 132)
 
 [node name="Garden" type="Node2D"]
 script = ExtResource("1_level")
@@ -56,21 +56,13 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
 shape = SubResource("floor")
 
-[node name="LeftWall" type="StaticBody2D" parent="."]
-position = Vector2(0, 250)
+[node name="TreeTrunk" type="StaticBody2D" parent="."]
+position = Vector2(774, 296)
 collision_layer = 1
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LeftWall"]
-shape = SubResource("wall")
-
-[node name="RightWall" type="StaticBody2D" parent="."]
-position = Vector2(960, 250)
-collision_layer = 1
-collision_mask = 0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RightWall"]
-shape = SubResource("wall")
+[node name="BarkCore" type="CollisionShape2D" parent="TreeTrunk"]
+shape = SubResource("tree_trunk_core")
 
 [node name="TreeBranch" type="StaticBody2D" parent="."]
 script = ExtResource("8_tree")

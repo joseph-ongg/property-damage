@@ -29,7 +29,13 @@ var _resolved: bool = false
 
 func initialize(player: GameplayPlayer) -> void:
 	caster_index = player.player_index
-	projectile_kind = "shuriken" if player.character_kind == "ninja" else "fireball"
+	match player.character_kind:
+		"ninja":
+			projectile_kind = "shuriken"  # Design-defined, sprite not delivered
+		"werewolf":
+			projectile_kind = "werewolf_unapproved"  # "Shoots cloth?" is not approved
+		_:
+			projectile_kind = "fireball"  # Wizard actual Art Team texture
 	direction = player.facing
 	global_position = player.global_position + Vector2(direction * 19, -7)
 	queue_redraw()
@@ -158,21 +164,17 @@ func _has_clear_path(target: Vector2) -> bool:
 
 
 func _draw() -> void:
-	if projectile_kind == "shuriken":
-		# Unapproved placeholder glyph, never misattribute it to Art Team.
-		# Draw-only change: collision, 10-HP balance and Austin's item hit
-		# logic remain owned by the original projectile implementation.
-		draw_set_transform(Vector2.ZERO, _age * 11.0, Vector2.ONE)
-		var spokes := PackedVector2Array([
-			Vector2(-14, -1), Vector2(-4, -4), Vector2(-1, -14),
-			Vector2(4, -4), Vector2(14, -1), Vector2(4, 4),
-			Vector2(1, 14), Vector2(-4, 4)])
-		draw_colored_polygon(spokes, Color("#aab5c3"))
-		draw_circle(Vector2.ZERO, 2.5, Color("#343c48"))
-		draw_set_transform(Vector2.ZERO)
+	if projectile_kind == "shuriken" or projectile_kind == "werewolf_unapproved":
+		# Without approved attack art, show a small literal '?' placeholder.
+		# Shared damage, item hit ordering and projectile movement stay intact.
+		var base := Color("#667c91") if projectile_kind == "shuriken" else Color("#8c8074")
+		draw_rect(Rect2(-10, -10, 20, 20), base)
+		draw_rect(Rect2(-10, -10, 20, 20), Color("#f2f1e9"), false, 1.5)
+		draw_string(ThemeDB.fallback_font, Vector2(-4.5, 5.0), "?",
+			HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("#fdfaf1"))
 		return
 	var frame: Texture2D = FIRE_FRAMES[int(_age * 14.0) % FIRE_FRAMES.size()]
-	# Flip the comet trail when flying to the left. Pixel edges stay crisp.
+	# Wizard flame texture remains the unchanged Art Team image.
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(float(direction), 1.0))
 	draw_texture(frame, Vector2(-12, -8))
 	draw_set_transform(Vector2.ZERO)

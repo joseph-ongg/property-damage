@@ -1,5 +1,5 @@
 ## Design Ninja shuriken must render on shared MagicBolt in BOTH arenas.
-## The temporary vector glyph is explicitly not final Art Team art.
+## Missing Art must use a '?' block; Werewolf's final "cloth?" attack is NOT Design approved.
 extends SceneTree
 
 var failures: Array[String] = []
@@ -51,8 +51,8 @@ func _test_projectiles(scene_path: String) -> void:
     projectiles.add_child(werewolf_bolt)
     werewolf_bolt.set_physics_process(false)
     werewolf_bolt.initialize(player)
-    check(werewolf_bolt.projectile_kind == "fireball",
-        "%s: unapproved Werewolf attack remains original baseline, not invented" % scene_path)
+    check(werewolf_bolt.projectile_kind == "werewolf_unapproved",
+        "%s: Werewolf now displays an explicit ? Art placeholder, never Wizard fire" % scene_path)
     werewolf_bolt.queue_free()
     stage.queue_free()
     await _frames(2)

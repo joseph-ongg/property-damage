@@ -179,12 +179,39 @@ func _break_from_throw() -> void:
 		queue_redraw()
 
 
+# The room's authored Clock, Painting, Microwave, shelves and appliances
+# retain their existing art. Separate Art textures are still missing for
+# these small interactive tokens; never invent final object illustrations.
+func _draw_missing_art_marker() -> void:
+	var c := Color("#717f93")
+	if burning:
+		c = Color("#ba6550")
+	if destroyed_item:
+		c = Color("#56585a")
+	draw_rect(Rect2(-11, -15, 22, 22), c)
+	draw_rect(Rect2(-11, -15, 22, 22), Color("#f0eade"), false, 1.5)
+	draw_string(ThemeDB.fallback_font, Vector2(-4.5, 1.5), "?",
+		HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("#fff8ee"))
+
+
 func _draw() -> void:
 	if kind == Kind.FOOD and not removed_from_fridge and not (get_node("../../Appliances/FridgeDevice") as GameplayAppliance).switched_on:
 		return
 	if burned_to_ash:
 		draw_rect(Rect2(-hit_size.x * 0.35, hit_size.y * 0.3, hit_size.x * 0.7, 6), Color("514b49"))
 		draw_rect(Rect2(-hit_size.x * 0.25, hit_size.y * 0.3 - 4, hit_size.x * 0.5, 4), Color("77706a"))
+		draw_burn_sprite()
+		return
+	if kind in [Kind.OUTLET, Kind.TRASHCAN, Kind.PLUSHIE, Kind.PLANT, Kind.FOOD]:
+		_draw_missing_art_marker()
+		if kind == Kind.PLANT and _shards_active:
+			# Even broken shards have no supplied Art. The hazard stays active,
+			# but its visual must remain a clear placeholder, not fake pottery.
+			for offset in [-19.0, 13.0]:
+				draw_rect(Rect2(offset, 10, 9, 9), Color("#717f93"))
+				draw_string(ThemeDB.fallback_font, Vector2(offset+1, 18), "?",
+					HORIZONTAL_ALIGNMENT_LEFT, -1, 9, Color("#ffffff"))
+		draw_condition_bar(Vector2(-16, -hit_size.y * 0.5 - 11))
 		draw_burn_sprite()
 		return
 	var c := Color("8d6654")
@@ -235,8 +262,8 @@ func _draw() -> void:
 			draw_rect(Rect2(-9, -7, 18, 14), Color("9fba69") if not destroyed_item else c)
 		Kind.CABLE:
 			var fan: GameplayAppliance = get_node("../../Appliances/FanDevice") as GameplayAppliance
+			# Functional cable route stays visible. Plug art is not supplied.
 			draw_line(Vector2.ZERO, fan.global_position - global_position, Color("333942"), 3.0)
-			draw_circle(Vector2.ZERO, 7, Color("313840"))
-			draw_rect(Rect2(-3, -3, 6, 6), Color("c5b597"))
+			_draw_missing_art_marker()
 	draw_condition_bar(Vector2(-16, -hit_size.y * 0.5 - 11))
 	draw_burn_sprite()

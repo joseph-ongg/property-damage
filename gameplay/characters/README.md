@@ -18,16 +18,15 @@ and currently defaults to **1.10×**, explicitly **not Design-approved**.
 Switching characters restores the original Mage/Werewolf jump speed without
 stacking the Ninja bonus.
 
-The **shared** `GameplayMagicBolt` now draws a visibly distinct temporary
-Ninja shuriken in **both Living Room and Garden**; the Wizard retains the
-original hand-painted fireball. Garden's base PVP hit damage is Design's
-**10 HP**, routed through Eva Health; Austin still owns Living Room's
-shared item/player hit calculations. The shuriken glyph is **not Art Team
-art** and its drawing change was tested against Austin's newer bolt
-implementation without a merge conflict. Werewolf's exact attack is still
-marked as a question in Design and is not fabricated. Final attack sheets,
-action/death animations and Angela's character selection remain separate
-owner handoffs. Idle/walk/hurt frames use the Art Team's original Piskel
-exports.
+The **shared** GameplayMagicBolt distinguishes Wizard fireball, Ninja
+shuriken and pending Werewolf attack in **both Living Room and Garden**.
+Wizard retains original fireball frames. Art Team source does not include
+a separate Ninja shuriken texture, and Design says only "Shoots cloth?"
+for Werewolf (unapproved). Both unknown projectile visuals display small
+colored "?" blocks rather than Wizard fireballs or invented attack art.
+All characters keep the existing Design 10-HP base hit rules through Eva
+Health. Original Art Team idle/walk/hurt stills mirror with facing direction
+on every frame; the final attack assets/animation await Art and Design.
+
 
 See INTEGRATION_COMPATIBILITY.md for Eva/Austin integration contracts.

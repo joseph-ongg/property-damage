@@ -83,3 +83,59 @@ Design: https://docs.google.com/document/d/1iVnXhmA9XLGX5hUUSrxCrNm4u9ljC8tZb10s
 - Added real key-input and physical landing tests:
   gameplay/tests/gameplay_two_map_double_jump_rapid_attack_test.gd
   gameplay/tests/gameplay_garden_physical_platform_test.gd
+
+
+## Nov 21 visual and complete interaction QA (PR #21 only)
+
+Garden's 426px Piskel background is scaled 2x from x=54 to x=906; its
+floor collision now ends on those exact painted edges rather than across
+the empty 960px canvas. The unpainted side-wall collisions were removed.
+No new fall penalty or match rule was introduced; existing below-stage
+position reset still works. The tree's painted central bark is solid,
+with upper/lower holes open for existing vertical teleport interaction.
+
+Original supplied Wizard/Ninja/Werewolf idle/walk/hurt Art mirrors with
+actual facing throughout animation and character changes. Wizard retains
+original fireball. Ninja's shuriken art was not supplied as a separate
+sprite; Werewolf's "Shoots cloth?" is an undecided Design question. Both
+render explicit distinct colored "?" blocks, not the Wizard fireball.
+They share the existing 10HP attack/damage pipeline, with no invented skill.
+
+Apple/gnome (Garden) and outlet/trashcan/plushie/plant/food/fan plug
+(Living Room) without separate Art textures use small "?" blocks. The
+original Garden mushrooms, hose, fence, bird, room background, clock,
+painting, microwave and all provided character frames remain unchanged.
+Item HP, flammability, throwing and interactions still work.
+
+Additional physical-input and visual checks:
+- gameplay_all_character_art_skill_visual_test.gd: three characters on
+  both maps; Art frames, left/right facing, Design HP/movement, Ninja
+  higher jump, actual 10HP attacks, both players' Spark key skills.
+- gameplay_garden_ground_tree_interaction_visual_test.gd: original
+  painted ground edge rays, central tree bark, free teleport holes,
+  E-key up/down portal, mushrooms, hose and bird drop.
+- gameplay_living_room_keyboard_interaction_test.gd: physical C pickup/
+  throw, P1 E air conditioning/fridge/microwave, S+E microwave cooking,
+  P2 Shift appliance interaction.
+- gameplay_ninja_cross_arena_test.gd: updated historical expectation
+  from accidental Werewolf fireball to explicit pending-art placeholder.
+
+Actual Mac Godot 4.7.2 screenshots (same 960x540 game window):
+  /tmp/property_damage_final_garden_mage_attack.png
+  /tmp/property_damage_final_garden_ninja_attack.png
+  /tmp/property_damage_final_garden_werewolf_attack.png
+  /tmp/property_damage_final_living_mage_attack.png
+  /tmp/property_damage_final_living_ninja_attack.png
+  /tmp/property_damage_final_living_werewolf_attack.png
+
+Always import Godot assets before fresh windowed command-line testing;
+without that step a new worktree may report missing PNG imports.
+
+Remaining Design/Art decisions: actual Werewolf attack, Ninja shuriken
+Art, final action pose sheets, hose balance and Garden placeholders.
+Garden thorn Area2D rectangles are still approximate, not Art pixel masks;
+Design/Art should review thorn hit contact if visual accuracy is disputed.
+Automated success is not proof of zero unknown bugs.
+
+The real six-scene Mac game screenshots and contact sheet are committed at
+gameplay/tests/evidence/2026-11-21-visual-qa/ for PM/Design visual review.
