@@ -47,6 +47,7 @@ func _run() -> void:
 	var other: GameplayPlayer = room.get_node("Player2")
 	var book: GameplayBurnableProp = room.get_node("Books/FloorBooks")
 	var fridge: GameplayAppliance = room.get_node("Appliances/FridgeDevice")
+	(room.get_node("WorldItems/Microwave") as GameplayWorldItem).global_position = Vector2(680, 300)
 	put(other, Vector2(850,478))
 	book.global_position = Vector2(523,478)
 	book.flying = false
@@ -64,7 +65,7 @@ func _run() -> void:
 	await frames(4)
 	check(player.global_position.distance_to(book.global_position) < book.pickup_radius, "book lies within nominal pickup range across solid wall")
 	check(not book.can_pick_up(player), "P1 cannot pick up a book through a wall")
-	check(room.get_interaction_offer(player).get("target") != book, "P1 prompt does not advertise an unreachable book")
+	check(room.get_carry_offer(player).get("target") != book, "P1 prompt does not advertise an unreachable book")
 	await capture("blocked")
 	Input.action_press("p1_interact")
 	await frames(2)
@@ -73,21 +74,21 @@ func _run() -> void:
 	obstruction.queue_free()
 	await frames(3)
 	check(book.can_pick_up(player), "book pickup still works after obstacle removal")
-	check(room.get_interaction_offer(player).get("target") == book, "valid book is offered when there is clear line of sight")
+	check(room.get_carry_offer(player).get("target") == book, "valid book is offered when there is clear line of sight")
 	if not OS.get_environment("CAPTURE_INTERACTION_LOS").is_empty():
 		# The previous blocked attempt temporarily said NO OBJECT IN REACH.
 		# Wait for its normal status timeout before making a user-facing
 		# comparison of the actual hint panels.
 		await frames(145)
 	await capture("clear")
-	Input.action_press("p1_interact")
+	Input.action_press("p1_carry")
 	await frames(2)
-	Input.action_release("p1_interact")
-	check(book.carried_by == player, "P1 can actually pick up the book using E after the wall is removed")
+	Input.action_release("p1_carry")
+	check(book.carried_by == player, "P1 can actually pick up the book using C after the wall is removed")
 	await frames(3)
-	Input.action_press("p1_interact")
+	Input.action_press("p1_carry")
 	await frames(2)
-	Input.action_release("p1_interact")
+	Input.action_release("p1_carry")
 	check(book.carried_by == null and book.flying, "P1 can throw the previously blocked book after retrieving it")
 	book.flying = false
 	book._reset_resting()
@@ -122,7 +123,7 @@ func _run() -> void:
 	book.global_position = Vector2(245, 325)
 	await frames(3)
 	check(book.can_pick_up(player), "one-way bookshelf does not block nearby book pickup from below")
-	check(room.get_interaction_offer(player).get("target") == book, "the one-way shelf continues to show a correct PICK BOOK prompt")
+	check(room.get_carry_offer(player).get("target") == book, "the one-way shelf continues to show a correct PICK BOOK prompt")
 	# P2 uses the same shared geometry, so the guard must not be P1-specific.
 	put(other, Vector2(240, 366))
 	await frames(2)

@@ -1,0 +1,90 @@
+PROPERTY DAMAGE / PR #21 — DESIGN-FIRST FULL GODOT QA
+2026-11-21 | Godot 4.7.2 stable | Mac
+Source: [PUBLIC] DP Designs (Nov 17 revision)
+Headless test programs: 71/71 PASS, 0 failed
+Full two-map Mac graphics window: 63/63 PASS, 0 failed
+Original Garden/character acceptance: 24/24 PASS, 0 failed
+Rose pixel contact: 18/18 PASS
+Exact throw size + fractional damage: 11/11 PASS
+Ninja G / period physical attacks: 12/12 headless PASS
+Ninja G / period real-window + screenshot checks: 16/16 PASS
+Rose/fraction feedback real-window checks: 0 failed, 3 screenshots
+
+Evidence images are real Godot window PNG captures, NOT new Art.
+Headless QA and simulated input are NOT a two-human playtest.
+Final Design/Art approval and human gameplay are outstanding.
+
+ALL TEST PROGRAMS (each launched in a separate Godot process):
+gameplay_advanced_test                                           PASS   8.26s
+gameplay_all_character_art_skill_visual_test                     PASS   7.00s
+gameplay_animatable_platform_test                                PASS   8.32s
+gameplay_art_handoff_test                                        PASS   0.56s
+gameplay_art_scene_alignment_test                                PASS   1.68s
+gameplay_book_collision_test                                     PASS  16.07s
+gameplay_book_support_test                                       PASS  19.48s
+gameplay_character_art_scope_test                                PASS   0.55s
+gameplay_collider_handoff_test                                   PASS   6.72s
+gameplay_controls_test                                           PASS   4.23s
+gameplay_crush_speed_test                                        PASS   5.08s
+gameplay_design_burn_time_integration_test                       PASS   0.79s
+gameplay_design_item_hp_integration_test                         PASS   1.29s
+gameplay_design_ninja_shuriken_actual_test                       PASS   5.68s
+gameplay_design_rose_pixel_collision_test                        PASS   2.84s
+gameplay_design_rose_visual_capture_test                         PASS   6.40s
+gameplay_design_throw_area_formula_test                          PASS   6.61s
+gameplay_edge_test                                               PASS   7.27s
+gameplay_fan_art_handoff_test                                    PASS   6.18s
+gameplay_fan_direction_test                                      PASS   7.31s
+gameplay_fan_playtest                                            PASS   8.53s
+gameplay_fan_visual_capture_test                                 PASS   6.95s
+gameplay_full_flow_test                                          PASS  18.38s
+gameplay_furniture_fire_test                                     PASS   1.02s
+gameplay_garden_attack_accounting_test                           PASS   0.94s
+gameplay_garden_cross_branch_contract_test                       PASS   1.16s
+gameplay_garden_design_contract_test                             PASS   1.16s
+gameplay_garden_ground_tree_interaction_visual_test              PASS   2.82s
+gameplay_garden_input_test                                       PASS   3.05s
+gameplay_garden_menu_e2e_integration_test                        PASS   1.34s
+gameplay_garden_physical_platform_test                           PASS   3.20s
+gameplay_garden_regression_edges_test                            PASS   1.01s
+gameplay_garden_round_handoff_test                               PASS   0.66s
+gameplay_garden_throwable_fire_test                              PASS   0.75s
+gameplay_grid_scene_handoff_test                                 PASS   0.90s
+gameplay_guidance_test                                           PASS   1.36s
+gameplay_input_layout_test                                       PASS   2.29s
+gameplay_integration_merge_safety_test                           PASS   2.06s
+gameplay_interaction_occlusion_test                              PASS   2.01s
+gameplay_interaction_polish_test                                 PASS   1.65s
+gameplay_item_system_test                                        PASS   3.41s
+gameplay_keyboard_chords_test                                    PASS   1.76s
+gameplay_layout_feedback_test                                    PASS   3.12s
+gameplay_living_room_keyboard_interaction_test                   PASS   1.78s
+gameplay_living_room_property_multiplier_test                    PASS   3.29s
+gameplay_local_wind_test                                         PASS   0.59s
+gameplay_magic_occlusion_test                                    PASS   3.20s
+gameplay_magic_test                                              PASS   2.44s
+gameplay_map_select_delivery_test                                PASS   0.47s
+gameplay_midsem_art_test                                         PASS   2.49s
+gameplay_msd_test                                                PASS   2.19s
+gameplay_ninja_cross_arena_test                                  PASS   0.86s
+gameplay_platform_v2_test                                        PASS  13.08s
+gameplay_project_start_test                                      PASS   2.38s
+gameplay_props_test                                              PASS   3.07s
+gameplay_quest_test                                              PASS   2.75s
+gameplay_render_layers_test                                      PASS   0.58s
+gameplay_restart_playtest                                        PASS   0.88s
+gameplay_room_depth_test                                         PASS   0.66s
+gameplay_simulation_contract_test                                PASS   0.32s
+gameplay_simultaneous_use_test                                   PASS   1.95s
+gameplay_smoke_test                                              PASS   6.69s
+gameplay_spark_status_test                                       PASS   0.53s
+gameplay_team_integration_test                                   PASS   1.97s
+gameplay_two_map_double_jump_rapid_attack_test                   PASS   5.96s
+gameplay_two_map_full_playtest_test                              PASS  68.98s
+gameplay_two_map_furniture_pvp_test                              PASS   3.56s
+gameplay_ui_test                                                 PASS   1.58s
+gameplay_upstream_drop_test                                      PASS   5.01s
+gameplay_upstream_grid_test                                      PASS   0.42s
+gameplay_visual_design_test                                      PASS   0.55s
+
+FINAL TOTAL: 71 PASSED; 0 FAILED

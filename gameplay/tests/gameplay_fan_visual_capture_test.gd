@@ -4,6 +4,13 @@ extends SceneTree
 func _initialize() -> void:
     call_deferred("_run")
 
+var failures: Array[String] = []
+
+func check(ok: bool, label: String) -> void:
+    print(("PASS: " if ok else "FAIL: ") + label)
+    if not ok:
+        failures.append(label)
+
 func frames(n: int) -> void:
     for _i in n: await physics_frame
 
@@ -32,13 +39,24 @@ func _run() -> void:
     p2.velocity=Vector2.ZERO
     p2.motor.reset()
     await frames(7)
-    assert(not fan.switched_on and fan.can_interact(p1))
+    # Austin's integrated cable/outlet is authoritative: a switch press
+    # without a plug should *not* power the fan. Establish a plugged-in
+    # fixture through the real room adapter, then switch it back off
+    # before capturing the actual on/off keyboard interactions.
+    var cable: GameplayWorldItem = room.get_node("WorldItems/FanCable")
+    var outlet: GameplayWorldItem = room.get_node("WorldItems/Outlet")
+    room._plug_fan_cable(cable, outlet)
+    fan.set_fan_power(false)
+    await frames(3)
+    check(outlet.plugged and cable.plugged, "Austin fan cable must be plugged")
+    check(not fan.switched_on and fan.can_interact(p1),
+        "Plugged fan can be switched on, starts off")
     await capture("off")
     Input.action_press("p1_interact")
     await frames(2)
     Input.action_release("p1_interact")
     await frames(25)
-    assert(fan.switched_on)
+    check(fan.switched_on, "P1 interaction switches plugged fan on")
     await capture("on")
     # Capture both players on opposite sides of the SAME live fan while on.
     # Wind and status must affect the left player only, despite P2 being
@@ -50,20 +68,20 @@ func _run() -> void:
     p1.motor.reset()
     p2.motor.reset()
     await frames(4)
-    assert(fan.applies_to(p1) and not fan.applies_to(p2))
-    assert(p1.motor.environment_acceleration_x < -100.0)
-    assert(is_zero_approx(p2.motor.environment_acceleration_x))
+    check(fan.applies_to(p1) and not fan.applies_to(p2), "Fan only influences players in front")
+    check(p1.motor.environment_acceleration_x < -100.0, "P1 gets leftward fan wind")
+    check(is_zero_approx(p2.motor.environment_acceleration_x), "P2 behind fan gets no wind")
     await capture("left_only")
     # P2 stands behind the fan: no force, but its control is still usable.
-    assert(fan.can_interact(p2))
+    check(fan.can_interact(p2), "P2 can reach fan controls")
     Input.action_press("p2_interact")
     await frames(3)
     Input.action_release("p2_interact")
     await frames(5)
-    assert(not fan.switched_on)
-    assert(is_zero_approx(p1.motor.environment_acceleration_x))
+    check(not fan.switched_on, "P2 interaction switches fan off")
+    check(is_zero_approx(p1.motor.environment_acceleration_x), "P1 wind clears when fan off")
     assert(is_zero_approx(p2.motor.environment_acceleration_x))
     await capture("off_by_p2")
-    print("FAN_VISUAL_CAPTURE_SUMMARY success")
+    print("FAN_VISUAL_CAPTURE_SUMMARY failures=", failures.size())
     game.queue_free()
-    quit()
+    quit(0 if failures.is_empty() else 2)

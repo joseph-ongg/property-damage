@@ -7,11 +7,12 @@ signal damaged(amount: int)
 signal healed(amount: int)
 signal died
 
-@export var max_hp: int = 3
-## Brief immunity after a hit so one hazard doesn't drain every heart in a frame.
+@export var max_hp: int = 120
+## Brief immunity after a hit (use for attacks/projectiles).
+## Damage-over-time and fall damage pass bypass_invuln = true so they are never swallowed.
 @export var invulnerable_time: float = 0.8
 
-var hp: int = 3
+var hp: int = 120
 var _invuln_left: float = 0.0
 
 
@@ -26,6 +27,10 @@ func _process(delta: float) -> void:
 func reset() -> void:
 	hp = max_hp
 	_invuln_left = 0.0
+	# Exact throw damage may have a sub-HP remainder. Resetting Eva Health
+	# starts a fresh life/round, so the remainder must not leak across it.
+	if has_meta("design_throw_fraction"):
+		remove_meta("design_throw_fraction")
 	changed.emit(hp, max_hp)
 
 
@@ -38,8 +43,10 @@ func is_invulnerable() -> bool:
 
 
 ## Returns true if the damage was actually applied.
-func take_damage(amount: int = 1) -> bool:
-	if not is_alive() or is_invulnerable() or amount <= 0:
+func take_damage(amount: int = 1, bypass_invuln: bool = false) -> bool:
+	if not is_alive() or amount <= 0:
+		return false
+	if is_invulnerable() and not bypass_invuln:
 		return false
 	hp = maxi(0, hp - amount)
 	_invuln_left = invulnerable_time

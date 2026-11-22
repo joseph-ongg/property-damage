@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://bd1yiw6j70syw"]
+
+[ext_resource type="Script" uid="uid://cjgvotafovsjr" path="res://gameplay/MapSelection/back_button.gd" id="1_djd2l"]
+
+[node name="BackToMenu" type="CanvasLayer" unique_id=850360079]
+script = ExtResource("1_djd2l")
+
+[node name="BackButton" type="Button" parent="." unique_id=829030413]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -53.0
+offset_top = -31.0
+grow_horizontal = 0
+grow_vertical = 0
+focus_mode = 0
+text = "Menu
+"

@@ -32,11 +32,13 @@ func _ready() -> void:
 			_paint_if_valid(grid, x, row)
 	# Furniture fuel is painted by FurnitureFireLayer, which also tells the
 	# renderer which unlit material cells to keep invisible over the artwork.
-	# The wall-mounted AC is a separate nonflammable appliance over the desk.
+	# Reserve the wall-mounted AC footprint. The room controller then seeds
+	# flammable fuel only where its item hit rectangle actually overlaps cells.
 	for row in [20, 21]:
 		_paint_band(grid, 38, 42, row, MaterialGrid.Materials.STONE)
 	# Fridge spans x734..830. Its visible top, sides and floor footprint are
-	# STONE, preventing an accidental "burning fridge" after art replacement.
+	# STONE here; item fuel registration replaces only the fridge's actual
+	# footprint with WOOD so the grid can ignite the appliance.
 	for row in [19, 20, 21, 29, 30, 31]:
 		_paint_band(grid, 45, 52, row, MaterialGrid.Materials.STONE)
 	_paint_if_valid(grid, 22, 29, MaterialGrid.Materials.OIL) # 少量实验油格 / A few test oil cells.

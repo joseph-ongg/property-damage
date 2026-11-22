@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="GameplayCharacterVisualSet" load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://gameplay/characters/character_visual_set.gd" id="set"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_side_0.png" id="idle"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_0.png" id="r0"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_1.png" id="r1"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_2.png" id="r2"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_walk_3.png" id="r3"]
+
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_fire_0.png" id="action0"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_fire_1.png" id="action1"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_fire_2.png" id="action2"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_fire_3.png" id="action3"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_injured_0.png" id="hurt0"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_injured_1.png" id="hurt1"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_injured_2.png" id="hurt2"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_injured_3.png" id="hurt3"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/ninja_dead_0.png" id="dead"]
+
+[resource]
+script = ExtResource("set")
+idle_frames = Array[Texture2D]([ExtResource("idle")])
+run_frames = Array[Texture2D]([ExtResource("r0"), ExtResource("r1"), ExtResource("r2"), ExtResource("r3")])
+action_frames = Array[Texture2D]([ExtResource("action0"), ExtResource("action1"), ExtResource("action2"), ExtResource("action3")])
+hurt_frames = Array[Texture2D]([ExtResource("hurt0"), ExtResource("hurt1"), ExtResource("hurt2"), ExtResource("hurt3")])
+dead_texture = ExtResource("dead")
+action_fps = 12.0
+hurt_fps = 12.0
+run_fps = 12.0
+idle_fps = 3.0

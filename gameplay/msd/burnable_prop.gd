@@ -1,7 +1,6 @@
-## OPTIONAL book-scorching mock-up based on the design team's tentative book mechanic.
-## Pure local visual response. Does not alter MaterialGrid or claim real damage.
+## Reusable throwable physics and book visuals on top of shared item HP.
 class_name GameplayBurnableProp
-extends Node2D
+extends GameplayInteractableItem
 
 signal scorched_by(player_index: int)
 signal picked_up_by(player_index: int)
@@ -13,6 +12,9 @@ signal thrown_by(player_index: int)
 @export var throw_speed: float = 340.0
 @export var throw_lift: float = -230.0
 @export var drop_gravity: float = 930.0
+
+var thrower_index: int = -1
+var _hit_players: Array[int] = []
 
 var carried_by: GameplayPlayer = null
 var flying: bool = false
@@ -29,8 +31,24 @@ var flash_left: float = 0.0
 var _time: float = 0.0
 
 
+func _ready() -> void:
+	if item_name == "ITEM":
+		item_name = "BOOKS"
+		hit_size = Vector2(width, 34)
+		if not tags.has("throwable"):
+			tags.append("throwable")
+	super._ready()
+	destroyed.connect(_on_destroyed)
+
+
+func _on_destroyed(_source_player: int) -> void:
+	carried_by = null
+	flying = false
+	flight_velocity = Vector2.ZERO
+
+
 func can_pick_up(player: GameplayPlayer) -> bool:
-	return carried_by == null and not flying and is_instance_valid(player) and global_position.distance_to(player.global_position) <= pickup_radius and GameplayInteractionLOS.has_path(player, global_position)
+	return has_tag("throwable") and not destroyed_item and carried_by == null and not flying and is_instance_valid(player) and global_position.distance_to(player.global_position) <= pickup_radius and GameplayInteractionLOS.has_path(player, global_position)
 
 
 func pick_up(player: GameplayPlayer) -> bool:
@@ -46,13 +64,15 @@ func pick_up(player: GameplayPlayer) -> bool:
 
 
 func throw_from(player: GameplayPlayer) -> bool:
-	if carried_by != player:
+	if carried_by != player or destroyed_item:
 		return false
 	carried_by = null
 	_reset_resting()
 	global_position = player.global_position + Vector2(player.facing * 27, -22)
 	flight_velocity = Vector2(float(player.facing) * throw_speed + player.velocity.x * 0.35, throw_lift)
 	flying = true
+	thrower_index = player.player_index
+	_hit_players.clear()
 	thrown_by.emit(player.player_index)
 	return true
 
@@ -181,6 +201,27 @@ func _vertical_hit(at: Vector2, displacement: float, downward: bool) -> Dictiona
 	return closest
 
 
+## Design: the *visible item's pixel area* divided by 10,000 HP.
+## Eva Health only stores integer HP. Keep exact sub-HP fractions until
+## enough independent, valid throw hits accumulate for one whole HP;
+## never round every tiny item up to an invented 1-HP minimum.
+## Subclasses may supply actual supplied Art dimensions without replacing
+## Austin's original swept-hit physics or the original item damage rule.
+func _throw_pixel_area() -> float:
+	return maxf(0.0, hit_size.x) * maxf(0.0, hit_size.y)
+
+
+func _apply_throw_damage_to_player(target: GameplayPlayer) -> void:
+	var hp := target.health_component
+	if hp == null or not hp.is_alive() or hp.is_invulnerable():
+		return
+	var total := float(hp.get_meta("design_throw_fraction", 0.0))
+	total += _throw_pixel_area() / 10000.0
+	var whole := floori(total + 0.000001)
+	if whole == 0 or hp.take_damage(whole):
+		hp.set_meta("design_throw_fraction", maxf(0.0, total - float(whole)))
+
+
 func _step_flight(delta: float) -> void:
 	# A single horizontal ray misses a wall when a fast diagonal book starts
 	# above it, and a book shot at a roof used to pass straight through.
@@ -194,8 +235,18 @@ func _step_flight(delta: float) -> void:
 	for _step in steps:
 		var at := global_position
 		var candidate := at + part
+		for other: GameplayPlayer in [get_tree().get_first_node_in_group("player_1") as GameplayPlayer, get_tree().get_first_node_in_group("player_2") as GameplayPlayer]:
+			if other != null and other.player_index != thrower_index and not _hit_players.has(other.player_index) and candidate.distance_to(other.global_position + Vector2(0, -8)) < 22.0:
+				_apply_throw_damage_to_player(other)
+				_hit_players.append(other.player_index)
+				if has_tag("fragile"):
+					_break_from_throw()
+					return
 		var lateral := _side_hit(at, part.x, part.y)
 		if not lateral.is_empty():
+			if has_tag("fragile"):
+				_break_from_throw()
+				return
 			candidate.x = lateral.position.x - signf(part.x) * (minf(width * 0.45, 14.0) + 0.5)
 			flight_velocity.x = -flight_velocity.x * 0.25
 			if absf(flight_velocity.x) < 50.0:
@@ -207,6 +258,9 @@ func _step_flight(delta: float) -> void:
 		var vertical := _vertical_hit(Vector2(candidate.x, at.y), part.y, part.y >= 0.0)
 		if not vertical.is_empty():
 			if part.y >= 0.0:
+				if has_tag("fragile"):
+					_break_from_throw()
+					return
 				candidate.y = vertical.position.y - 13.0
 				global_position = candidate
 				_settle(vertical.collider as CollisionObject2D, flight_velocity.x)
@@ -218,6 +272,9 @@ func _step_flight(delta: float) -> void:
 		# Retain the demo-specific safe bottom bound. Other team's final arena
 		# may replace this clamp with its own actual floor collider.
 		if global_position.y >= 485.0:
+			if has_tag("fragile"):
+				_break_from_throw()
+				return
 			global_position.y = 485.0
 			_settle(null, flight_velocity.x)
 			break
@@ -252,16 +309,18 @@ func _world_ray(origin: Vector2, finish: Vector2, ignore_one_way: bool) -> Dicti
 
 
 func try_scorch(target: Vector2, player_index: int) -> bool:
-	if scorched or target.distance_to(global_position) > spark_radius:
+	if destroyed_item or target.distance_to(global_position) > spark_radius:
 		return false
 	scorched = true
 	flash_left = 1.3
+	take_damage(1.0, player_index)
 	queue_redraw()
 	scorched_by.emit(player_index)
 	return true
 
 
 func _process(delta: float) -> void:
+	super._process(delta)
 	_time += delta
 	if flash_left > 0.0:
 		flash_left = maxf(0.0, flash_left - delta)
@@ -273,8 +332,13 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var half := width * 0.5
 	draw_ellipse_shadow(half)
-	var cover: Color = Color("424348") if scorched else Color("bf8c57")
-	var paper: Color = Color("716b66") if scorched else Color("e4cda4")
+	if burned_to_ash:
+		draw_rect(Rect2(-half, 5, width, 7), Color("514c4a"))
+		draw_rect(Rect2(-half + 4, 1, width - 8, 5), Color("68605a"))
+		draw_burn_sprite()
+		return
+	var cover: Color = Color("454148") if destroyed_item else Color("8e6353") if scorched or burning else Color("bf8c57")
+	var paper: Color = Color("716b66") if destroyed_item else Color("c4ad92") if scorched or burning else Color("e4cda4")
 	# Three offset piles, drawn in 2px pixel clusters for crisp scales.
 	for i in range(3):
 		var left: float = -half + i * 5.0
@@ -293,6 +357,14 @@ func _draw() -> void:
 			var rise := (1.3 - flash_left) * (11.0 + float(i % 3) * 5.0)
 			draw_rect(Rect2(Vector2(x, -18 - rise).round(), Vector2(3, 3)), Color(0.98, 0.50 + 0.06 * i, 0.22, strength))
 		draw_rect(Rect2(-half - 3, -8, width + 5, 20), Color(1.0, 0.45, 0.16, flash_left * 0.18), false, 2.0)
+	draw_condition_bar(Vector2(-16, -30))
+	draw_burn_sprite()
+
+
+func _break_from_throw() -> void:
+	flying = false
+	flight_velocity = Vector2.ZERO
+	take_damage(hp, thrower_index)
 
 
 func draw_ellipse_shadow(half: float) -> void:

@@ -9,6 +9,7 @@ static func register_actions() -> void:
 	_ensure("p1_down", KEY_S)  # Austin a529274: 穿过单向平台，S+W / Drop through a one-way platform with S+W.
 	_ensure("p1_spark", KEY_F)
 	_ensure("p1_interact", KEY_E)
+	_ensure("p1_carry", KEY_C)
 	_ensure("p1_attack", KEY_G)
 	_ensure("p1_dash", KEY_Q)
 	_ensure("p2_left", KEY_LEFT)
@@ -17,6 +18,7 @@ static func register_actions() -> void:
 	_ensure("p2_down", KEY_DOWN)  # 同一个功能，P2 用 ↓+↑ / The same drop-through action uses Down+Up for player 2.
 	_ensure("p2_spark", KEY_ENTER)
 	_ensure("p2_interact", KEY_SHIFT)
+	_ensure("p2_carry", KEY_COMMA)
 	_ensure("p2_attack", KEY_PERIOD)
 	_ensure("p2_dash", KEY_SLASH)
 

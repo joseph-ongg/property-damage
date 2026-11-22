@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3]
+[gd_scene load_steps=29 format=3]
 
 [ext_resource type="PackedScene" path="res://gameplay/prefabs/gameplay_player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://gameplay/msd/msd_controller.gd" id="2_game"]
@@ -18,6 +18,8 @@
 [ext_resource type="Script" path="res://gameplay/msd/room_depth_layer.gd" id="14_depth_layer"]
 [ext_resource type="Script" path="res://gameplay/msd/room_lighting_fx.gd" id="15_fx"]
 [ext_resource type="PackedScene" path="res://gameplay/props/fan/fan_device.tscn" id="16_fan"]
+[ext_resource type="Script" path="res://gameplay/msd/world_item.gd" id="22_world_item"]
+[ext_resource type="Script" path="res://sim/ash_overlay.gd" id="23_ash"]
 [ext_resource type="PackedScene" path="res://gameplay/platforms/one_way_ledge.tscn" id="18_ledge"]
 [ext_resource type="Texture2D" path="res://gameplay/platforms/sprites/wall_bookshelf_oak.png" id="19_oak"]
 [ext_resource type="Texture2D" path="res://gameplay/platforms/sprites/wall_bookshelf_teal.png" id="20_teal"]
@@ -50,6 +52,8 @@ script = ExtResource("3_room")
 script = ExtResource("4_fire")
 width = 60
 height = 34
+wood_burn_time = 10.0
+oil_burn_time = 10.0
 
 [node name="TeamMaterialRenderer" type="Node2D" parent="."]
 z_index = -4
@@ -220,22 +224,88 @@ enhanced_jumping = true
 platform_drop_enabled = true
 
 [node name="Books" type="Node2D" parent="."]
-z_index = 12
+z_index = 9
 
 [node name="FloorBooks" type="Node2D" parent="Books"]
 position = Vector2(343, 485)
 script = ExtResource("7_books")
+max_hp = 3.0
 
 [node name="TableBooks" type="Node2D" parent="Books"]
 position = Vector2(473, 400)
 script = ExtResource("7_books")
+max_hp = 3.0
 
 [node name="ShelfBooks" type="Node2D" parent="Books"]
 position = Vector2(237, 332)
 script = ExtResource("7_books")
+max_hp = 3.0
+
+[node name="WorldItems" type="Node2D" parent="."]
+z_index = 9
+
+[node name="Clock" type="Node2D" parent="WorldItems"]
+position = Vector2(834, 140)
+script = ExtResource("22_world_item")
+kind = 0
+
+[node name="Painting" type="Node2D" parent="WorldItems"]
+position = Vector2(303, 128)
+script = ExtResource("22_world_item")
+kind = 1
+
+[node name="Microwave" type="Node2D" parent="WorldItems"]
+position = Vector2(780, 367)
+script = ExtResource("22_world_item")
+kind = 2
+
+[node name="Outlet" type="Node2D" parent="WorldItems"]
+position = Vector2(348, 461)
+script = ExtResource("22_world_item")
+kind = 3
+
+[node name="Trashcan" type="Node2D" parent="WorldItems"]
+position = Vector2(909, 472)
+script = ExtResource("22_world_item")
+kind = 4
+
+[node name="Plushie" type="Node2D" parent="WorldItems"]
+position = Vector2(324, 479)
+script = ExtResource("22_world_item")
+kind = 5
+
+[node name="Plant" type="Node2D" parent="WorldItems"]
+position = Vector2(69, 475)
+script = ExtResource("22_world_item")
+kind = 6
+
+[node name="Bookshelf" type="Node2D" parent="WorldItems"]
+position = Vector2(238, 400)
+script = ExtResource("22_world_item")
+kind = 7
+
+[node name="Food" type="Node2D" parent="WorldItems"]
+position = Vector2(760, 450)
+script = ExtResource("22_world_item")
+kind = 8
+
+[node name="Food2" type="Node2D" parent="WorldItems"]
+position = Vector2(781, 450)
+script = ExtResource("22_world_item")
+kind = 8
+
+[node name="Food3" type="Node2D" parent="WorldItems"]
+position = Vector2(802, 450)
+script = ExtResource("22_world_item")
+kind = 8
+
+[node name="FanCable" type="Node2D" parent="WorldItems"]
+position = Vector2(385, 394)
+script = ExtResource("22_world_item")
+kind = 9
 
 [node name="Projectiles" type="Node2D" parent="."]
-z_index = 14
+z_index = 9
 texture_filter = 1
 
 [node name="Appliances" type="Node2D" parent="."]
@@ -267,6 +337,10 @@ script = ExtResource("11_hints")
 [node name="PlayerConditions" type="Node2D" parent="."]
 z_index = 31
 script = ExtResource("12_conditions")
+
+[node name="AshOverlay" type="Node2D" parent="."]
+z_index = 5
+script = ExtResource("23_ash")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 

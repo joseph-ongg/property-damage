@@ -1,0 +1,85 @@
+PROPERTY DAMAGE — Nov 21 native Art facing / gate roof correction
+Godot 4.7.2 stable / original Art Team source / Mac
+All headless Godot SceneTree scripts: 73/73 PASS, 0 failed
+Original two-map full E2E script: PASS
+Focused original Piskel gate roof: 11/11 PASS
+Pixel arch coverage: 217/217 samples; transparent ghost: 0/883
+Real P1+P2 directional key screenshots: 8 original 960×540 PNGs
+No two-human manual session or formal Design sign-off took place.
+
+TEST PROGRAMS
+gameplay_20261121_character_facing_gate_window_test          PASS 2.05s
+gameplay_advanced_test                                       PASS 8.47s
+gameplay_all_character_art_skill_visual_test                 PASS 7.13s
+gameplay_animatable_platform_test                            PASS 7.98s
+gameplay_art_handoff_test                                    PASS 0.61s
+gameplay_art_scene_alignment_test                            PASS 1.40s
+gameplay_book_collision_test                                 PASS 15.50s
+gameplay_book_support_test                                   PASS 18.13s
+gameplay_character_art_scope_test                            PASS 0.39s
+gameplay_collider_handoff_test                               PASS 6.53s
+gameplay_controls_test                                       PASS 4.21s
+gameplay_crush_speed_test                                    PASS 4.65s
+gameplay_design_burn_time_integration_test                   PASS 0.79s
+gameplay_design_item_hp_integration_test                     PASS 0.47s
+gameplay_design_ninja_shuriken_actual_test                   PASS 3.05s
+gameplay_design_rose_pixel_collision_test                    PASS 0.59s
+gameplay_design_rose_visual_capture_test                     PASS 0.86s
+gameplay_design_throw_area_formula_test                      PASS 0.65s
+gameplay_edge_test                                           PASS 3.43s
+gameplay_fan_art_handoff_test                                PASS 1.81s
+gameplay_fan_direction_test                                  PASS 2.12s
+gameplay_fan_playtest                                        PASS 2.63s
+gameplay_fan_visual_capture_test                             PASS 2.26s
+gameplay_full_flow_test                                      PASS 14.54s
+gameplay_furniture_fire_test                                 PASS 0.52s
+gameplay_garden_attack_accounting_test                       PASS 0.59s
+gameplay_garden_cross_branch_contract_test                   PASS 0.59s
+gameplay_garden_design_contract_test                         PASS 0.70s
+gameplay_garden_gate_solid_art_test                          PASS 0.53s
+gameplay_garden_ground_tree_interaction_visual_test          PASS 1.24s
+gameplay_garden_input_test                                   PASS 1.64s
+gameplay_garden_menu_e2e_integration_test                    PASS 1.10s
+gameplay_garden_physical_platform_test                       PASS 3.12s
+gameplay_garden_regression_edges_test                        PASS 0.73s
+gameplay_garden_round_handoff_test                           PASS 0.60s
+gameplay_garden_throwable_fire_test                          PASS 0.50s
+gameplay_grid_scene_handoff_test                             PASS 0.55s
+gameplay_guidance_test                                       PASS 0.58s
+gameplay_input_layout_test                                   PASS 1.67s
+gameplay_integration_merge_safety_test                       PASS 2.09s
+gameplay_interaction_occlusion_test                          PASS 2.22s
+gameplay_interaction_polish_test                             PASS 1.66s
+gameplay_item_system_test                                    PASS 3.44s
+gameplay_keyboard_chords_test                                PASS 1.82s
+gameplay_layout_feedback_test                                PASS 3.15s
+gameplay_living_room_keyboard_interaction_test               PASS 1.78s
+gameplay_living_room_property_multiplier_test                PASS 3.25s
+gameplay_local_wind_test                                     PASS 0.58s
+gameplay_magic_occlusion_test                                PASS 3.02s
+gameplay_magic_test                                          PASS 2.39s
+gameplay_map_select_delivery_test                            PASS 0.34s
+gameplay_midsem_art_test                                     PASS 2.20s
+gameplay_msd_test                                            PASS 1.94s
+gameplay_ninja_cross_arena_test                              PASS 0.67s
+gameplay_platform_v2_test                                    PASS 12.90s
+gameplay_project_start_test                                  PASS 2.44s
+gameplay_props_test                                          PASS 3.05s
+gameplay_quest_test                                          PASS 2.62s
+gameplay_render_layers_test                                  PASS 0.62s
+gameplay_restart_playtest                                    PASS 0.75s
+gameplay_room_depth_test                                     PASS 0.71s
+gameplay_simulation_contract_test                            PASS 0.34s
+gameplay_simultaneous_use_test                               PASS 2.00s
+gameplay_smoke_test                                          PASS 6.66s
+gameplay_spark_status_test                                   PASS 0.55s
+gameplay_team_integration_test                               PASS 1.85s
+gameplay_two_map_double_jump_rapid_attack_test               PASS 5.82s
+gameplay_two_map_full_playtest_test                          PASS 65.81s
+gameplay_two_map_furniture_pvp_test                          PASS 3.50s
+gameplay_ui_test                                             PASS 1.43s
+gameplay_upstream_drop_test                                  PASS 5.01s
+gameplay_upstream_grid_test                                  PASS 0.30s
+gameplay_visual_design_test                                  PASS 0.55s
+
+FINAL: 73 PASSED, 0 FAILED

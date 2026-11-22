@@ -1,0 +1,209 @@
+[
+  {
+    "derived_regions": {},
+    "original_name": "Ninja_side.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "d77143470aeb28d989891dbd501a2d8fef87de12efadf5bcd7635874cf8e92fd",
+    "frame_count": 1,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "ninja_side_0.png"
+    ]
+  },
+  {
+    "derived_regions": {},
+    "original_name": "Ninja_walk.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "e777d972bd2cf51fad9dfd4d47997ed03da8eb9b80392c8d55654d802d0a85d2",
+    "frame_count": 4,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "ninja_walk_0.png",
+      "ninja_walk_1.png",
+      "ninja_walk_2.png",
+      "ninja_walk_3.png"
+    ]
+  },
+  {
+    "derived_regions": {},
+    "original_name": "Wolf walk.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "082f5248fe7ffd6df3c2a5d8da50fa344a829472e01a00c38e58fcc1438d579c",
+    "frame_count": 2,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 7,
+    "exports": [
+      "wolf_walk_0.png",
+      "wolf_walk_1.png"
+    ]
+  },
+  {
+    "derived_regions": {},
+    "original_name": "Wolf damage sprite.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "6c7057776da7b6cae6e85af76b01bcdbd865679dfeadd3d2fca35acd762d8010",
+    "frame_count": 2,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 2,
+    "exports": [
+      "wolf_damage_0.png",
+      "wolf_damage_1.png"
+    ]
+  },
+  {
+    "derived_regions": {},
+    "original_name": "garden.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "2a2246e0148dde64ca5ee6e096c43e2d3aad641fe324898e17fd8f3dd2dfd687",
+    "frame_count": 1,
+    "frame_size": [
+      426,
+      286
+    ],
+    "fps": 12,
+    "exports": [
+      "garden.png"
+    ]
+  },
+  {
+    "derived_regions": {},
+    "original_name": "Bird drop animation.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "dec0e20c9f4eaeab8c7b33a54cd6c708771f051293653391f4ffe459fb577b6a",
+    "frame_count": 3,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 7,
+    "exports": [
+      "bird_drop_0.png",
+      "bird_drop_1.png",
+      "bird_drop_2.png"
+    ]
+  },
+  {
+    "derived_regions": {},
+    "original_name": "Ninja_fire.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "3bd35bdbcf39fbf836c668eb0c27c2a1e5753b030e5257a18e1de7355d9d128f",
+    "frame_count": 4,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "ninja_fire_0.png",
+      "ninja_fire_1.png",
+      "ninja_fire_2.png",
+      "ninja_fire_3.png"
+    ]
+  },
+  {
+    "derived_regions": {},
+    "original_name": "Ninja_injured.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "82646c07070047b31ec52006074acd4d1f579d8ab1126f81c452456e3bccafe5",
+    "frame_count": 4,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "ninja_injured_0.png",
+      "ninja_injured_1.png",
+      "ninja_injured_2.png",
+      "ninja_injured_3.png"
+    ]
+  },
+  {
+    "derived_regions": {},
+    "original_name": "Ninja_dead.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "0e6b3e80d83c1b9a62e2f390edaa8ea99bf2aa83500c0cbe942c9d1256a90837",
+    "frame_count": 1,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 12,
+    "exports": [
+      "ninja_dead_0.png"
+    ]
+  },
+  {
+    "derived_regions": {},
+    "original_name": "Wolf walking on fire.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "c7ff9e9c86f4bb327277bf7d07b1170458540c927dd54d5188e3d31282f54cb0",
+    "frame_count": 2,
+    "frame_size": [
+      32,
+      32
+    ],
+    "fps": 2,
+    "exports": [
+      "wolf_fire_0.png",
+      "wolf_fire_1.png"
+    ]
+  },
+  {
+    "derived_regions": {},
+    "original_name": "Tree.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "b1f6ea83ce97afd1e7322b392dc75439241c69273276a82304bfbf574b545422",
+    "frame_count": 1,
+    "frame_size": [
+      190,
+      245
+    ],
+    "fps": 12,
+    "exports": [
+      "garden_tree_new_0.png"
+    ]
+  },
+  {
+    "derived_regions": {
+      "garden_hose_tube_latest.png": [
+        80,
+        0,
+        280,
+        66
+      ],
+      "garden_hose_tip_latest.png": [
+        260,
+        56,
+        280,
+        66
+      ]
+    },
+    "original_name": "Hose.piskel",
+    "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
+    "source_sha256": "07e432f928bb2a3f3be0f3217eee5c6fe45ebcb982c0c53d7cd38eacafe4c074",
+    "frame_count": 1,
+    "frame_size": [
+      280,
+      66
+    ],
+    "fps": 12,
+    "exports": [
+      "garden_hose_full_0.png"
+    ]
+  }
+]
