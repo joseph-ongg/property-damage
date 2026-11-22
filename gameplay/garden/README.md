@@ -238,3 +238,17 @@ PNG is unchanged. The Design document does not explicitly
 settle solid vs one-way behavior; PM/Design should approve
 the roof physics separately. Full real Mac screenshots in
 gameplay/tests/evidence/2026-11-21-gate-facing-qa/.
+
+## Latest Art Team separated Tree and Hose (Nov 21 PR #21)
+
+Standalone Tree source 190x245 overlays the real original tree
+at Piskel source offset x236,y0 (world center x716,y229, 2x).
+Original tree holes, branch/bark collisions and source Garden
+background are retained without fabricated replacements.
+
+New Hose is a fence + hose composite at source x0,y181. Only
+the pixel-exact tube from x80..279 and actual 20x10 detachable
+nozzle (x260..279,y56..65) render at the original world map
+offset, NOT the permanent fence portion. The eight destructible
+4HP fence segments stay visible only while intact, and original
+hose throws still use 0.08HP exact area-derived damage.

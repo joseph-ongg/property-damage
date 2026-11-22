@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://gameplay/garden/garden_level.gd" id="1_level"]
 [ext_resource type="Texture2D" path="res://gameplay/garden/original_art_parts/garden_without_dynamic_props.png" id="2_original"]
@@ -8,6 +8,8 @@
 [ext_resource type="Script" path="res://gameplay/garden/garden_mechanics.gd" id="6_mechanics"]
 [ext_resource type="Script" path="res://gameplay/demo/fire_visuals.gd" id="7_flames"]
 [ext_resource type="Script" path="res://gameplay/garden/garden_tree_branch.gd" id="8_tree"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/garden_tree_new_0.png" id="9_tree_latest"]
+[ext_resource type="Texture2D" path="res://gameplay/art_team/exported/garden_hose_tube_latest.png" id="10_hose_latest"]
 
 [sub_resource type="RectangleShape2D" id="floor"]
 size = Vector2(852, 40)
@@ -29,6 +31,20 @@ position = Vector2(480, 270)
 scale = Vector2(2, 2)
 texture_filter = 1
 texture = ExtResource("2_original")
+
+[node name="ArtTeamUpdatedTree" type="Sprite2D" parent="."]
+z_index = -3
+position = Vector2(716, 229)
+scale = Vector2(2, 2)
+texture_filter = 1
+texture = ExtResource("9_tree_latest")
+
+[node name="ArtTeamHoseTube" type="Sprite2D" parent="."]
+z_index = -3
+position = Vector2(414, 412)
+scale = Vector2(2, 2)
+texture_filter = 1
+texture = ExtResource("10_hose_latest")
 
 [node name="MaterialGrid" type="Node2D" parent="."]
 script = ExtResource("4_grid")

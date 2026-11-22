@@ -71,6 +71,11 @@ var _spawn: Vector2
 var _bridge: GameplayFireBridge
 var _animation_clock: float = 0.0
 var _action_pose_remaining: float = 0.0
+## Source Art Team Ninja_fire is an elemental/SPARK animation only.
+## Ninja G / . still launches the Design shuriken '?' projectile.
+var _spark_art_pose_remaining: float = 0.0
+var _spark_art_pose_elapsed: float = 0.0
+var _hurt_pose_elapsed: float = 0.0
 var _dash_was_active: bool = false
 var _magic_cooldown: float = 0.0
 var _attack_buffer_left: float = 0.0
@@ -138,6 +143,9 @@ func set_character_kind(kind: String) -> void:
 		health_component.reset()
 		_sync_austin_health_compat(health_component.hp, health_component.max_hp)
 	_hurt_pose_seconds = 0.0
+	_hurt_pose_elapsed = 0.0
+	_spark_art_pose_remaining = 0.0
+	_spark_art_pose_elapsed = 0.0
 	if sprite != null:
 		_update_character_sprite(false)
 
@@ -158,7 +166,10 @@ func _on_hard_landing(damage: int) -> void:
 
 
 func _on_character_hurt(_amount: int) -> void:
-	_hurt_pose_seconds = 0.25
+	# Four original Art Team Ninja_injured Piskel frames @12FPS need ~0.34s.
+	# Other characters keep existing Eva damage and 0.25s hurt cadence.
+	_hurt_pose_seconds = 0.34 if character_kind == "ninja" else 0.25
+	_hurt_pose_elapsed = 0.0
 	_update_character_sprite(false)
 
 
@@ -215,7 +226,10 @@ func _physics_process(delta: float) -> void:
 	dash.tick(delta)
 	_animation_clock += delta
 	_action_pose_remaining = maxf(0.0, _action_pose_remaining - delta)
+	_spark_art_pose_remaining = maxf(0.0, _spark_art_pose_remaining - delta)
+	_spark_art_pose_elapsed += delta
 	_hurt_pose_seconds = maxf(0.0, _hurt_pose_seconds - delta)
+	_hurt_pose_elapsed += delta
 	var moving := absf(velocity.x) > 18.0
 	if dash.active() or _dash_was_active:
 		queue_redraw()
@@ -239,6 +253,12 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed(prefix + "spark") and spark.is_ready():
 		_action_pose_remaining = 0.26
 		var accepted := spark.cast_spark(global_position, facing, _bridge, tint)
+		if character_kind == "ninja":
+			# The source animation accompanies the real Spark cast even if
+			# no flammable target is reached (flash still visibly occurs).
+			# This NEVER changes G / period to a fire projectile.
+			_spark_art_pose_remaining = 0.34
+			_spark_art_pose_elapsed = 0.0
 		sparked.emit(player_index, global_position + Vector2(facing * spark.reach, 0), accepted)
 	# Process the input events first so the alternate Art Team action pose is
 	# visible on the exact same physics tick as the Spark/interaction/magic.
@@ -308,8 +328,20 @@ func _update_character_sprite(moving: bool) -> void:
 	# two original GIF frames at the deck's 80ms cadence.
 	var target_texture: Texture2D = sprite_override
 	if target_texture == null and _character_visuals() != null:
-		var pose := "hurt" if _hurt_pose_seconds > 0.0 else ("run" if moving else "idle")
-		target_texture = _character_visuals().texture_for(pose, _animation_clock)
+		var pose := "run" if moving else "idle"
+		var pose_clock := _animation_clock
+		if _hurt_pose_seconds > 0.0:
+			pose = "hurt"
+			pose_clock = _hurt_pose_elapsed
+		elif character_kind == "ninja" and _spark_art_pose_remaining > 0.0:
+			pose = "action"
+			pose_clock = _spark_art_pose_elapsed
+		elif character_kind == "werewolf" and _bridge != null and hazard != null \
+				and _bridge.is_burning_world(hazard._feet_world(self)):
+			# The Art Team's "Wolf walking on fire" is purely a visual
+			# reaction to existing Eva/Simulation fire. No new fire damage.
+			pose = "burn"
+		target_texture = _character_visuals().texture_for(pose, pose_clock)
 	if target_texture == null:
 		if _action_pose_remaining > 0.0:
 			target_texture = MAGE1_ACTION if player_index == 1 else MAGE2_ACTION
@@ -328,6 +360,23 @@ func _update_character_sprite(moving: bool) -> void:
 	# the visible robe while facing either direction; do not crop source art.
 	sprite.position.x = float(facing) * 4.0 if sprite_override == null and character_kind == "mage" else 0.0
 	sprite.position.y = -10.0
+
+
+## Let the round controller show the actual Art Team Ninja_dead frame
+## without applying the generic tilt to an already-sideways authored pose.
+## Other characters retain their original KO visual.
+func show_art_team_ko() -> bool:
+	var set: GameplayCharacterVisualSet = _character_visuals()
+	if set == null or set.dead_texture == null or sprite_override != null:
+		return false
+	sprite.texture = set.dead_texture
+	_apply_art_size()
+	# Unlike the left-facing upright Ninja, Ninja_dead's authored fallen
+	# body points RIGHT. Flipping at world-left keeps KO direction coherent.
+	sprite.flip_h = facing < 0
+	sprite.rotation = 0.0
+	sprite.modulate = Color.WHITE
+	return true
 
 
 func _apply_art_size() -> void:

@@ -51,9 +51,13 @@ the projectile. Do not silently replace Ninja's shuriken with
 Wizard fire or invent its special rules. Hose.piskel contains
 the fence + long hose on one 280x66 canvas, not only a nozzle.
 Do not blindly replace the current independent nozzle crop.
-The newly supplied hurt/dead/firing frames are an Art animation
-handoff requiring an integration pass; none of these raw Piskels
-were replaced, redrawn, or miscredited.
+This paragraph was the source inventory BEFORE the subsequent
+Art integration commit on Nov 21. The original new source Piskels
+were subsequently imported into gameplay/art_team/source/, their
+native frames exported without redraw, and the specific character
+animation events wired into PR #21. See the newer integration report:
+ART_TEAM_LATEST_ASSETS_2026-11-21.md. The independent Ninja shuriken
+sprite is STILL absent and is not confused with Ninja_fire.
 
 The original garden.piskel modified 2026-10-31 is still the
 authoritative source used for physical pixel masks. No fresh
@@ -76,7 +80,9 @@ approved Garden gate geometry was provided.
   direction and painted gate are committed with this review,
   alongside a two-map regression report.
 
-Not yet approved: one-way-vs-solid gate top decision;
-final Art attack animation mapping, official Werewolf skill,
-Ninja shuriken projectile Art, final match-winner rule and
-two-human real gameplay acceptance.
+Not yet approved: one-way-vs-solid gate top decision; the new
+Ninja fire pose is integrated ONLY for the existing Spark (not G
+shuriken); official Werewolf ranged skill, independent shuriken
+projectile Art, final match-winner rule and two-human real gameplay
+acceptance are still outstanding. Newly available original Tree
+and Wolf fire walk are covered in the later report linked above.

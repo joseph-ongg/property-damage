@@ -10,7 +10,9 @@ enum Kind { APPLE, GNOME, MUSHROOM, HOSE_END }
 
 const MUSHROOM_RED: Texture2D = preload("res://gameplay/garden/original_art_parts/mushroom_red.png")
 const MUSHROOM_BLUE: Texture2D = preload("res://gameplay/garden/original_art_parts/mushroom_blue.png")
-const HOSE_END_ART: Texture2D = preload("res://gameplay/garden/original_art_parts/hose_nozzle.png")
+# Latest Art Team separated Hose.piskel, exact 20x10 detachable nozzle
+# pixels (source x260..279, y56..65), not the composite fence picture.
+const HOSE_END_ART: Texture2D = preload("res://gameplay/art_team/exported/garden_hose_tip_latest.png")
 
 ## Real item pixels are measured from the supplied Piskel crop at its
 ## existing 2x scene scale. Unknown Art uses the actual 20x20 '?' marker.
@@ -204,7 +206,10 @@ func _draw() -> void:
     elif kind == Kind.HOSE_END:
         # The nozzle texture is copied unmodified from garden.piskel.
         var art_size := HOSE_END_ART.get_size() * 2.0
-        draw_texture_rect(HOSE_END_ART, Rect2(-art_size * 0.5, art_size), false)
+        # Preserve the original larger crop's used-pixel anchor relative
+        # to pickup physics when switching to an exact compact tip crop.
+        draw_texture_rect(HOSE_END_ART,
+            Rect2(-art_size * 0.5 + Vector2(16.0, 3.0), art_size), false)
     else:
         # Apple and gnome lack a supplied standalone Art sprite. Use the
         # requested small '?' token instead of inventing object artwork.

@@ -105,6 +105,12 @@ func prepare_new_round() -> void:
         player.spark._flash_remaining = 0.0
         player.spark.queue_redraw()
         player.health_component.reset()
+        # Restore idle source Art after the authored Ninja KO animation.
+        player.sprite.rotation = 0.0
+        player.sprite.modulate = Color.WHITE
+        player._hurt_pose_seconds = 0.0
+        player._spark_art_pose_remaining = 0.0
+        player._update_character_sprite(false)
         player._magic_cooldown = 0.0
         _legacy_health_carry[index] = 0.0
         _on_authoritative_health_changed(

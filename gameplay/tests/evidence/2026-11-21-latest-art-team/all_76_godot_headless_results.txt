@@ -1,0 +1,85 @@
+PROPERTY DAMAGE / Nov 21 latest Art Team original Piskel integration
+Godot 4.7.2 Mac; complete 76 independent headless scripts PASS; no failures
+New Art provenance from School Google Drive; original bytes in source/
+Real Mac game render seven screenshots in this evidence folder.
+Automation is not two-human manual playtesting.
+
+NAME                                                          STATUS  SECONDS
+gameplay_20261121_character_facing_gate_window_test            PASS    4.06
+gameplay_advanced_test                                         PASS    11.27
+gameplay_all_character_art_skill_visual_test                   PASS    10.18
+gameplay_animatable_platform_test                              PASS    9.54
+gameplay_art_handoff_test                                      PASS    2.68
+gameplay_art_scene_alignment_test                              PASS    2.90
+gameplay_book_collision_test                                   PASS    18.18
+gameplay_book_support_test                                     PASS    21.57
+gameplay_character_art_scope_test                              PASS    1.63
+gameplay_collider_handoff_test                                 PASS    9.36
+gameplay_controls_test                                         PASS    4.62
+gameplay_crush_speed_test                                      PASS    5.28
+gameplay_design_burn_time_integration_test                     PASS    1.05
+gameplay_design_item_hp_integration_test                       PASS    2.39
+gameplay_design_ninja_shuriken_actual_test                     PASS    6.43
+gameplay_design_rose_pixel_collision_test                      PASS    2.71
+gameplay_design_rose_visual_capture_test                       PASS    2.85
+gameplay_design_throw_area_formula_test                        PASS    4.52
+gameplay_edge_test                                             PASS    6.78
+gameplay_fan_art_handoff_test                                  PASS    3.72
+gameplay_fan_direction_test                                    PASS    3.48
+gameplay_fan_playtest                                          PASS    4.31
+gameplay_fan_visual_capture_test                               PASS    4.02
+gameplay_full_flow_test                                        PASS    16.66
+gameplay_furniture_fire_test                                   PASS    1.71
+gameplay_garden_attack_accounting_test                         PASS    1.58
+gameplay_garden_cross_branch_contract_test                     PASS    1.33
+gameplay_garden_design_contract_test                           PASS    1.31
+gameplay_garden_gate_solid_art_test                            PASS    1.68
+gameplay_garden_ground_tree_interaction_visual_test            PASS    2.43
+gameplay_garden_input_test                                     PASS    2.38
+gameplay_garden_menu_e2e_integration_test                      PASS    1.87
+gameplay_garden_physical_platform_test                         PASS    4.37
+gameplay_garden_regression_edges_test                          PASS    1.54
+gameplay_garden_round_handoff_test                             PASS    3.29
+gameplay_garden_throwable_fire_test                            PASS    3.16
+gameplay_grid_scene_handoff_test                               PASS    2.64
+gameplay_guidance_test                                         PASS    2.03
+gameplay_input_layout_test                                     PASS    4.02
+gameplay_integration_merge_safety_test                         PASS    4.29
+gameplay_interaction_occlusion_test                            PASS    5.12
+gameplay_interaction_polish_test                               PASS    3.91
+gameplay_item_system_test                                      PASS    6.72
+gameplay_keyboard_chords_test                                  PASS    4.33
+gameplay_latest_art_match_ko_test                              PASS    4.50
+gameplay_latest_art_team_handoff_test                          PASS    2.07
+gameplay_latest_art_visual_window_test                         PASS    3.17
+gameplay_layout_feedback_test                                  PASS    4.57
+gameplay_living_room_keyboard_interaction_test                 PASS    3.24
+gameplay_living_room_property_multiplier_test                  PASS    4.35
+gameplay_local_wind_test                                       PASS    1.51
+gameplay_magic_occlusion_test                                  PASS    4.91
+gameplay_magic_test                                            PASS    4.47
+gameplay_map_select_delivery_test                              PASS    1.79
+gameplay_midsem_art_test                                       PASS    5.34
+gameplay_msd_test                                              PASS    5.18
+gameplay_ninja_cross_arena_test                                PASS    4.24
+gameplay_platform_v2_test                                      PASS    14.18
+gameplay_project_start_test                                    PASS    3.03
+gameplay_props_test                                            PASS    3.44
+gameplay_quest_test                                            PASS    2.76
+gameplay_render_layers_test                                    PASS    0.68
+gameplay_restart_playtest                                      PASS    1.04
+gameplay_room_depth_test                                       PASS    1.49
+gameplay_simulation_contract_test                              PASS    0.92
+gameplay_simultaneous_use_test                                 PASS    3.33
+gameplay_smoke_test                                            PASS    7.94
+gameplay_spark_status_test                                     PASS    0.99
+gameplay_team_integration_test                                 PASS    2.72
+gameplay_two_map_double_jump_rapid_attack_test                 PASS    6.58
+gameplay_two_map_full_playtest_test                            PASS    66.23
+gameplay_two_map_furniture_pvp_test                            PASS    4.21
+gameplay_ui_test                                               PASS    1.80
+gameplay_upstream_drop_test                                    PASS    5.25
+gameplay_upstream_grid_test                                    PASS    0.65
+gameplay_visual_design_test                                    PASS    2.16
+
+ALL_TESTS_FINAL_SUMMARY passed=76 failed=0 total=76

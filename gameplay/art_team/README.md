@@ -14,3 +14,14 @@ Gameplay player through replaceable .tres resources. Other character
 animations are **not invented** in this PR. Bird frames and the Garden
 background are *art resources only* and do not imply a finished Garden.
 No audio, music, AI-generated art, new UI theme or game rebranding.
+
+## New Art Team handoff, Nov 21 (PR #21)
+
+Six unchanged original Piskels were added: Ninja_fire, Ninja_injured,
+Ninja_dead, Wolf walking on fire, Tree and Hose. Run
+python3 gameplay/art_team/export_piskel.py to export all frames
+and regenerate SHA/dimension/FPS catalog metadata. Original Art
+has not been repainted. The Hose composite is cropped to separate
+the real detachable nozzle from the original breakable fence.
+See the Design-aligned integration audit:
+gameplay/integration/two_map_playtest/ART_TEAM_LATEST_ASSETS_2026-11-21.md.

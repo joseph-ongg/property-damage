@@ -180,8 +180,9 @@ func _on_fighter_died(loser_index: int) -> void:
         p.velocity = Vector2.ZERO
         p.set_physics_process(false)
     var loser := arena.get_node("Player%d" % loser_index) as GameplayPlayer
-    loser.sprite.rotation = 0.68 * float(loser.facing)
-    loser.sprite.modulate = Color(0.70, 0.70, 0.70, 0.8)
+    if not loser.show_art_team_ko():
+        loser.sprite.rotation = 0.68 * float(loser.facing)
+        loser.sprite.modulate = Color(0.70, 0.70, 0.70, 0.8)
     loser.get_node("NameTag").text = "KO"
     for bullet in arena.get_node("Projectiles").get_children():
         bullet.set_physics_process(false)

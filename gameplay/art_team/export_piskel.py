@@ -23,6 +23,14 @@ SOURCES = {
     'Wolf damage sprite.piskel': 'wolf_damage',
     'garden.piskel': 'garden',
     'Bird drop animation.piskel': 'bird_drop',
+    # Original Art Team Drive handoff received Nov 21, 2026;
+    # every frame/pixel is exported, no new art is drawn.
+    'Ninja_fire.piskel': 'ninja_fire',
+    'Ninja_injured.piskel': 'ninja_injured',
+    'Ninja_dead.piskel': 'ninja_dead',
+    'Wolf walking on fire.piskel': 'wolf_fire',
+    'Tree.piskel': 'garden_tree_new',
+    'Hose.piskel': 'garden_hose_full',
 }
 
 
@@ -74,7 +82,21 @@ def export() -> list[dict]:
             dest = OUTPUT / (f"{stem}.png" if stem in {"living_room_map", "garden"} else f"{stem}_{i}.png")
             frame.save(dest, optimize=True)
             outputs.append(dest.name)
+        # "Hose.piskel" is one composite *fence + hose*. Never render the
+        # permanent fence portion over eight breakable 4HP fence segments.
+        # These pixel-exact regions are cropped from Art's original PNG:
+        # x80..280 is ONLY the laid-out tube/tip; x260..280, y56..66 is
+        # the authentic detachable tip, not a newly drawn replacement.
+        derived_regions = {}
+        if stem == "garden_hose_full":
+            for output_name, xyxy in {
+                "garden_hose_tube_latest.png": (80, 0, 280, 66),
+                "garden_hose_tip_latest.png": (260, 56, 280, 66),
+            }.items():
+                frames[0].crop(xyxy).save(OUTPUT / output_name, optimize=True)
+                derived_regions[output_name] = list(xyxy)
         manifest.append({
+            "derived_regions": derived_regions,
             "original_name": source_name,
             "original_drive_url": "https://drive.google.com/drive/folders/1-bNX0VyVeyccPiMAJbUSJDj4b6Q0kjnJ",
             "source_sha256": hashlib.sha256(src.read_bytes()).hexdigest(),

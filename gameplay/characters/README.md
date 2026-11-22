@@ -48,3 +48,14 @@ Piskel. Their ownership and unresolved animation use are in
 gameplay/integration/two_map_playtest/DRIVE_ART_DESIGN_RECHECK_2026-11-21.md.
 A new Ninja flame pose is not permission to replace the
 Design-approved shuriken projectile with a fireball.
+
+## Art assets now connected, Nov 21
+
+Ninja_fire is animated ONLY on the existing F Spark cast; Ninja's
+Design-defined G shuriken projectile stays a question-mark token.
+Ninja_injured's 4 Art frames play when Eva Health reports damage;
+Ninja_dead is the already-sideways source KO on both official maps
+and clears with round reset. Both players retain source-relative
+left/right facing. Wolf's 2 new burning-walk frames use the
+existing Simulation grid and fire sensor, not new fire rules.
+See the latest Art Team handoff audit under two_map_playtest.

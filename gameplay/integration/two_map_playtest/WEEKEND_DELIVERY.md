@@ -204,3 +204,14 @@ The screenshot QA is in the 2026-11-21-gate-facing-qa evidence
 folder, alongside all 73 headless program pass results.
 No Art source was redrawn, no new match or Werewolf rule invented,
 and no two-human playtest or final Art signoff is claimed.
+
+## Nov 21 original Art Team asset integration follow-up
+
+Latest Art original sources now included and wired: Ninja fire
+Spark pose, 4-frame injury, sideways authored KO (both maps),
+Wolf 2-frame walking on ACTUAL Simulation fire, Garden original
+Tree's new source-aligned texture and cropped, pickable Hose
+tube/nozzle. Ninja G remains the Design SHURIKEN with '?' icon.
+No invented power/rules, no permanent duplicate fence, no remote
+main change. Exact Drive links and provenance:
+ART_TEAM_LATEST_ASSETS_2026-11-21.md.
