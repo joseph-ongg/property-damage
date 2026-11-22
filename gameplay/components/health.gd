@@ -27,6 +27,10 @@ func _process(delta: float) -> void:
 func reset() -> void:
 	hp = max_hp
 	_invuln_left = 0.0
+	# Exact throw damage may have a sub-HP remainder. Resetting Eva Health
+	# starts a fresh life/round, so the remainder must not leak across it.
+	if has_meta("design_throw_fraction"):
+		remove_meta("design_throw_fraction")
 	changed.emit(hp, max_hp)
 
 

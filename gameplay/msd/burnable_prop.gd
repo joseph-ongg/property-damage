@@ -201,6 +201,27 @@ func _vertical_hit(at: Vector2, displacement: float, downward: bool) -> Dictiona
 	return closest
 
 
+## Design: the *visible item's pixel area* divided by 10,000 HP.
+## Eva Health only stores integer HP. Keep exact sub-HP fractions until
+## enough independent, valid throw hits accumulate for one whole HP;
+## never round every tiny item up to an invented 1-HP minimum.
+## Subclasses may supply actual supplied Art dimensions without replacing
+## Austin's original swept-hit physics or the original item damage rule.
+func _throw_pixel_area() -> float:
+	return maxf(0.0, hit_size.x) * maxf(0.0, hit_size.y)
+
+
+func _apply_throw_damage_to_player(target: GameplayPlayer) -> void:
+	var hp := target.health_component
+	if hp == null or not hp.is_alive() or hp.is_invulnerable():
+		return
+	var total := float(hp.get_meta("design_throw_fraction", 0.0))
+	total += _throw_pixel_area() / 10000.0
+	var whole := floori(total + 0.000001)
+	if whole == 0 or hp.take_damage(whole):
+		hp.set_meta("design_throw_fraction", maxf(0.0, total - float(whole)))
+
+
 func _step_flight(delta: float) -> void:
 	# A single horizontal ray misses a wall when a fast diagonal book starts
 	# above it, and a book shot at a roof used to pass straight through.
@@ -216,7 +237,7 @@ func _step_flight(delta: float) -> void:
 		var candidate := at + part
 		for other: GameplayPlayer in [get_tree().get_first_node_in_group("player_1") as GameplayPlayer, get_tree().get_first_node_in_group("player_2") as GameplayPlayer]:
 			if other != null and other.player_index != thrower_index and not _hit_players.has(other.player_index) and candidate.distance_to(other.global_position + Vector2(0, -8)) < 22.0:
-				other.take_damage(hit_size.x * hit_size.y / 10000.0)
+				_apply_throw_damage_to_player(other)
 				_hit_players.append(other.player_index)
 				if has_tag("fragile"):
 					_break_from_throw()

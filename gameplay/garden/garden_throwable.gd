@@ -12,9 +12,11 @@ const MUSHROOM_RED: Texture2D = preload("res://gameplay/garden/original_art_part
 const MUSHROOM_BLUE: Texture2D = preload("res://gameplay/garden/original_art_parts/mushroom_blue.png")
 const HOSE_END_ART: Texture2D = preload("res://gameplay/garden/original_art_parts/hose_nozzle.png")
 
-## Missing Garden object impact values: 1 HP placeholder as explicitly
-## requested. Eva owns invulnerability and the authoritative HP component.
-@export_range(1, 100, 1) var impact_damage: int = 1
+## Real item pixels are measured from the supplied Piskel crop at its
+## existing 2x scene scale. Unknown Art uses the actual 20x20 '?' marker.
+## This optional size override exists only for QA / an approved later
+## texture's measured pixel footprint; not a guessed damage number.
+@export var design_art_size_override: Vector2 = Vector2.ZERO
 ## Design tags fragile separately from throwable. Garden's specified
 ## items are throwable but *not* confirmed fragile; do not consume on hit.
 @export var fragile: bool = false
@@ -24,6 +26,9 @@ const HOSE_END_ART: Texture2D = preload("res://gameplay/garden/original_art_part
 ## automatically when his branch is merged.
 @export_range(1, 20, 1) var provisional_burn_hp: int = 1
 signal hit_player(player_index: int, damage: int)
+## User-visible Design damage feedback (including valid sub-HP impacts).
+signal impact_feedback(player_index: int, exact_damage: float,
+    applied_hp: int, blocked: bool)
 var mushroom_source_index: int = 0
 var consumed: bool = false
 var last_thrower_index: int = 0
@@ -78,62 +83,63 @@ func throw_from(player: GameplayPlayer) -> bool:
     return true
 
 
+func _throw_pixel_area() -> float:
+    var visible_size := Vector2(20.0, 20.0)  # Existing '?' marker pixels
+    if kind == Kind.MUSHROOM:
+        var painted: Texture2D = MUSHROOM_RED if mushroom_source_index == 0 else MUSHROOM_BLUE
+        visible_size = Vector2(painted.get_image().get_used_rect().size) * 2.0
+    elif kind == Kind.HOSE_END:
+        visible_size = Vector2(HOSE_END_ART.get_image().get_used_rect().size) * 2.0
+    if design_art_size_override.x > 0.0 and design_art_size_override.y > 0.0:
+        visible_size = design_art_size_override
+    return visible_size.x * visible_size.y
+
+
+func _apply_throw_damage_to_player(target: GameplayPlayer) -> void:
+    # Share Austin's exact formula and Eva's integer-HP fractional ledger.
+    # Do not call the legacy player's ceili(float) damage path, which used
+    # to turn a 0.04HP '?' apple into an unjustified whole 1HP hit.
+    var before := target.health_component.hp
+    var blocked := target.health_component.is_invulnerable() or not target.health_component.is_alive()
+    var exact_damage := _throw_pixel_area() / 10000.0
+    super._apply_throw_damage_to_player(target)
+    _impact_spent = true
+    if fragile:
+        consumed = true
+        flying = false
+        flight_velocity = Vector2.ZERO
+        visible = false
+    else:
+        flight_velocity = Vector2.ZERO
+    var applied := before - target.health_component.hp
+    impact_feedback.emit(target.player_index, exact_damage, applied, blocked)
+    if applied > 0:
+        hit_player.emit(target.player_index, applied)
+
+
 func _physics_process(delta: float) -> void:
-    # The pre-existing GameplayBurnableProp controls gravity, sweep and
-    # world collisions. Only Garden-specific player hit response is added.
     var was_flying := flying
     var before := global_position
-    # Austin's unmerged base can directly apply damage to its older
-    # numeric player.health field. Capture it, then convert that same
-    # impact into exactly ONE user-approved Garden HP hit via Eva Health.
-    var legacy_before: Dictionary = {}
-    var arena := get_parent().get_parent()
-    for index in [1,2]:
-        var player := arena.get_node_or_null("Player%d" % index) as GameplayPlayer
-        if player != null and player.has_method("take_damage"):
-            legacy_before[index] = float(player.get("health"))
+    # Preserve Austin's swept world/prop physics. Its player-hit hook now
+    # dispatches to this Garden visual-footprint adapter exactly once.
     super._physics_process(delta)
     if not was_flying or consumed or _impact_spent or carried_by != null:
         return
+    var arena := get_parent().get_parent()
     for index in [1, 2]:
-        var player := arena.get_node_or_null("Player%d" % index) as GameplayPlayer
         if index == last_thrower_index:
-            # If a historical base incorrectly hits the thrower in a
-            # manually constructed test, restore the authoritative HP.
-            if player != null and legacy_before.has(index):
-                player.set("health", float(player.health_component.hp))
             continue
+        var player := arena.get_node_or_null("Player%d" % index) as GameplayPlayer
         if player == null or player.health_component == null:
             continue
-        var legacy_hit := legacy_before.has(index) and (
-            float(player.get("health")) < float(legacy_before[index]) - 0.0001)
         var center := player.global_position + Vector2(0, -12)
         var closest := Geometry2D.get_closest_point_to_segment(center, before, global_position)
-        if center.distance_to(closest) > 27.0 and not legacy_hit:
+        if center.distance_to(closest) > 27.0:
             continue
-        # An apple/gnome/mushroom/hose head impacts once; invulnerability
-        # belongs to Eva and can reject damage without an extra HP store.
-        var applied := player.health_component.take_damage(impact_damage)
-        # Austin's legacy numeric field is just a temporary mirror in the
-        # Garden. Avoid stacking his area-formula hit with the 1 HP Garden
-        # provisional damage; Eva remains the source of truth.
-        if legacy_before.has(index):
-            player.set("health", float(player.health_component.hp))
-        _impact_spent = true
-        if fragile:
-            # Only Design-tagged fragile props are destroyed on impact.
-            consumed = true
-            flying = false
-            flight_velocity = Vector2.ZERO
-            visible = false
-        else:
-            # Ordinary throwable: one impact per flight, then fall to the
-            # world and become collectable again after landing.
-            flight_velocity = Vector2.ZERO
-        if applied:
-            hit_player.emit(index, impact_damage)
+        _apply_throw_damage_to_player(player)
+        if not _hit_players.has(index):
+            _hit_players.append(index)
         break
-
 
 func _process(delta: float) -> void:
     super._process(delta)

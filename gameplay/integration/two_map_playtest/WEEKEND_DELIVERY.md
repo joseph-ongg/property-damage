@@ -149,3 +149,33 @@ Automated success is not proof of zero unknown bugs.
 
 The real six-scene Mac game screenshots and contact sheet are committed at
 gameplay/tests/evidence/2026-11-21-visual-qa/ for PM/Design visual review.
+
+
+## Nov 21 Design-first follow-up after PM review
+
+Garden's old 1HP-per-throw placeholder was NOT the Design
+pixel-area damage rule. PR #21 now uses exact visible pixel area
+divided by 10,000, both in Austin's swept Living Room projectile
+path and the Garden art adapter. Red/blue mushrooms and hose nozzle
+use source Piskel crop alpha bounds at their actual 2x scale;
+unauthored apple/gnome sprites use only the existing 20x20 ? marker.
+Eva integer HP accumulates fractions across valid throws and resets
+them with health; invulnerable hits are not accumulated. A real
+400x400 moving throw inflicts exactly 16HP. Garden item durability
+remains separately provisional.
+
+The Piskel rose hazard is THREE sources, not two broad rectangles:
+upper rose arch, left stem and right stem. Their red petals, green
+stems, tan thorns and adjacent black outline pixels are converted
+to physical CollisionPolygon2D shapes. Transparent sky and fence
+pixels cause NO invisible hazard, and actual player body contact
+deducts the documented 5HP. Original Art is unchanged.
+
+Ninja already has an independent shuriken-category projectile and
+both maps run its item-first 10HP attack. No final shuriken sprite
+exists in Art Team assets, so Ninja keeps the requested ? marker.
+No invented Ninja special skill or speculative Werewolf attack.
+
+Actual 2-human playtesting is NOT the same as an automated Mac
+graphics-window key simulation. The manual two-player checklist
+and remaining Design approval questions are recorded separately.

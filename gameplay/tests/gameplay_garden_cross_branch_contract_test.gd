@@ -124,9 +124,13 @@ func _run() -> void:
         thrown.flying = true
         thrown.flight_velocity = Vector2(300,0)
         thrown._physics_process(0.12)
-        check(p2.health_component.hp == p2.health_component.max_hp - 1
+        check(thrown._impact_spent
+            and p2.health_component.hp == p2.health_component.max_hp
+            and is_equal_approx(float(p2.health_component.get_meta(
+                "design_throw_fraction",0.0)),
+                thrown._throw_pixel_area() / 10000.0)
             and is_equal_approx(float(p2.get("health")),float(p2.health_component.hp)),
-            "Austin base impact plus Garden placeholder hits once and keeps Eva/numeric HP synchronized")
+            "Austin collision + Garden Piskel hit banks exact Design fraction and keeps Eva HP mirrored")
     stage.queue_free()
     await _frames()
     print("GARDEN_CROSS_BRANCH_SUMMARY failures=",failures.size())

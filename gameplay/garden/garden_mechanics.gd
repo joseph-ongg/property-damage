@@ -3,6 +3,13 @@
 ## Ethan's public MaterialGrid API; does not edit their source files.
 extends Node2D
 
+## Read-only original Art Team pixels: rose petals, stems and thorns are
+## part of the 426x286 Piskel background, not separate alpha-only assets.
+const GARDEN_BACKGROUND: Texture2D = preload(
+    "res://gameplay/garden/original_art_parts/garden_without_dynamic_props.png")
+const ROSE_WORLD_SCALE := 2.0
+const ROSE_WORLD_OFFSET := Vector2(54.0, -16.0)
+
 const BIRD_FRAMES: Array[Texture2D] = [
     preload("res://gameplay/art_team/exported/bird_drop_0.png"),
     preload("res://gameplay/art_team/exported/bird_drop_1.png"),
@@ -61,11 +68,16 @@ func _ready() -> void:
         _fence_burn_elapsed[idx] = 0.0
     for index in [1, 2]:
         (arena.get_node("Player%d" % index) as GameplayPlayer).interact_pressed.connect(_on_player_interact)
-    for rose in [
-        {"name":"LeftRoseThorns","at":Vector2(100, 397),"size":Vector2(47, 154)},
-        {"name":"RightRoseThorns","at":Vector2(369, 404),"size":Vector2(40, 137)}
+    # Source-pixel ROIs follow the REAL painted upper arch and the two
+    # distinct lower rose stems. No invisible rectangular hazard wall.
+    # Rects are disjoint to avoid a player taking 2x5 HP at ROI seams.
+    var rose_art := GARDEN_BACKGROUND.get_image()
+    for spec in [
+        {"name":"UpperRoseThorns","source":Rect2i(0, 44, 176, 67)},
+        {"name":"LeftRoseThorns","source":Rect2i(8, 111, 41, 81)},
+        {"name":"RightRoseThorns","source":Rect2i(128, 111, 47, 134)}
     ]:
-        _make_rose_contact(rose)
+        _make_rose_contact(spec, rose_art)
     # Two source-matched mushroom tokens and two temporary gnomes.
     _make_throwable(GameplayGardenThrowable.Kind.MUSHROOM, Vector2(417, 435), "Mushrooms1", 0)
     _make_throwable(GameplayGardenThrowable.Kind.MUSHROOM, Vector2(477, 435), "Mushrooms2", 1)
@@ -86,19 +98,70 @@ func _ready() -> void:
     _capture_original_grid()
 
 
-func _make_rose_contact(spec: Dictionary) -> void:
-    var rose := Area2D.new()
-    rose.name = str(spec["name"])
-    rose.position = spec["at"]
-    rose.collision_layer = 0
-    rose.collision_mask = 2  # players only
-    var shape := RectangleShape2D.new()
-    shape.size = spec["size"]
-    var hitbox := CollisionShape2D.new()
-    hitbox.shape = shape
-    rose.add_child(hitbox)
-    arena.get_node("RoseThorns").add_child(rose)
-    rose.body_entered.connect(_on_rose_body_entered)
+func _is_rose_art_pixel(color: Color) -> bool:
+    if color.a8 == 0:
+        return false
+    # Exact Piskel palette — rose-red flowers, green vines and skin-color
+    # thorns. Black, transparent sky, green fence and grass are NOT hazards.
+    return (color.r8 == 226 and color.g8 == 41 and color.b8 == 22
+        or color.r8 == 0 and color.g8 == 109 and color.b8 == 0
+        or color.r8 == 212 and color.g8 == 155 and color.b8 == 124)
+
+
+func _make_rose_contact(spec: Dictionary, source_art: Image) -> void:
+    var crop: Rect2i = spec["source"]
+    var area := Area2D.new()
+    area.name = str(spec["name"])
+    # Area-only channel, never a solid wall or a magic projectile target.
+    area.collision_layer = 8
+    area.collision_mask = 2  # Both players only
+    var mask := Image.create(crop.size.x, crop.size.y, false, Image.FORMAT_RGBA8)
+    mask.fill(Color.TRANSPARENT)
+    var tinted_pixels := 0
+    for y in crop.size.y:
+        for x in crop.size.x:
+            var sx := crop.position.x + x
+            var sy := crop.position.y + y
+            var color := source_art.get_pixel(sx, sy)
+            var on_rose := _is_rose_art_pixel(color)
+            # The supplied roses use a one-pixel BLACK outline. Include
+            # only immediately adjacent opaque outline pixels; never fill
+            # sky holes or sweep in the similarly colored fence/grass.
+            if not on_rose and color.a8 == 255 and color.r8 == 0                     and color.g8 == 0 and color.b8 == 0:
+                for offset: Vector2i in [
+                    Vector2i(0,-1), Vector2i(0,1),
+                    Vector2i(-1,0), Vector2i(1,0)
+                ]:
+                    var nx: int = sx + offset.x
+                    var ny: int = sy + offset.y
+                    if nx < crop.position.x or nx >= crop.end.x                             or ny < crop.position.y or ny >= crop.end.y:
+                        continue
+                    if _is_rose_art_pixel(source_art.get_pixel(nx, ny)):
+                        on_rose = true
+                        break
+            if on_rose:
+                tinted_pixels += 1
+                mask.set_pixel(x, y, Color.WHITE)
+    var bitmap := BitMap.new()
+    bitmap.create_from_image_alpha(mask)
+    var outlines := bitmap.opaque_to_polygons(
+        Rect2i(Vector2i.ZERO, crop.size), 0.55)
+    var accepted := 0
+    for outline: PackedVector2Array in outlines:
+        if outline.size() < 3:
+            continue
+        var shape := CollisionPolygon2D.new()
+        shape.name = "PiskelRosePixels%d" % accepted
+        shape.polygon = outline
+        shape.position = ROSE_WORLD_OFFSET + Vector2(crop.position) * ROSE_WORLD_SCALE
+        shape.scale = Vector2.ONE * ROSE_WORLD_SCALE
+        area.add_child(shape)
+        accepted += 1
+    area.set_meta("source_pixels", tinted_pixels)
+    area.set_meta("source_rect", crop)
+    area.set_meta("polygon_count", accepted)
+    arena.get_node("RoseThorns").add_child(area)
+    area.body_entered.connect(_on_rose_body_entered)
 
 
 func _on_rose_body_entered(body: Node2D) -> void:
@@ -160,8 +223,26 @@ func _make_throwable(kind: GameplayGardenThrowable.Kind, at: Vector2, label: Str
     item.mushroom_source_index = mushroom_index
     item.position = at
     arena.get_node("Throwables").add_child(item)
+    item.impact_feedback.connect(_on_garden_throw_impact.bind(item.name))
     _initial_throwable_positions[label] = at
     return item
+
+
+func _on_garden_throw_impact(player_index: int, exact_damage: float,
+        applied_hp: int, blocked: bool, source_name: String) -> void:
+    if not round_active:
+        return
+    if blocked:
+        _show_status("%s HIT P%d • EVA INVULNERABILITY (NO DAMAGE)" % [
+            source_name, player_index])
+        return
+    var target := arena.get_node_or_null("Player%d" % player_index) as GameplayPlayer
+    if target == null:
+        return
+    var fraction: float = float(target.health_component.get_meta(
+        "design_throw_fraction", 0.0))
+    _show_status("%s HIT P%d • %.2f HP EXACT • -%d DISPLAY HP • %.2f BANKED" % [
+        source_name, player_index, exact_damage, applied_hp, fraction])
 
 
 func _seed_source_fuel() -> void:

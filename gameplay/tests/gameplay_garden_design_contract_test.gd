@@ -166,23 +166,30 @@ func _run() -> void:
     p1.global_position = Vector2(130, 450)
     p2.global_position = Vector2(800, 445)
 
-    # Garden item contact is 1 HP placeholder when Design has not given
-    # an explicit damage value. Run real moving-physics overlap, not a
-    # direct Health.take_damage bypass of the item system.
+    # Design: thrown size / 10000 HP. With original Piskel crops or
+    # 20x20 '?' Art placeholders each single hit has LESS than 1 HP.
+    # Eva Health is integer, so the exact fraction is banked for later
+    # valid hits instead of inventing a minimum 1-HP impact.
     for kind in [GameplayGardenThrowable.Kind.APPLE,
             GameplayGardenThrowable.Kind.GNOME,
             GameplayGardenThrowable.Kind.MUSHROOM,
             GameplayGardenThrowable.Kind.HOSE_END]:
         p2.health_component.reset()
-        var item: GameplayGardenThrowable = game._make_throwable(kind, Vector2(769, 433),
-            "ImpactPlaceholder%d" % kind)
+        var item: GameplayGardenThrowable = game._make_throwable(kind,
+            Vector2(769, 433), "DesignImpact%d" % int(kind))
         item.last_thrower_index = 1
+        item.thrower_index = 1
         item.flying = true
         item.flight_velocity = Vector2(300, 0)
         item._physics_process(0.12)
-        check(item.impact_damage == 1 and item._impact_spent and not item.consumed
-            and item.visible and p2.health_component.hp == 119,
-            "Garden non-fragile item %d hits once for 1 HP and remains reusable" % kind)
+        var ratio: float = item._throw_pixel_area() / 10000.0
+        check(ratio > 0.0 and ratio < 1.0 and item._impact_spent
+            and not item.consumed and item.visible
+            and p2.health_component.hp == p2.health_component.max_hp
+            and is_equal_approx(float(p2.health_component.get_meta(
+                "design_throw_fraction", 0.0)), ratio),
+            "Garden item %d applies exact size/10000 fractional Design damage"
+                % int(kind))
 
     game.reset_garden_for_round()
     await _frames(2)

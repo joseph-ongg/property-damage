@@ -146,10 +146,13 @@ func _run() -> void:
     reusable.flying = true
     reusable.flight_velocity = Vector2(300,0)
     reusable._physics_process(0.12)
-    check(p2.health_component.hp == 119
+    check(p2.health_component.hp == p2.health_component.max_hp
         and reusable._impact_spent and reusable.visible
-        and not reusable.consumed and not reusable.fragile,
-        "Ordinary mushroom hits 1 placeholder HP without vanishing")
+        and not reusable.consumed and not reusable.fragile
+        and is_equal_approx(float(p2.health_component.get_meta(
+            "design_throw_fraction", 0.0)),
+            reusable._throw_pixel_area() / 10000.0),
+        "Ordinary mushroom banks exact painted-size damage without vanishing")
     p2.health_component.reset()
     var fragile: GameplayGardenThrowable = controller._make_throwable(
         GameplayGardenThrowable.Kind.APPLE, Vector2(769,433), "ReviewFragile")

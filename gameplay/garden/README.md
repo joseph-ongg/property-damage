@@ -34,8 +34,10 @@ upstream `MaterialGrid`, Art Team Garden and bird animation load.
   Four damage hits remove both a segment's pixels and its landing surfaces.
   The tree branch uses sloped one-way supports on the visible wood rather
   than a floating 300px rectangle. Both Garden players have two jumps.
-- **Roses:** Original thorn arch has contact areas; entering applies
-  **5 HP** using Eva's existing Health component and invulnerability.
+- **Roses:** The original Piskel upper arch and left/right lower vines use
+  **source-palette-derived collision polygons**, including one-pixel
+  black artwork outlines. Transparent sky and fence are NOT hitboxes.
+  Real player body contact applies Design's **5 HP** via Eva Health.
 - **Bird / apples:** The Art Team bird sprite loops at its authored
   7 FPS and periodically flies from the tree. It drops physical apples
   that fall and can be picked up and thrown using the existing
@@ -106,16 +108,20 @@ independent gnome or apple Piskel. Those two item icons are **small
 explicit temporary debug placeholders**, not invented Art Team art.
 Art Team should replace them before release.
 
-**User-approved temporary balancing:** Design gives **no impact damage**
-for thrown Garden apples, gnomes, mushrooms, or hose ends. Their
-Garden-only swept-hit adapter applies **1 HP per impact as a placeholder**,
-via Eva's existing Health component. Pickup, carrying, throwing and world movement use
-the existing main-branch GameplayBurnableProp helper,
-which Git attributes to Suwen. Austin owns the newer
-item-system branch and its final integration. This 1 HP value is NOT presented as a Design
-decision, and is deliberately separate from Austin's general item
-damage-balancing work. Austin/Design must confirm final numbers and
-any future shared throwable-damage API.
+**Design-correct throwable rule (PR #21):** The damage of an object
+is its ACTUAL visible pixel width multiplied by height / 10,000.
+Garden red/blue mushroom and hose-nozzle use original Piskel alpha
+bounds at 2x scale; missing gnome/apple Art uses only the visible
+20x20 question-mark block. Living Room uses Austin-authored item
+pixel hit_size. Eva Health is integer HP, so sub-1 HP fractional
+throws accumulate across actual valid hits, without artificially
+rounding every small hit to 1HP. Invulnerability rejects banking.
+Health.reset clears the fraction. A 400x400 item inflicts 16HP.
+A current 20x20 ? token inflicts 0.04HP per valid hit, taking 25 hits
+to deduct one displayed HP. The final Art sizes are an outstanding
+handoff, not permission to invent a bigger sprite. The separate
+Garden item DURABILITY (not throw damage) still uses a provisional
+1HP when Design provides no durability. PR #18 is unchanged.
 
 **Awaiting Angela:** Her map-selection owner can point the existing
 Garden entry to `res://gameplay/garden/garden_level.tscn`. This
@@ -140,8 +146,8 @@ preloads before any Garden logic executes.
 - `Godot --headless --path . --script res://gameplay/tests/gameplay_garden_design_contract_test.gd`:
   tree holes, all eight 4-HP fences, real Magic rays, rose 5 HP, bird
   apples, reusable throw API, water extinguishing, 10-second timer,
-  tentative 1 HP/second toggle, four 1-HP placeholder projectile
-  impacts, and Garden round reset.
+  tentative 1HP/second hose toggle, four pixel-area throw impacts,
+  and Garden round reset.
 - `Godot --headless --path . --script res://gameplay/tests/gameplay_garden_input_test.gd`:
   **actual P1/P2 key events** and collision/contact testing.
 
