@@ -163,6 +163,31 @@ func _make_rose_contact(spec: Dictionary, source_art: Image) -> void:
     arena.get_node("RoseThorns").add_child(area)
     area.body_entered.connect(_on_rose_body_entered)
 
+    # The painted TOP of the rose gate was previously only an Area2D:
+    # a player could physically tunnel through its visible upper beam.
+    # Build a solid only for that actual Piskel arch, never a sky-filling
+    # rectangle. Design specifies 5HP on touching side rose stems, but
+    # NOT solid walls there. A regression review proved making the lower
+    # stems solid blocks normal Garden PvP shots/round completion.
+    # Keep those lower stems as *contact-only* Area2Ds.
+    if spec["name"] != "UpperRoseThorns":
+        return
+    var gate := StaticBody2D.new()
+    gate.name = str(spec["name"]) + "OriginalPixelSolids"
+    gate.collision_layer = 1
+    gate.collision_mask = 0
+    gate.add_to_group("garden_rose_gate_solids")
+    for outline: PackedVector2Array in outlines:
+        if outline.size() < 3:
+            continue
+        var wall := CollisionPolygon2D.new()
+        wall.name = "PaintedGateShape%d" % gate.get_child_count()
+        wall.polygon = outline
+        wall.position = ROSE_WORLD_OFFSET + Vector2(crop.position) * ROSE_WORLD_SCALE
+        wall.scale = Vector2.ONE * ROSE_WORLD_SCALE
+        gate.add_child(wall)
+    arena.get_node("RoseGateSolids").add_child(gate)
+
 
 func _on_rose_body_entered(body: Node2D) -> void:
     if not round_active:

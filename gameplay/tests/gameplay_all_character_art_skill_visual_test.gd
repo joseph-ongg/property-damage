@@ -74,15 +74,46 @@ func _run() -> void:
                 tag + "/" + kind + " original character textures are available")
             # Verify all Art Team animation frames, not just idle, mirror
             # after character swaps, left/right movement and hurt poses.
+            # Art Piskel frames have different native directions:
+            # Ninja/Wolf = left at flip_h=false; Mage = right.
+            var art_left := kind == "ninja" or kind == "werewolf"
             p1.facing=1
             p1._update_character_sprite(false)
-            check(not p1.sprite.flip_h, tag + "/" + kind + " right-facing sprite")
+            check(p1.sprite.flip_h == art_left,
+                tag + "/" + kind + " idle faces actual right movement")
             p1.facing=-1
             p1._update_character_sprite(true)
-            check(p1.sprite.flip_h, tag + "/" + kind + " animated left-facing sprite")
+            check(p1.sprite.flip_h == not art_left,
+                tag + "/" + kind + " animated walk faces actual left movement")
             p1.facing=1
             p1._update_character_sprite(true)
-            check(not p1.sprite.flip_h, tag + "/" + kind + " turns back right")
+            check(p1.sprite.flip_h == art_left,
+                tag + "/" + kind + " running frame turns back right")
+            # Include P2, which spawns naturally facing left.
+            var p2_art_left := p2.character_kind == "ninja" or p2.character_kind == "werewolf"
+            p2.facing=-1
+            p2._update_character_sprite(false)
+            check(p2.sprite.flip_h == not p2_art_left,
+                tag + "/" + kind + " P2 idle faces left")
+            p2.facing=1
+            p2._update_character_sprite(true)
+            check(p2.sprite.flip_h == p2_art_left,
+                tag + "/" + kind + " P2 run faces right")
+            # Native Art wolf hurt and Ninja fallback hurt pose also
+            # respect the source-facing convention after Eva damage.
+            p1.health_component.reset()
+            p1.health_component.take_damage(1)
+            p1.facing=-1
+            p1._update_character_sprite(false)
+            check(p1.sprite.flip_h == not art_left,
+                tag + "/" + kind + " real hurt pose faces source-correct LEFT")
+            p1.facing=1
+            p1._update_character_sprite(false)
+            check(p1.sprite.flip_h == art_left,
+                tag + "/" + kind + " real hurt pose faces source-correct RIGHT")
+            p1.health_component.reset()
+            p1._hurt_pose_seconds=0.0
+            p1._update_character_sprite(false)
             # At each map use the same clear real projectile collision lane
             # covered by end-to-end tests, not fabricated direct HP mutation.
             if tag == "garden":

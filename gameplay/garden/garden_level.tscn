@@ -94,6 +94,8 @@ z_index = -4
 
 [node name="RoseThorns" type="Node2D" parent="."]
 
+[node name="RoseGateSolids" type="Node2D" parent="."]
+
 [node name="Throwables" type="Node2D" parent="."]
 z_index = 12
 

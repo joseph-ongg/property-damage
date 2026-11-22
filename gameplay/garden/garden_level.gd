@@ -93,7 +93,7 @@ func prepare_new_round() -> void:
         player.global_position = _initial_player_positions[index]
         player.velocity = Vector2.ZERO
         player.facing = 1 if index == 1 else -1
-        player.sprite.flip_h = player.facing < 0
+        player._sync_sprite_facing()
         player.motor.reset()
         player.dash.reset()
         player.platform_drop.reset(player)

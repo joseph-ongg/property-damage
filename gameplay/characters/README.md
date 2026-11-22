@@ -30,3 +30,21 @@ on every frame; the final attack assets/animation await Art and Design.
 
 
 See INTEGRATION_COMPATIBILITY.md for Eva/Austin integration contracts.
+
+
+## Nov 21 original Art left-facing alignment (PR #21)
+
+Original Art Team Ninja side/run and Werewolf walk/hurt sprites
+all face LEFT at flip_h=false, unlike Wizard's right-facing
+original. The prior shared flip_h rule was therefore backwards
+only for Ninja and Werewolf. PR #21 now mirrors their existing
+Sprite2D when moving RIGHT, not LEFT; it updates idle/run/hurt,
+both players, live keyboard turns, and Garden round reset.
+No PNG or Piskel source artwork has been rewritten.
+
+The Nov 21 Art Drive newly contains Ninja_fire (four frames),
+Ninja_injured (four), Ninja_dead (one), and separated Hose
+Piskel. Their ownership and unresolved animation use are in
+gameplay/integration/two_map_playtest/DRIVE_ART_DESIGN_RECHECK_2026-11-21.md.
+A new Ninja flame pose is not permission to replace the
+Design-approved shuriken projectile with a fireball.

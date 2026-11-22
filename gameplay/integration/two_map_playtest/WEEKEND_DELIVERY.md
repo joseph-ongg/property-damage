@@ -179,3 +179,28 @@ No invented Ninja special skill or speculative Werewolf attack.
 Actual 2-human playtesting is NOT the same as an automated Mac
 graphics-window key simulation. The manual two-player checklist
 and remaining Design approval questions are recorded separately.
+
+## Nov 21 PM/Design follow-up: facing and painted Garden upper gate
+
+See DRIVE_ART_DESIGN_RECHECK_2026-11-21.md for linked current Design
+and exact Art Team Drive asset list. Original Ninja and Wolf source
+pixels face left, so both characters now mirror ONLY when they face
+world-right; Wizard preserves its original right-native convention.
+Physical P1/P2 keys in the real Mac game window and the two-map
+character-art tests demonstrate correct idle/run/turn direction.
+
+The source-Piskel upper Garden rose arch, previously damage Area-only,
+now also has precise solid world collision (one polygon). The two
+lower thorn-vine sections intentionally remain 5HP contact-only
+Areas; making all three solid initially blocked Garden physical
+projectiles and broke rounds, so the broader change was rejected.
+217/217 sampled colored upper-gate points registered solid and
+0/883 transparent sky points registered phantom solids. The actual
+player body sweep stopped against the painted roof. This top
+solid geometry is a user-observed gameplay fix requiring eventual
+Design approval (the document only specifies rose contact 5HP).
+
+The screenshot QA is in the 2026-11-21-gate-facing-qa evidence
+folder, alongside all 73 headless program pass results.
+No Art source was redrawn, no new match or Werewolf rule invented,
+and no two-human playtest or final Art signoff is claimed.

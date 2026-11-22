@@ -110,7 +110,7 @@ func _ready() -> void:
 	fall_damage.hard_landing.connect(_on_hard_landing)
 	fall_damage.reset(self)
 	set_character_kind(character_kind)
-	sprite.flip_h = facing < 0
+	_sync_sprite_facing()
 	_apply_art_size()
 	$NameTag.text = "P%d" % player_index
 	$NameTag.add_theme_color_override("font_color", tint)
@@ -187,7 +187,7 @@ func _physics_process(delta: float) -> void:
 			next_facing = -1
 	if next_facing != facing:
 		facing = next_facing
-		sprite.flip_h = facing < 0
+		_sync_sprite_facing()
 		queue_redraw()
 	var jump := Input.is_action_just_pressed(prefix + "jump")
 	# 只有站在单向平台上按住下+跳才下穿，实体地板不会失效。
@@ -290,6 +290,18 @@ func _update_health_label() -> void:
 	queue_redraw()
 
 
+## Art source direction is NOT the same for all characters:
+##   Ninja_side / Ninja_walk and Wolf_walk / Wolf_damage original Art
+##   faces LEFT at flip_h=false. Wizard's original frames face RIGHT.
+## Mirror the artwork, not the character's actual input/movement/attack.
+## Verify with source Piskel frame pixels and real window direction QA.
+func _sync_sprite_facing() -> void:
+	if sprite == null:
+		return
+	var art_faces_left := character_kind == "ninja" or character_kind == "werewolf"
+	sprite.flip_h = (facing > 0) if art_faces_left else (facing < 0)
+
+
 func _update_character_sprite(moving: bool) -> void:
 	# An Inspector override always takes priority over the PPT-derived frames.
 	# When standing use the Character design static; when walking animate the
@@ -311,7 +323,7 @@ func _update_character_sprite(moving: bool) -> void:
 		_apply_art_size()
 	# Art Team idle/run/hurt sprites must flip consistently with facing,
 	# including the frames loaded while already moving in a new direction.
-	sprite.flip_h = facing < 0
+	_sync_sprite_facing()
 	# The Art Team's original PNG has asymmetric transparent margins. Center
 	# the visible robe while facing either direction; do not crop source art.
 	sprite.position.x = float(facing) * 4.0 if sprite_override == null and character_kind == "mage" else 0.0

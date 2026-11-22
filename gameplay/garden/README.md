@@ -217,3 +217,24 @@ best-of-three scoreboard or a modification of her PR.
 The shared Ninja visual uses a **temporary, code-drawn** shuriken in
 both Garden and Living Room; the same `GameplayMagicBolt` file automatically
 merges with Austin's new projectile hit method. Final art is pending.
+
+
+## Nov 21 Garden rose-gate roof collision (PR #21)
+
+The Garden upper rose arch had an exact 5HP thorn Area2D but
+NO solid physical top. A CharacterBody2D could pass straight
+through the visible original-Piskel upper gate. PR #21 adds
+a world-layer CollisionPolygon2D taken from the SAME Piskel
+rose palette and opaque outline used by the existing damage
+Area, without filling transparent sky or the doorway with a
+fake rectangular wall. The live player sweep and layer-1 ray
+hit the visible upper arch.
+
+Lower rose vines deliberately stay damage-only Areas per
+the Design 5HP contact rule. Making them solid also blocked
+actual Garden PvP and broke the multiround handoff, so that
+first broader change was rejected in QA. The original Art
+PNG is unchanged. The Design document does not explicitly
+settle solid vs one-way behavior; PM/Design should approve
+the roof physics separately. Full real Mac screenshots in
+gameplay/tests/evidence/2026-11-21-gate-facing-qa/.
