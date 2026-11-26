@@ -25,6 +25,7 @@ var _support: CollisionObject2D = null
 var _support_last_position: Vector2 = Vector2.ZERO
 var _watch_resting: bool = false
 var _rest_slide_speed: float = 0.0
+var _initial_support_pending: bool = false
 
 var scorched: bool = false
 var flash_left: float = 0.0
@@ -39,12 +40,30 @@ func _ready() -> void:
 			tags.append("throwable")
 	super._ready()
 	destroyed.connect(_on_destroyed)
+	_initial_support_pending = true
+	call_deferred("_initialize_initial_support")
 
 
 func _on_destroyed(_source_player: int) -> void:
 	carried_by = null
 	flying = false
 	flight_velocity = Vector2.ZERO
+	_initial_support_pending = false
+	_reset_resting()
+
+
+func _initialize_initial_support() -> void:
+	if not is_inside_tree() or destroyed_item or carried_by != null or flying:
+		_initial_support_pending = false
+		return
+	if _watch_resting:
+		_initial_support_pending = false
+		return
+	var contact := _bottom_support()
+	if contact.is_empty():
+		return
+	_settle(contact.collider as CollisionObject2D, 0.0)
+	_initial_support_pending = false
 
 
 func can_pick_up(player: GameplayPlayer) -> bool:
@@ -56,6 +75,7 @@ func pick_up(player: GameplayPlayer) -> bool:
 		return false
 	carried_by = player
 	flying = false
+	_initial_support_pending = false
 	_reset_resting()
 	flight_velocity = Vector2.ZERO
 	global_position = player.global_position + Vector2(player.facing * 22, -22)
@@ -67,6 +87,7 @@ func throw_from(player: GameplayPlayer) -> bool:
 	if carried_by != player or destroyed_item:
 		return false
 	carried_by = null
+	_initial_support_pending = false
 	_reset_resting()
 	global_position = player.global_position + Vector2(player.facing * 27, -22)
 	flight_velocity = Vector2(float(player.facing) * throw_speed + player.velocity.x * 0.35, throw_lift)
@@ -79,11 +100,14 @@ func throw_from(player: GameplayPlayer) -> bool:
 
 func _physics_process(delta: float) -> void:
 	if carried_by != null:
+		_initial_support_pending = false
 		global_position = carried_by.global_position + Vector2(carried_by.facing * 22, -22)
 	elif flying:
 		_step_flight(delta)
 	elif _watch_resting:
 		_step_resting(delta)
+	elif _initial_support_pending:
+		_initialize_initial_support()
 
 
 func _reset_resting() -> void:
@@ -97,6 +121,7 @@ func _settle(support: CollisionObject2D, momentum: float) -> void:
 	_support = support
 	_support_last_position = support.global_position if is_instance_valid(support) else Vector2.ZERO
 	_watch_resting = true
+	_initial_support_pending = false
 	# Retain a little horizontal throw momentum, then quickly dissipate it.
 	# This allows a marginally supported book to slide over an edge naturally.
 	_rest_slide_speed = clampf(momentum * 0.35, -125.0, 125.0)
@@ -111,7 +136,7 @@ func _bottom_support() -> Dictionary:
 	var nearest: Dictionary = {}
 	for offset in [-half_width * 0.55, 0.0, half_width * 0.55]:
 		var foot := global_position + Vector2(offset, 13)
-		var hit := _world_ray(foot + Vector2.UP * 3.0, foot + Vector2.DOWN * 3.0, false)
+		var hit := _world_ray(foot + Vector2.UP * 10.0, foot + Vector2.DOWN * 10.0, false)
 		if not hit.is_empty() and hit.normal.y < -0.5:
 			if nearest.is_empty() or hit.position.y < nearest.position.y:
 				nearest = hit
@@ -123,6 +148,13 @@ func _step_resting(delta: float) -> void:
 	# another solid collider. This also handles an elevator reaching a roof.
 	var moved := Vector2.ZERO
 	if is_instance_valid(_support):
+		if _support.is_queued_for_deletion() or _support.collision_layer == 0:
+			_support = null
+			_support_last_position = Vector2.ZERO
+			flight_velocity = Vector2(_rest_slide_speed, 0.0)
+			_reset_resting()
+			flying = true
+			return
 		moved = _support.global_position - _support_last_position
 		_support_last_position = _support.global_position
 	else:
