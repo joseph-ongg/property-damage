@@ -362,6 +362,8 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
+	if ash_visual_transferred:
+		return
 	var half := width * 0.5
 	draw_ellipse_shadow(half)
 	if burned_to_ash:

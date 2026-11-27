@@ -248,7 +248,7 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	if gone:
+	if gone or ash_visual_transferred:
 		return
 	var gold := Color("e8ba79") if switched_on else Color("8f8985")
 	match device:

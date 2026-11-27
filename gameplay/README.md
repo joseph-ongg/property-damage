@@ -72,6 +72,7 @@ Run an individual test from the repository root using Godot 4.7.2 Standard:
 | `gameplay_simulation_contract_test.gd` | Integration behavior against main's scaffold or the installed Ethan grid |
 | `gameplay_grid_scene_handoff_test.gd` | Active MSD scene wiring, material seeding, Spark, and grid replacement smoke test |
 | `gameplay_furniture_fire_test.gd` | Hidden bookshelf/table fuel, direct and fireball ignition, and simulation spread |
+| `gameplay_ash_remnant_test.gd` | Fire-only item ash transfer, falling/support loss, no extra rewards, and arena cleanup |
 | `gameplay_advanced_test.gd` | Double jumps, air momentum, book pickup, and appliances |
 | `gameplay_full_flow_test.gd` | Combined two-player movement, double jumps, Spark, drops, interactions, simultaneous magic, and long play |
 | `gameplay_keyboard_chords_test.gd` | Physical Shift+W, concurrent keyboard controls, and F/Enter Spark |

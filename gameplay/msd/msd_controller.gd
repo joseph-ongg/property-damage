@@ -2,6 +2,8 @@
 ## This remains a test harness without a score or win loop.
 extends Node2D
 
+const ASH_REMNANT_SCRIPT: GDScript = preload("res://gameplay/msd/ash_remnant.gd")
+
 @onready var status_text: Label = $HUD/SparkStatus
 
 var sparks_p1: int = 0
@@ -33,6 +35,7 @@ func _ready() -> void:
 	for item: GameplayInteractableItem in get_tree().get_nodes_in_group("interactable_items"):
 		if is_ancestor_of(item):
 			item.destroyed.connect(_on_item_destroyed)
+			item.destroyed.connect(_on_item_ash_destroyed.bind(item))
 	_seed_item_fuel()
 	$MaterialGrid/FurnitureFireLayer.object_destroyed.connect(_on_object_destroyed)
 
@@ -70,6 +73,30 @@ func _seed_item_fuel() -> void:
 func _on_item_destroyed(player_index: int) -> void:
 	if player_index in [1, 2]:
 		(get_node("Player%d" % player_index) as GameplayPlayer).reward_destruction()
+
+
+func _on_item_ash_destroyed(_source_player: int, item: GameplayInteractableItem) -> void:
+	if not is_instance_valid(item) or not item.destroyed_item or not item.burned_to_ash \
+		or item.ash_visual_transferred or item.get_parent() == null:
+		return
+	var remnant: Node2D = ASH_REMNANT_SCRIPT.new()
+	add_child(remnant)
+	remnant.z_as_relative = false
+	remnant.z_index = _canvas_z_index(item)
+	remnant.call("initialize_from_item", item)
+	item.transfer_burned_ash_visual()
+
+
+func _canvas_z_index(item: CanvasItem) -> int:
+	var result := item.z_index
+	var child := item
+	while child.z_as_relative:
+		var parent := child.get_parent() as CanvasItem
+		if parent == null:
+			break
+		result += parent.z_index
+		child = parent
+	return result
 
 
 func _physics_process(_delta: float) -> void:
