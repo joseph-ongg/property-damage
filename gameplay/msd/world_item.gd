@@ -195,6 +195,8 @@ func _draw_missing_art_marker() -> void:
 
 
 func _draw() -> void:
+	if ash_visual_transferred:
+		return
 	if kind == Kind.FOOD and not removed_from_fridge and not (get_node("../../Appliances/FridgeDevice") as GameplayAppliance).switched_on:
 		return
 	if burned_to_ash:

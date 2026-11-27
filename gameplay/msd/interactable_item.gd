@@ -20,6 +20,7 @@ var hp: float = 0.0
 var burning: bool = false
 var destroyed_item: bool = false
 var burned_to_ash: bool = false
+var ash_visual_transferred: bool = false
 var _burn_age: float = 0.0
 var _burn_damage_age: float = 0.0
 var _fire_contact_latched: bool = false
@@ -39,6 +40,14 @@ func has_tag(tag: String) -> bool:
 
 func hit_rect() -> Rect2:
 	return Rect2(global_position + hit_offset - hit_size * 0.5, hit_size)
+
+
+func transfer_burned_ash_visual() -> bool:
+	if not destroyed_item or not burned_to_ash or ash_visual_transferred:
+		return false
+	ash_visual_transferred = true
+	queue_redraw()
+	return true
 
 
 func take_damage(amount: float, source_player: int = -1) -> bool:
